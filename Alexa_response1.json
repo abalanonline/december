@@ -1,0 +1,43 @@
+{
+	"body": {
+		"version": "1.0",
+		"response": {
+			"directives": [
+				{
+					"type": "Alexa.Presentation.APLA.RenderDocument",
+					"token": "AlexaConversationsWelcome",
+					"document": {
+						"type": "APLA",
+						"version": "0.8",
+						"mainTemplate": {
+							"parameters": [
+								"payload"
+							],
+							"item": {
+								"type": "Selector",
+								"strategy": "randomItem",
+								"items": [
+									{
+										"type": "Speech",
+										"contentType": "text",
+										"content": "Welcome to the Weather Bot, I can give you the weather report today in another city. Just say \"what's the weather\" to start."
+									}
+								]
+							}
+						}
+					},
+					"datasources": {}
+				}
+			],
+			"reprompt": {
+				"outputSpeech": {
+					"type": "SSML",
+					"ssml": "<speak>Welcome to the Weather Bot, I can give you the weather report today in another city. Just say \"what's the weather\" to start.</speak>"
+				}
+			},
+			"shouldEndSession": false,
+			"type": "_DEFAULT_RESPONSE"
+		},
+		"sessionAttributes": {}
+	}
+}

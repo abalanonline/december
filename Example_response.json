@@ -1,0 +1,17 @@
+{
+  "version": "1.2.3 - locale fix",
+  "response": {
+    "outputSpeech": {
+      "type": "PlainText",
+      "text": "Welcome to custom Search. What are you searching for?"
+    },
+    "shouldEndSession": false,
+    "reprompt": {
+      "outputSpeech": {
+        "type": "PlainText",
+        "text": "Welcome to custom Search. What are you searching for?"
+      }
+    }
+  },
+  "sessionAttributes": {}
+}
