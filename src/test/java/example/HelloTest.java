@@ -23,12 +23,12 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-class HelloTest {
+public class HelloTest {
 
   @Test
-  void handleRequest() {
-    Map crudeResult = new Hello().handleRequest(new HashMap(), null);
-    Map<String, Map<String, Map<String, String>>> result = crudeResult;
+  @SuppressWarnings("unchecked")
+  public void handleRequest() {
+    Map<String, Map<String, Map<String, String>>> result = (Map) new Hello().handleRequest(new HashMap(), null);
     assertTrue(result.get("response").get("outputSpeech").get("text").contains("Montreal"));
   }
 }
