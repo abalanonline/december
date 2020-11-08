@@ -22,27 +22,32 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Hello implements RequestHandler<Map, Map> {
+
+  public static final String INTENT_NAME = "repeat";
+  public static final String SLOT_NAME = "value";
+
   @Override
   public Map<String, Object> handleRequest(Map event, Context context)
   {
-    String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
-        .format(DateTimeFormatter.ofPattern("h:mm"));
-    String text = "In Montreal, it's " + timeInMontreal + ".";
-    Map<String, String> outputSpeech = new LinkedHashMap<>();
-    outputSpeech.put("type", "PlainText");
-    outputSpeech.put("text", text);
-
-    Map<String, Object> reprompt = new LinkedHashMap<>();
-    reprompt.put("outputSpeech", outputSpeech);
-
-    Map<String, Object> response = new LinkedHashMap<>();
-    response.put("outputSpeech", outputSpeech);
-    response.put("reprompt", reprompt);
-    response.put("shouldEndSession", Boolean.FALSE);
+    Map<String, Object> response;
+    switch (((Map<String, Map<String, String>>) event).get("request").get("type")) {
+      case "LaunchRequest":
+        response = responseElicitSlot("What time is it");
+        break;
+      case "IntentRequest":
+        response = responseElicitSlot(((Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>) event)
+            .get("request").get("intent").get("slots").get(SLOT_NAME).get("value"));
+        break;
+      default:
+        String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
+            .format(DateTimeFormatter.ofPattern("h:mm"));
+        response = responseDefault("In Montreal, it's " + timeInMontreal + ".");
+    }
 
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("version", "1.0");
@@ -50,4 +55,52 @@ public class Hello implements RequestHandler<Map, Map> {
 
     return body;
   }
+
+  public Map<String, Object> responseElicitSlot(String value)
+  {
+    Map<String, String> outputSpeech = new LinkedHashMap<>();
+    outputSpeech.put("type", "PlainText");
+    outputSpeech.put("text", value + "?");
+
+    Map<String, Object> response = new LinkedHashMap<>();
+    response.put("outputSpeech", outputSpeech);
+    response.put("shouldEndSession", Boolean.FALSE);
+
+    // directives
+
+    Map<String, String> slot = new LinkedHashMap<>();
+    slot.put("name", SLOT_NAME);
+    slot.put("confirmationStatus", "NONE");
+
+    Map<String, Object> slots = new LinkedHashMap<>();
+    slots.put(SLOT_NAME, slot);
+
+    Map<String, Object> updatedIntent = new LinkedHashMap<>();
+    updatedIntent.put("name", INTENT_NAME);
+    updatedIntent.put("confirmationStatus", "NONE");
+    updatedIntent.put("slots", slots);
+
+    Map<String, Object> directive = new LinkedHashMap<>();
+    directive.put("type", "Dialog.ElicitSlot");
+    directive.put("slotToElicit", SLOT_NAME);
+    directive.put("updatedIntent", updatedIntent);
+
+    response.put("directives", Collections.singletonList(directive));
+
+    return response;
+  }
+
+  public Map<String, Object> responseDefault(String value)
+  {
+    Map<String, String> outputSpeech = new LinkedHashMap<>();
+    outputSpeech.put("type", "PlainText");
+    outputSpeech.put("text", value); // I can speak
+
+    Map<String, Object> response = new LinkedHashMap<>();
+    response.put("outputSpeech", outputSpeech);
+    response.put("shouldEndSession", Boolean.TRUE);
+
+    return response;
+  }
+
 }

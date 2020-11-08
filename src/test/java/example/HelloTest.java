@@ -18,7 +18,7 @@ package example;
 
 import org.junit.Test;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -28,7 +28,8 @@ public class HelloTest {
   @Test
   @SuppressWarnings("unchecked")
   public void handleRequest() {
-    Map<String, Map<String, Map<String, String>>> result = (Map) new Hello().handleRequest(new HashMap(), null);
+    Map<String, Object> event = Collections.singletonMap("request", Collections.singletonMap("type", "UnknownRequest"));
+    Map<String, Map<String, Map<String, String>>> result = (Map) new Hello().handleRequest(event, null);
     assertTrue(result.get("response").get("outputSpeech").get("text").contains("Montreal"));
   }
 }
