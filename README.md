@@ -14,8 +14,7 @@
 ### v0.1 "december repeat"
 testing speech recognition, Amazon lambda echo response, speech synthesis with Alexa default voice.
 
-!(https://img.youtube.com/vi/mIq34kkp_8I/0.jpg)
-[video](https://www.youtube.com/watch?v=mIq34kkp_8I)
+[![v0.1](https://img.youtube.com/vi/mIq34kkp_8I/0.jpg)](https://youtu.be/mIq34kkp_8I)
 
 ### Roadmap
 * v0.1 - echo skill with aws lambda
