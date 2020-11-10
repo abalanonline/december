@@ -22,8 +22,10 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Hello implements RequestHandler<Map, Map> {
@@ -31,13 +33,16 @@ public class Hello implements RequestHandler<Map, Map> {
   public static final String INTENT_NAME = "repeat";
   public static final String SLOT_NAME = "value";
 
+  private AudioPlayer ap = new AudioPlayer();
+
   @Override
   public Map<String, Object> handleRequest(Map event, Context context)
   {
     Map<String, Object> response;
     switch (((Map<String, Map<String, String>>) event).get("request").get("type")) {
       case "LaunchRequest":
-        response = responseElicitSlot("What time is it");
+        //response = responseElicitSlot("What time is it");
+        response = responseAudio();
         break;
       case "IntentRequest":
         response = responseElicitSlot(((Map<String, Map<String, Map<String, Map<String, Map<String, String>>>>>) event)
@@ -54,6 +59,13 @@ public class Hello implements RequestHandler<Map, Map> {
     body.put("response", response);
 
     return body;
+  }
+
+  public Map<String, Object> responseAudio()
+  {
+    Map<String, List> response = (Map) responseDefault("sound");
+    response.get("directives").add(ap.playDirective());
+    return (Map) response;
   }
 
   public Map<String, Object> responseElicitSlot(String value)
@@ -98,6 +110,7 @@ public class Hello implements RequestHandler<Map, Map> {
 
     Map<String, Object> response = new LinkedHashMap<>();
     response.put("outputSpeech", outputSpeech);
+    response.put("directives", new ArrayList<>());
     response.put("shouldEndSession", Boolean.TRUE);
 
     return response;
