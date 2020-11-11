@@ -40,7 +40,7 @@ public class ApplicationTest {
   @Ignore
   public void voiceMap() {
     Map<String, Voice> voiceMap = new Application().voiceMap("", "");
-    voiceMap.get("James").mp3File("hello", "target/hello.mp3");
+    voiceMap.entrySet().iterator().next().getValue().mp3File("hello", "target/hello.mp3");
   }
 
 }

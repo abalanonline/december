@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package example;
+package ab.alexa;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;

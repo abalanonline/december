@@ -17,17 +17,36 @@
 package ab.tts;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.polly.PollyClient;
 import software.amazon.awssdk.services.polly.model.OutputFormat;
 import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
 import software.amazon.awssdk.services.polly.model.VoiceId;
 
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 public class Polly extends Voice {
   private final PollyClient pollyClient;
   private final VoiceId voiceId;
+
+  public static Map<String, Voice> voices() {
+    try {
+      Map<String, Voice> voiceMap = new LinkedHashMap<>();
+      PollyClient pollyClient = PollyClient.builder().build();
+      voiceMap.put("Joey", new Polly(pollyClient, VoiceId.JOEY));
+      voiceMap.put("Matthew", new Polly(pollyClient, VoiceId.MATTHEW));
+      voiceMap.entrySet().iterator().next().getValue().mp3Stream("a").close();
+      return voiceMap;
+    } catch (Exception e) {
+      log.warn("Failed to initialize Polly voices", e);
+      return Collections.emptyMap();
+    }
+  }
 
   @Override
   public InputStream mp3Stream(String text) {

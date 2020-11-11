@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package example;
+package ab.alexa;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;

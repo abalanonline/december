@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package ab;
+package ab.alexa;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import example.Hello;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
