@@ -19,11 +19,17 @@ package ab.alexa;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Map;
-
 @Getter
 @Setter
 public class RequestBody {
   private String type;
   private Intent intent;
+  private RequestBody.Error error;
+
+  @Getter
+  @Setter
+  public static class Error {
+    private String type;
+    private String message;
+  }
 }

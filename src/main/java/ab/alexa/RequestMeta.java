@@ -45,4 +45,8 @@ public class RequestMeta {
     return request.getIntent().getSlots().entrySet().iterator().next().getValue().getValue();
   }
 
+  public String getError() {
+    return request.getError().getType() + ": " + request.getError().getMessage();
+  }
+
 }
