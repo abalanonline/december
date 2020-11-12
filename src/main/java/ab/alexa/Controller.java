@@ -25,24 +25,64 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.Map;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @RestController
 public class Controller {
 
+  public static final String INTENT_NAME = "repeat";
+  public static final String SLOT_NAME = "value";
+
   @Autowired
   ObjectMapper objectMapper;
 
-  Hello hello = new Hello();
+  //Hello hello = new Hello();
+
+  public ResponseMeta dialogPlain(String text) {
+    ResponseMeta responseMeta = new ResponseMeta(text);
+    responseMeta.getResponse().setShouldEndSession(false);
+    responseMeta.getResponse().getDirectives().add(new DirectiveDialogElicitSlot(INTENT_NAME, SLOT_NAME));
+    return responseMeta;
+  }
+
+  public ResponseMeta process(RequestMeta requestMeta) {
+    ResponseMeta responseMeta;
+    switch (requestMeta.getRequestType()) {
+
+      case "LaunchRequest":
+        return dialogPlain("What time is it?");
+
+      case "IntentRequest":
+        switch (requestMeta.getIntentName()) {
+          case INTENT_NAME: return dialogPlain(requestMeta.getAnyIntentValue() + "?");
+          // And stop repeating everything I say and turning it into a question.
+          case "AMAZON.StopIntent": return new ResponseMeta("Goodbye");
+        }
+
+      default:
+        String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
+            .format(DateTimeFormatter.ofPattern("h:mm"));
+        responseMeta = new ResponseMeta("In Montreal, it's " + timeInMontreal + ".");
+    }
+    return responseMeta;
+  }
 
   @PostMapping("/alexa")
-  public String alexa(@RequestBody String request) throws IOException {
-    log.info(request);
-    Map<String, Object> responseMap = hello.handleRequest(objectMapper.readValue(request, Map.class), null);
-    String response = objectMapper.writeValueAsString(responseMap);
-    log.info(response);
-    return response;
+  public String alexa(@RequestBody String requestString) throws IOException {
+    log.info(requestString);
+    RequestMeta requestMeta = objectMapper.readValue(requestString, RequestMeta.class);
+    ResponseMeta responseMeta = process(requestMeta);
+    String responseString = objectMapper.writeValueAsString(responseMeta);
+
+    // FIXME: 2020-11-11
+    //Map<String, Object> testEvent = Collections.singletonMap("request", Collections.singletonMap("type", "LaunchRequest"));
+    //responseString = objectMapper.writeValueAsString(hello.handleRequest(testEvent, null));
+
+    log.info(responseString);
+    return responseString;
   }
 
   @GetMapping("/alexa")
