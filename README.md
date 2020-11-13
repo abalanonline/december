@@ -12,9 +12,16 @@
 * Hardware devices connected by Alexa Skills API
 
 ### v0.1 "december repeat"
-testing speech recognition, Amazon lambda echo response, speech synthesis with Alexa default voice.
+Testing speech recognition, Amazon lambda echo response, speech synthesis with Alexa default voice.
 
 [![v0.1](https://img.youtube.com/vi/mIq34kkp_8I/0.jpg)](https://youtu.be/mIq34kkp_8I)
+
+### Alexa skill configuration
+
+Intent | Slot | Utterance | Type
+------ | ---- | --------- | ----
+repeat | value | december {value} | AMAZON.SearchQuery
+voice | number | voice {number} | AMAZON.NUMBER
 
 ### Roadmap
 * v0.1 - echo skill with aws lambda

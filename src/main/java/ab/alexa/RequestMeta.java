@@ -25,13 +25,9 @@ import java.util.Map;
 @Setter
 public class RequestMeta {
   private String version;
-  private Map<String, Object> session;
+  private Map<String, Object> session; // FIXME: 2020-11-12 undefined object
   private Map<String, Object> context;
   private RequestBody request;
-
-  private String test1;
-  private Map<String, Object> test2;
-  private Map<String, String> test3;
 
   public String getRequestType() {
     return request.getType();

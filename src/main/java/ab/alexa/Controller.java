@@ -16,35 +16,58 @@
 
 package ab.alexa;
 
+import ab.tts.Voice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @RestController
 public class Controller {
 
+  @Value("${fileLocal:target}")
+  private String fileLocal;
+
+  @Value("${fileUrl:http://localhost}")
+  private String fileUrl;
+
   public static final String INTENT_NAME = "repeat";
   public static final String SLOT_NAME = "value";
 
   @Autowired
-  ObjectMapper objectMapper;
+  private ObjectMapper objectMapper;
 
-  //Hello hello = new Hello();
+  @Autowired
+  private Map<String, Voice> voiceMap;
 
   public ResponseMeta dialogPlain(String text) {
     ResponseMeta responseMeta = new ResponseMeta(text);
     responseMeta.getResponse().setShouldEndSession(false);
     responseMeta.getResponse().getDirectives().add(new DirectiveDialogElicitSlot(INTENT_NAME, SLOT_NAME));
+    return responseMeta;
+  }
+
+  private static int currentVoice = 1;
+  public ResponseMeta sayAudio(String text) {
+    Map.Entry<String, Voice> voice = (Map.Entry<String, Voice>) voiceMap.entrySet().toArray()[currentVoice - 1];
+    String fileName = "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + "-" + UUID.randomUUID() + ".mp3";
+    voice.getValue().mp3File(text, fileLocal + fileName);
+    ResponseMeta responseMeta = new ResponseMeta();
+    responseMeta.getResponse().getDirectives().add(new DirectiveAudioPlayerPlay(fileUrl + fileName));
     return responseMeta;
   }
 
@@ -56,7 +79,7 @@ public class Controller {
   }
 
   public ResponseMeta process(RequestMeta requestMeta) {
-    ResponseMeta responseMeta;
+
     switch (requestMeta.getRequestType()) {
 
       case "LaunchRequest":
@@ -82,33 +105,49 @@ public class Controller {
       case "System.ExceptionEncountered":
         log.error(requestMeta.getError());
         return new ResponseMeta();
-
-      default:
-        log.info(staticRequestString);
-        String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
-            .format(DateTimeFormatter.ofPattern("h:mm"));
-        responseMeta = new ResponseMeta("In Montreal, it's " + timeInMontreal + ".");
     }
-    return responseMeta;
+
+    // default, all other types
+    //log.info(staticRequestString);
+    String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
+        .format(DateTimeFormatter.ofPattern("h:mm"));
+    return new ResponseMeta("In Montreal, it's " + timeInMontreal + ".");
+
+  }
+
+  public ResponseMeta thenews(RequestMeta requestMeta) {
+    switch (requestMeta.getRequestType()) {
+      case "LaunchRequest":
+        return sayAudio("In Montreal, everything is fine.");
+      case "System.ExceptionEncountered":
+        log.error(requestMeta.getError());
+    }
+    return new ResponseMeta();
   }
 
   static String staticRequestString = "";
 
-  @PostMapping("/alexa")
-  public String alexa(@RequestBody String requestString) throws IOException {
-    //log.info(requestString);
+  @PostMapping("/alexa/{skill}")
+  public String alexa(@RequestBody String requestString, @PathVariable("skill") String skill) throws IOException {
     staticRequestString = requestString;
     RequestMeta requestMeta = objectMapper.readValue(requestString, RequestMeta.class);
-    ResponseMeta responseMeta = process(requestMeta);
-    String responseString = objectMapper.writeValueAsString(responseMeta);
+    log.info(skill + ": " + requestMeta.getRequestType());
+    ResponseMeta responseMeta;
+    switch (skill) {
+      case "thenews": responseMeta = thenews(requestMeta); break;
+      default: responseMeta = process(requestMeta);
+    }
 
-    log.info(responseString);
+    String responseString = objectMapper.writeValueAsString(responseMeta);
+    if (responseMeta.getResponse().getOutputSpeech() != null || responseMeta.getResponse().getDirectives().size() > 0) {
+      log.info(responseString);
+    }
     return responseString;
   }
 
-  @GetMapping("/alexa")
-  public String test() {
-    return "alexa";
+  @GetMapping("/alexa/{skill}")
+  public String test(@PathVariable("skill") String skill) {
+    return "alexa " + skill;
   }
 
 }

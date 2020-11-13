@@ -36,7 +36,7 @@ public class Application {
   public Map<String, Voice> voiceMap(@Value("${ibm.apiKey:}") String ibmApiKey, @Value("${ibm.tts.url:}") String ibmTtsUrl) {
     Map<String, Voice> voiceMap = new LinkedHashMap<>();
     voiceMap.putAll(Polly.voices());
-    voiceMap.putAll(Watson.voices(ibmApiKey, ibmTtsUrl));
+    //voiceMap.putAll(Watson.voices(ibmApiKey, ibmTtsUrl));
     return voiceMap;
   }
 

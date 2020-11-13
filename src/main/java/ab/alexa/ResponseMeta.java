@@ -29,10 +29,6 @@ public class ResponseMeta {
   private String version = "1.0";
   private ResponseBody response = new ResponseBody();
 
-  private String test1;
-  private Map<String, Object> test2;
-  private Map<String, String> test3;
-
   public ResponseMeta(String text) {
     this.response = new ResponseBody(text);
   }
