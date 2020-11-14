@@ -12,9 +12,12 @@
 * Hardware devices connected by Alexa Skills API
 
 ### v0.1 "december repeat"
-Testing speech recognition, Amazon lambda echo response, speech synthesis with Alexa default voice.
+Testing speech recognition, Amazon lambda echo response, speech synthesis with Alexa default voice. ([video](https://youtu.be/mIq34kkp_8I))
 
-[![v0.1](https://img.youtube.com/vi/mIq34kkp_8I/0.jpg)](https://youtu.be/mIq34kkp_8I)
+### v0.2 "select voice"
+Testing text-to-speech voices of Kimberly and Matthew (Amazon Polly) and James (IBM Watson) ([video](https://youtu.be/NnLe39vKsyU))
+
+![v0.2](https://img.youtube.com/vi/NnLe39vKsyU/0.jpg)
 
 ### Alexa skill configuration
 
@@ -26,3 +29,4 @@ voice | number | voice {number} | AMAZON.NUMBER
 ### Roadmap
 * v0.1 - echo skill with aws lambda
 * v0.2 - external speech synthesis
+* v0.3 - weather radio (AWOS/NOAA/CMB style)
