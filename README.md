@@ -17,7 +17,7 @@ Testing speech recognition, Amazon lambda echo response, speech synthesis with A
 ### v0.2 "select voice"
 Testing text-to-speech voices of Kimberly and Matthew (Amazon Polly) and James (IBM Watson) ([video](https://youtu.be/NnLe39vKsyU))
 
-![v0.2](https://img.youtube.com/vi/NnLe39vKsyU/0.jpg)
+![v0.2](https://img.youtube.com/vi/NnLe39vKsyU/mqdefault.jpg)
 
 ### Alexa skill configuration
 
