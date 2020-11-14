@@ -34,6 +34,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @RestController
@@ -45,8 +46,8 @@ public class Controller {
   @Value("${fileUrl:http://localhost}")
   private String fileUrl;
 
-  public static final String INTENT_NAME = "repeat";
-  public static final String SLOT_NAME = "value";
+  public static final String INTENT_NAME = "intent";
+  public static final String SLOT_NAME = "slot";
 
   @Autowired
   private ObjectMapper objectMapper;
@@ -55,7 +56,8 @@ public class Controller {
   private Map<String, Voice> voiceMap;
 
   public ResponseMeta dialogPlain(String text) {
-    ResponseMeta responseMeta = new ResponseMeta(text);
+    ResponseMeta responseMeta = text != null && !text.isEmpty() ? new ResponseMeta(text) :
+        new ResponseMeta(); // which make no sense, it will be rejected by api
     responseMeta.getResponse().setShouldEndSession(false);
     responseMeta.getResponse().getDirectives().add(new DirectiveDialogElicitSlot(INTENT_NAME, SLOT_NAME));
     return responseMeta;
@@ -78,70 +80,84 @@ public class Controller {
     return responseMeta;
   }
 
-  public ResponseMeta process(RequestMeta requestMeta) {
-
+  public ResponseMeta justlisten(RequestMeta requestMeta) {
     switch (requestMeta.getRequestType()) {
-
       case "LaunchRequest":
-        log.info("s: LaunchRequest");
-        return dialogPlain("What time is it?");
-        //return dialogAudio("What time is it?");
-
+        return dialogPlain("I'm listening");
       case "IntentRequest":
-        switch (requestMeta.getIntentName()) {
-          case INTENT_NAME:
-            String input = requestMeta.getAnyIntentValue();
-            log.info("i: " + input);
-            return dialogPlain(input + "?");
-          // And stop repeating everything I say and turning it into a question.
-          case "AMAZON.StopIntent": return new ResponseMeta("Goodbye");
-        }
-
-      case "AudioPlayer.PlaybackStarted":
-      case "AudioPlayer.PlaybackNearlyFinished":
-      case "AudioPlayer.PlaybackFinished":
-        return new ResponseMeta();
-
-      case "System.ExceptionEncountered":
-        log.error(requestMeta.getError());
-        return new ResponseMeta();
+        String input = requestMeta.getAnyIntentValue();
+        log.info("i: " + input);
+        return dialogPlain("mmm");
     }
-
-    // default, all other types
-    //log.info(staticRequestString);
-    String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
-        .format(DateTimeFormatter.ofPattern("h:mm"));
-    return new ResponseMeta("In Montreal, it's " + timeInMontreal + ".");
-
+    return null;
   }
 
   public ResponseMeta thenews(RequestMeta requestMeta) {
+    if ("LaunchRequest".equals(requestMeta.getRequestType())) {
+      String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
+          .format(DateTimeFormatter.ofPattern("h:mm"));
+      return sayAudio("In Montreal, it's " + timeInMontreal + ". And everything is fine.");
+    }
+    return null;
+  }
+
+  private static final String[] RANDOM_GREETINGS = {
+      "Hi, it's %s",
+      "Hi, it's %s speaking",
+      "Hi, I'm %s",
+      "Hi, my name is %s",
+      "Hi, %s here",
+      "Hello, it's %s",
+      "Hello, it's %s speaking",
+      "Hello, I'm %s",
+      "Hello, my name is %s",
+      "Hello, %s here",
+      "My name is %s",
+      "My name is %s, nice to meet you",
+      "This is %s"};
+  public static String randomGreeting(String name) {
+    return String.format(RANDOM_GREETINGS[ThreadLocalRandom.current().nextInt(RANDOM_GREETINGS.length)], name);
+  }
+
+  public ResponseMeta selectvoice(RequestMeta requestMeta) {
     switch (requestMeta.getRequestType()) {
       case "LaunchRequest":
-        return sayAudio("In Montreal, everything is fine.");
-      case "System.ExceptionEncountered":
-        log.error(requestMeta.getError());
+        log.info("i: select voice");
+        return dialogPlain("mmm");
+      case "IntentRequest":
+        String input = requestMeta.getAnyIntentValue();
+        log.info("i: " + input);
+        currentVoice = Integer.parseInt(input);
+        return sayAudio(randomGreeting(((Map.Entry<String, Voice>) voiceMap.entrySet().toArray()[currentVoice - 1]).getKey()));
+    }
+    return null;
+  }
+
+  public ResponseMeta genericResponse(RequestMeta requestMeta) {
+    if ("System.ExceptionEncountered".equals(requestMeta.getRequestType())) {
+      log.error(requestMeta.getError());
     }
     return new ResponseMeta();
   }
 
-  static String staticRequestString = "";
-
   @PostMapping("/alexa/{skill}")
   public String alexa(@RequestBody String requestString, @PathVariable("skill") String skill) throws IOException {
-    staticRequestString = requestString;
     RequestMeta requestMeta = objectMapper.readValue(requestString, RequestMeta.class);
-    log.info(skill + ": " + requestMeta.getRequestType());
-    ResponseMeta responseMeta;
+    log.debug("i: " + skill + " - " + requestMeta.getRequestType() + ": " + requestString);
+    ResponseMeta responseMeta = null;
     switch (skill) {
       case "thenews": responseMeta = thenews(requestMeta); break;
-      default: responseMeta = process(requestMeta);
+      case "justlisten": responseMeta = justlisten(requestMeta); break;
+      case "selectvoice": responseMeta = selectvoice(requestMeta); break;
+    }
+    if (responseMeta == null) {
+      responseMeta = genericResponse(requestMeta);
     }
 
     String responseString = objectMapper.writeValueAsString(responseMeta);
-    if (responseMeta.getResponse().getOutputSpeech() != null || responseMeta.getResponse().getDirectives().size() > 0) {
-      log.info(responseString);
-    }
+    log.debug("o: " +
+        (responseMeta.getResponse().getOutputSpeech() != null || responseMeta.getResponse().getDirectives().size() > 0 ?
+        responseString : "empty response"));
     return responseString;
   }
 

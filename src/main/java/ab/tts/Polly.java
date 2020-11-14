@@ -39,6 +39,8 @@ public class Polly extends Voice {
       Map<String, Voice> voiceMap = new LinkedHashMap<>();
       PollyClient pollyClient = PollyClient.builder().build();
       voiceMap.put("Joey", new Polly(pollyClient, VoiceId.JOEY));
+      voiceMap.put("Kimberly", new Polly(pollyClient, VoiceId.KIMBERLY));
+      voiceMap.put("Salli", new Polly(pollyClient, VoiceId.SALLI));
       voiceMap.put("Matthew", new Polly(pollyClient, VoiceId.MATTHEW));
       voiceMap.entrySet().iterator().next().getValue().mp3Stream("a").close();
       return voiceMap;
