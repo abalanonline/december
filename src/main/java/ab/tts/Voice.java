@@ -19,16 +19,20 @@ package ab.tts;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public abstract class Voice {
 
+  public static final boolean ENABLE_NEURAL = false;
+
   public abstract InputStream mp3Stream(String text);
 
   public void mp3File(String text, String filename) {
     try {
+      Files.write(Paths.get(filename + ".txt"), text.getBytes(StandardCharsets.UTF_8));
       Files.copy(mp3Stream(text), Paths.get(filename), StandardCopyOption.REPLACE_EXISTING);
     } catch (IOException e) {
       throw new UncheckedIOException(e);

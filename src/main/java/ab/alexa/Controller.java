@@ -28,6 +28,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -94,6 +98,13 @@ public class Controller {
 
   public ResponseMeta thenews(RequestMeta requestMeta) {
     if ("LaunchRequest".equals(requestMeta.getRequestType())) {
+      if (Files.exists(Paths.get("news.txt"))) {
+        try {
+          return sayAudio(new String(Files.readAllBytes(Paths.get("news.txt")), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      }
       String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
           .format(DateTimeFormatter.ofPattern("h:mm"));
       return sayAudio("In Montreal, it's " + timeInMontreal + ". And everything is fine.");
