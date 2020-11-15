@@ -16,6 +16,7 @@
 
 package ab;
 
+import ab.tts.Linux;
 import ab.tts.Polly;
 import ab.tts.Voice;
 import ab.tts.Watson;
@@ -35,6 +36,7 @@ public class Application {
   @Bean
   public Map<String, Voice> voiceMap(@Value("${ibm.apiKey:}") String ibmApiKey, @Value("${ibm.tts.url:}") String ibmTtsUrl) {
     Map<String, Voice> voiceMap = new LinkedHashMap<>();
+    voiceMap.putAll(Linux.voices());
     voiceMap.putAll(Polly.voices());
     //voiceMap.putAll(Watson.voices(ibmApiKey, ibmTtsUrl));
     return voiceMap;
