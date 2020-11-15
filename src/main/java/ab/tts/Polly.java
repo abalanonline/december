@@ -16,6 +16,7 @@
 
 package ab.tts;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.polly.PollyClient;
@@ -24,30 +25,26 @@ import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
 import software.amazon.awssdk.services.polly.model.VoiceId;
 
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
 public class Polly extends Voice {
+
+  @Getter private final String name;
+
   private final PollyClient pollyClient;
   private final VoiceId voiceId;
 
-  public static Map<String, Voice> voices() {
-    try {
-      Map<String, Voice> voiceMap = new LinkedHashMap<>();
-      PollyClient pollyClient = PollyClient.builder().build();
-      voiceMap.put("Joey", new Polly(pollyClient, VoiceId.JOEY));
-      voiceMap.put("Kimberly", new Polly(pollyClient, VoiceId.KIMBERLY));
-      voiceMap.put("Salli", new Polly(pollyClient, VoiceId.SALLI));
-      voiceMap.put("Matthew", new Polly(pollyClient, VoiceId.MATTHEW));
-      voiceMap.entrySet().iterator().next().getValue().mp3Stream("a").close();
-      return voiceMap;
-    } catch (Exception e) {
-      log.warn("Failed to initialize Polly voices", e);
-      return Collections.emptyMap();
-    }
+  public static Set<Voice> voices() {
+    Set<Voice> voiceSet = new LinkedHashSet<>();
+    PollyClient pollyClient = PollyClient.builder().build();
+    voiceSet.add(new Polly("Joey", pollyClient, VoiceId.JOEY));
+    voiceSet.add(new Polly("Kimberly", pollyClient, VoiceId.KIMBERLY));
+    voiceSet.add(new Polly("Salli", pollyClient, VoiceId.SALLI));
+    voiceSet.add(new Polly("Matthew", pollyClient, VoiceId.MATTHEW));
+    return voiceSet;
   }
 
   @Override

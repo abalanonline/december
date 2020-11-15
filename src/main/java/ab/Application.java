@@ -28,6 +28,8 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @SpringBootApplication
@@ -36,9 +38,10 @@ public class Application {
   @Bean
   public Map<String, Voice> voiceMap(@Value("${ibm.apiKey:}") String ibmApiKey, @Value("${ibm.tts.url:}") String ibmTtsUrl) {
     Map<String, Voice> voiceMap = new LinkedHashMap<>();
-    voiceMap.putAll(Linux.voices());
-    voiceMap.putAll(Polly.voices());
-    //voiceMap.putAll(Watson.voices(ibmApiKey, ibmTtsUrl));
+    //Set<Voice> voices = Linux.voices();
+    Set<Voice> voices = Polly.voices();
+    //Set<Voice> voices = Watson.voices(ibmApiKey, ibmTtsUrl);
+    voiceMap.putAll(voices.stream().collect(Collectors.toMap(Voice::getName, v -> v)));
     return voiceMap;
   }
 

@@ -28,6 +28,8 @@ public abstract class Voice {
 
   public static final boolean ENABLE_NEURAL = false;
 
+  public abstract String getName();
+
   public abstract InputStream mp3Stream(String text);
 
   public void mp3File(String text, String filename) {

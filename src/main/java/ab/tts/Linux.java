@@ -16,6 +16,7 @@
 
 package ab.tts;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,9 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -45,17 +45,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class Linux extends Voice {
 
+  @Getter private final String name;
+
   private final String commandLineFormat;
 
-  public static Map<String, Voice> voices() {
-    try {
-      Map<String, Voice> voiceMap = new LinkedHashMap<>();
-      voiceMap.put("Linux", new Linux("texttospeech %1$s %2$s"));
-      return voiceMap;
-    } catch (Exception e) {
-      log.warn("Failed to initialize Linux voices", e);
-      return Collections.emptyMap();
-    }
+  public static Set<Voice> voices() {
+    Set<Voice> voiceSet = new LinkedHashSet<>();
+    voiceSet.add(new Linux("Linux", "texttospeech %1$s %2$s"));
+    return voiceSet;
   }
 
   @Override
