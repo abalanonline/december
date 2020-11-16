@@ -18,6 +18,7 @@ package ab;
 
 import ab.tts.Linux;
 import ab.tts.Polly;
+import ab.tts.Provider;
 import ab.tts.Voice;
 import ab.tts.Watson;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,9 +38,10 @@ public class Application {
   @Bean
   public Map<String, Voice> voiceMap(@Value("${ibm.apiKey:}") String ibmApiKey, @Value("${ibm.tts.url:}") String ibmTtsUrl) {
     Map<String, Voice> voiceMap = new LinkedHashMap<>();
-    voiceMap.putAll(Linux.voices());
-    voiceMap.putAll(Polly.voices());
-    //voiceMap.putAll(Watson.voices(ibmApiKey, ibmTtsUrl));
+    for (Provider provider : Arrays.asList(new Linux(), new Polly(), new Watson(ibmApiKey, ibmTtsUrl))) {
+      provider.filter().forEach(v -> voiceMap.put(v.getId(), v));
+    }
+    voiceMap.keySet().forEach(log::info);
     return voiceMap;
   }
 

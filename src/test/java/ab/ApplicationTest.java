@@ -17,27 +17,13 @@
 package ab;
 
 import ab.tts.Voice;
-import com.ibm.cloud.sdk.core.security.Authenticator;
-import com.ibm.cloud.sdk.core.security.IamAuthenticator;
-import com.ibm.watson.text_to_speech.v1.TextToSpeech;
-import com.ibm.watson.text_to_speech.v1.model.SynthesizeOptions;
-import com.ibm.watson.text_to_speech.v1.model.Voices;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 public class ApplicationTest {
 
   @Test
-  @Ignore
   public void voiceMap() {
     Map<String, Voice> voiceMap = new Application().voiceMap("", "");
     voiceMap.entrySet().iterator().next().getValue().mp3File("hello", "target/hello.mp3");

@@ -16,66 +16,33 @@
 
 package ab.tts;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-/**
- * Command line text to speech for on-premise engines.
- *
- * Default command line is "texttospeech file.mp3.txt file.mp3" where file.mp3.txt is the source text
- * and file.mp3 is the output mp3 file to be created.
- * It is called linux because of the standard system used in on-premise machines. But it can also execute windows
- * texttospeech.exe or texttospeech.bat files if they are in the path.
- */
 @Slf4j
-@RequiredArgsConstructor
-public class Linux extends Voice {
+public class Linux extends Provider {
 
-  private final String commandLineFormat;
-
-  public static Map<String, Voice> voices() {
-    try {
-      Map<String, Voice> voiceMap = new LinkedHashMap<>();
-      voiceMap.put("Linux", new Linux("texttospeech %1$s %2$s"));
-      return voiceMap;
-    } catch (Exception e) {
-      log.warn("Failed to initialize Linux voices", e);
-      return Collections.emptyMap();
-    }
-  }
+  @Getter private final Consumer<String> service = this::exec;
 
   @Override
-  public InputStream mp3Stream(String text) {
-    try {
-      Path tempFile = Files.createTempFile(null, ".mp3");
-      mp3File(text, tempFile.toString());
-      return Files.newInputStream(tempFile);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+  public Set<Voice> filter() {
+    Set<Voice> set = new LinkedHashSet<>();
+    set.add(new LinuxVoice("Linux", this, "texttospeech %1$s %2$s"));
+    return set;
   }
 
-  @Override
-  public void mp3File(String text, String filename) {
+  public void exec(String commandLine) {
     try {
-      String textFileName = filename + ".txt";
-      String commandLine = String.format(commandLineFormat, textFileName, filename);
       log.debug(commandLine);
-      Files.write(Paths.get(textFileName), text.getBytes(StandardCharsets.UTF_8));
       Process process = Runtime.getRuntime().exec(System.getProperty("os.name").startsWith("Windows") ?
           new String[]{"cmd", "/C", commandLine} : new String[]{"bash", "-c", commandLine});
       String error = new BufferedReader(new InputStreamReader(process.getErrorStream())).lines().collect(Collectors.joining("\n"));
@@ -86,4 +53,5 @@ public class Linux extends Voice {
       throw new UncheckedIOException(e);
     }
   }
+
 }

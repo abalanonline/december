@@ -19,40 +19,32 @@ package ab.tts;
 import com.ibm.cloud.sdk.core.security.IamAuthenticator;
 import com.ibm.watson.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.text_to_speech.v1.model.SynthesizeOptions;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-@Slf4j
 @RequiredArgsConstructor
-public class Watson extends Voice {
-  private final TextToSpeech textToSpeech;
-  private final String voice;
+public class Watson extends Provider {
 
-  public static Map<String, Voice> voices(String ibmApiKey, String ibmTtsUrl) {
-    try {
-      Map<String, Voice> voiceMap = new LinkedHashMap<>();
-      TextToSpeech textToSpeech = new TextToSpeech(new IamAuthenticator(ibmApiKey));
-      textToSpeech.setServiceUrl(ibmTtsUrl);
-      voiceMap.put("Michael", new Watson(textToSpeech, SynthesizeOptions.Voice.EN_US_MICHAELVOICE));
-      voiceMap.put("James", new Watson(textToSpeech, SynthesizeOptions.Voice.EN_GB_JAMESV3VOICE));
-      voiceMap.entrySet().iterator().next().getValue().mp3Stream("a").close();
-      return voiceMap;
-    } catch (Exception e) {
-      log.warn("Failed to initialize Watson voices", e);
-      return Collections.emptyMap();
-    }
-  }
+  private final String ibmApiKey;
+  private final String ibmTtsUrl;
+
+  @Getter(lazy=true) private final TextToSpeech service = lazyBuildService();
 
   @Override
-  public InputStream mp3Stream(String text) {
-    SynthesizeOptions synthesizeOptions = new SynthesizeOptions.Builder()
-        .text(text).voice(voice).accept("audio/mp3").build();
-    return textToSpeech.synthesize(synthesizeOptions).execute().getResult();
+  public Set<Voice> filter() {
+    Set<Voice> set = new LinkedHashSet<>();
+    set.add(new WatsonVoice("Michael", this, SynthesizeOptions.Voice.EN_US_MICHAELVOICE));
+    set.add(new WatsonVoice("James", this, SynthesizeOptions.Voice.EN_GB_JAMESV3VOICE));
+    return set;
+  }
+
+  private TextToSpeech lazyBuildService() {
+    TextToSpeech textToSpeech = new TextToSpeech(new IamAuthenticator(ibmApiKey));
+    textToSpeech.setServiceUrl(ibmTtsUrl);
+    return textToSpeech;
   }
 
 }

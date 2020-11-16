@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package ab.alexa;
+package ab.tts;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Set;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class ResponseMeta {
-  private String version = "1.0";
-  private ResponseBody response = new ResponseBody();
+public abstract class Provider {
 
-  public ResponseMeta(String text) {
-    this.response = new ResponseBody(text);
-  }
+  /**
+   * Provider must provide the service that is connected, authorized, initialized, whatever and ready to use.
+   * Implementation may vary, but cached service with lazy initialization is preferable.
+   * @return the service in generic class
+   */
+  public abstract Object getService();
+
+  public abstract Set<Voice> filter(); // FIXME: 2020-11-15 poor name
 
 }

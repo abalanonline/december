@@ -17,28 +17,29 @@
 package ab.tts;
 
 import lombok.Getter;
-import software.amazon.awssdk.services.polly.PollyClient;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.services.polly.model.OutputFormat;
+import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
 import software.amazon.awssdk.services.polly.model.VoiceId;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.io.InputStream;
 
-public class Polly extends Provider {
+@Slf4j
+@RequiredArgsConstructor
+public class PollyVoice extends Voice {
 
-  @Getter(lazy=true) private final PollyClient service = lazyBuildService();
+  @Getter private final String id;
+
+  private final Polly provider;
+
+  private final VoiceId voiceId;
 
   @Override
-  public Set<Voice> filter() {
-    Set<Voice> set = new LinkedHashSet<>();
-    set.add(new PollyVoice("Joey", this, VoiceId.JOEY));
-    set.add(new PollyVoice("Kimberly", this, VoiceId.KIMBERLY));
-    set.add(new PollyVoice("Salli", this, VoiceId.SALLI));
-    set.add(new PollyVoice("Matthew", this, VoiceId.MATTHEW));
-    return set;
-  }
-
-  private PollyClient lazyBuildService() {
-    return PollyClient.builder().build();
+  public InputStream mp3Stream(String text) {
+    SynthesizeSpeechRequest request = SynthesizeSpeechRequest.builder()
+        .text(text).voiceId(voiceId).outputFormat(OutputFormat.MP3).build();
+    return provider.getService().synthesizeSpeech(request);
   }
 
 }

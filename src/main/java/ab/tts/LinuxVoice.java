@@ -16,6 +16,10 @@
 
 package ab.tts;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -23,15 +27,30 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
-public abstract class Voice {
+@Slf4j
+@RequiredArgsConstructor
+public class LinuxVoice extends Voice {
 
-  public abstract String getId();
+  @Getter private final String id;
 
-  public abstract InputStream mp3Stream(String text);
+  private final Linux provider;
 
+  private final String commandLineFormat;
+
+  @Override
+  public InputStream mp3Stream(String text) {
+    try {
+      Path tempFile = Files.createTempFile(null, ".mp3");
+      mp3File(text, tempFile.toString());
+      return Files.newInputStream(tempFile);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  @Override
   public String mp3File(String text, String recommendedFileName) {
     if (!recommendedFileName.endsWith(".mp3")) {
       throw new IllegalArgumentException("Wrong file extension: " + recommendedFileName);
@@ -40,8 +59,11 @@ public abstract class Voice {
     Path filePath = Paths.get(fileName);
     if (!Files.exists(filePath)) {
       try {
-        Files.write(Paths.get(fileName + ".txt"), text.getBytes(StandardCharsets.UTF_8));
-        Files.copy(mp3Stream(text), filePath, StandardCopyOption.REPLACE_EXISTING);
+        String textFileName = fileName + ".txt";
+        Files.write(Paths.get(textFileName), text.getBytes(StandardCharsets.UTF_8));
+
+        String commandLine = String.format(commandLineFormat, textFileName, fileName);
+        provider.getService().accept(commandLine);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }

@@ -37,7 +37,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -67,13 +66,12 @@ public class Controller {
     return responseMeta;
   }
 
-  private static int currentVoice = 1;
+  private static String currentVoice = "";
   public ResponseMeta sayAudio(String text) {
-    Map.Entry<String, Voice> voice = (Map.Entry<String, Voice>) voiceMap.entrySet().toArray()[currentVoice - 1];
-    String fileName = "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + "-" + UUID.randomUUID() + ".mp3";
-    voice.getValue().mp3File(text, fileLocal + fileName);
+    String fileName = voiceMap.get(currentVoice)
+        .mp3File(text, fileLocal + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3");
     ResponseMeta responseMeta = new ResponseMeta();
-    responseMeta.getResponse().getDirectives().add(new DirectiveAudioPlayerPlay(fileUrl + fileName));
+    responseMeta.getResponse().getDirectives().add(new DirectiveAudioPlayerPlay(fileUrl + "/" + fileName.substring(fileName.lastIndexOf('/'))));
     return responseMeta;
   }
 
@@ -138,8 +136,8 @@ public class Controller {
       case "IntentRequest":
         String input = requestMeta.getAnyIntentValue();
         log.info("i: " + input);
-        currentVoice = Integer.parseInt(input);
-        return sayAudio(randomGreeting(((Map.Entry<String, Voice>) voiceMap.entrySet().toArray()[currentVoice - 1]).getKey()));
+        currentVoice = (String) voiceMap.keySet().toArray()[Integer.parseInt(input)];
+        return sayAudio(randomGreeting(currentVoice));
     }
     return null;
   }
