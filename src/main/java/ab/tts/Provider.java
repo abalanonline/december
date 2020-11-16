@@ -27,6 +27,6 @@ public abstract class Provider {
    */
   public abstract Object getService();
 
-  public abstract Set<Voice> filter(); // FIXME: 2020-11-15 poor name
+  public abstract Set<Voice> filter(boolean useNeural); // FIXME: 2020-11-15 poor name
 
 }

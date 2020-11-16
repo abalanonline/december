@@ -41,6 +41,18 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
+  <!--dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>libraries-bom</artifactId>
+        <version>15.0.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement-->
+
   <dependencies>
 
     <dependency>
@@ -70,6 +82,11 @@
       <groupId>com.ibm.watson</groupId>
       <artifactId>text-to-speech</artifactId>
       <version>9.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-texttospeech</artifactId>
+      <version>1.2.3</version>
     </dependency>
 
     <!-- lombok -->

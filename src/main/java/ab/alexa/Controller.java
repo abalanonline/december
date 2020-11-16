@@ -66,7 +66,8 @@ public class Controller {
     return responseMeta;
   }
 
-  private static String currentVoice = "";
+  private static String currentVoice = "Linux"; // FIXME: 2020-11-16 read from configuration file
+
   public ResponseMeta sayAudio(String text) {
     String fileName = voiceMap.get(currentVoice)
         .mp3File(text, fileLocal + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3");

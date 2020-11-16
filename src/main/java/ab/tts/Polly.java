@@ -28,7 +28,7 @@ public class Polly extends Provider {
   @Getter(lazy=true) private final PollyClient service = lazyBuildService();
 
   @Override
-  public Set<Voice> filter() {
+  public Set<Voice> filter(boolean useNeural) {
     Set<Voice> set = new LinkedHashSet<>();
     set.add(new PollyVoice("Joey", this, VoiceId.JOEY));
     set.add(new PollyVoice("Kimberly", this, VoiceId.KIMBERLY));

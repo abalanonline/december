@@ -16,35 +16,31 @@
 
 package ab.tts;
 
-import com.ibm.cloud.sdk.core.security.IamAuthenticator;
-import com.ibm.watson.text_to_speech.v1.TextToSpeech;
-import com.ibm.watson.text_to_speech.v1.model.SynthesizeOptions;
+import com.google.cloud.texttospeech.v1.TextToSpeechClient;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@RequiredArgsConstructor
-public class Watson extends Provider {
+public class Gcloud extends Provider {
 
-  private final String ibmApiKey;
-  private final String ibmTtsUrl;
-
-  @Getter(lazy=true) private final TextToSpeech service = lazyBuildService();
+  @Getter(lazy=true) private final TextToSpeechClient service = lazyBuildService();
 
   @Override
   public Set<Voice> filter(boolean useNeural) {
     Set<Voice> set = new LinkedHashSet<>();
-    set.add(new WatsonVoice("Michael", this, SynthesizeOptions.Voice.EN_US_MICHAELVOICE));
-    set.add(new WatsonVoice("James", this, SynthesizeOptions.Voice.EN_GB_JAMESV3VOICE));
+    set.add(new GcloudVoice("G", this));
     return set;
   }
 
-  private TextToSpeech lazyBuildService() {
-    TextToSpeech textToSpeech = new TextToSpeech(new IamAuthenticator(ibmApiKey));
-    textToSpeech.setServiceUrl(ibmTtsUrl);
-    return textToSpeech;
+  private TextToSpeechClient lazyBuildService() {
+    try {
+      return TextToSpeechClient.create();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
 }
