@@ -23,6 +23,11 @@ import software.amazon.awssdk.services.polly.model.VoiceId;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Amazon Polly https://aws.amazon.com/polly/
+ * Environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
+ * https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html
+ */
 public class Polly extends Provider {
 
   @Getter(lazy=true) private final PollyClient service = lazyBuildService();

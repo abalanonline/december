@@ -24,6 +24,11 @@ import java.io.UncheckedIOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Google Cloud Text-to-Speech https://cloud.google.com/text-to-speech/
+ * Environment variables: GOOGLE_APPLICATION_CREDENTIALS
+ * https://cloud.google.com/text-to-speech/docs/quickstart-client-libraries
+ */
 public class Gcloud extends Provider {
 
   @Getter(lazy=true) private final TextToSpeechClient service = lazyBuildService();

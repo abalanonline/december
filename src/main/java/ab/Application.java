@@ -37,9 +37,9 @@ import java.util.Map;
 public class Application {
 
   @Bean
-  public Map<String, Voice> voiceMap(@Value("${ibm.apiKey:}") String ibmApiKey, @Value("${ibm.tts.url:}") String ibmTtsUrl) {
+  public Map<String, Voice> voiceMap() {
     Map<String, Voice> voiceMap = new LinkedHashMap<>();
-    for (Provider provider : Arrays.asList(new Linux(), new Polly(), new Watson(ibmApiKey, ibmTtsUrl), new Gcloud())) {
+    for (Provider provider : Arrays.asList(new Linux(), new Polly(), new Watson(), new Gcloud())) {
       provider.filter(false).forEach(v -> voiceMap.put(v.getId(), v));
     }
     voiceMap.keySet().forEach(log::info);

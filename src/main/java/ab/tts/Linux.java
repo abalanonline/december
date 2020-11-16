@@ -28,6 +28,10 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * Command line for on-premise linux text-to-speech engine. Works on windows too.
+ * Default is "texttospeech input.txt output.mp3" where texttospeech can be a batch/shell script in path doing anything
+ */
 @Slf4j
 public class Linux extends Provider {
 

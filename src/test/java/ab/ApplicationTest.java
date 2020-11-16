@@ -27,7 +27,7 @@ public class ApplicationTest {
   @Ignore
   @Test
   public void voiceMap() {
-    Map<String, Voice> voiceMap = new Application().voiceMap("", "");
+    Map<String, Voice> voiceMap = new Application().voiceMap();
     voiceMap.entrySet().iterator().next().getValue().mp3File("hello", "target/hello.mp3");
   }
 

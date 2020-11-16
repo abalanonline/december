@@ -25,11 +25,12 @@ import lombok.RequiredArgsConstructor;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@RequiredArgsConstructor
+/**
+ * IBM Watson Text to Speech https://www.ibm.com/cloud/watson-text-to-speech
+ * Environment variables: IBM_API_KEY, IBM_TTS_URL
+ * https://cloud.ibm.com/apidocs/text-to-speech?code=java
+ */
 public class Watson extends Provider {
-
-  private final String ibmApiKey;
-  private final String ibmTtsUrl;
 
   @Getter(lazy=true) private final TextToSpeech service = lazyBuildService();
 
@@ -42,8 +43,8 @@ public class Watson extends Provider {
   }
 
   private TextToSpeech lazyBuildService() {
-    TextToSpeech textToSpeech = new TextToSpeech(new IamAuthenticator(ibmApiKey));
-    textToSpeech.setServiceUrl(ibmTtsUrl);
+    TextToSpeech textToSpeech = new TextToSpeech(new IamAuthenticator(System.getenv("IBM_API_KEY")));
+    textToSpeech.setServiceUrl(System.getenv("IBM_TTS_URL"));
     return textToSpeech;
   }
 
