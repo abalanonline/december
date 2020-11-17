@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.polly.model.OutputFormat;
 import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
-import software.amazon.awssdk.services.polly.model.VoiceId;
 
 import java.io.InputStream;
 
@@ -33,7 +32,7 @@ public class PollyVoice extends Voice {
 
   private final Polly provider;
 
-  private final VoiceId voiceId;
+  private final String voiceId;
 
   @Override
   public InputStream mp3Stream(String text) {
