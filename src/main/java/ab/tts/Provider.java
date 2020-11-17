@@ -16,6 +16,7 @@
 
 package ab.tts;
 
+import java.util.List;
 import java.util.Set;
 
 public abstract class Provider {
@@ -27,6 +28,8 @@ public abstract class Provider {
    */
   public abstract Object getService();
 
-  public abstract Set<Voice> filter(boolean useNeural); // FIXME: 2020-11-15 poor name
+  public abstract Set<Voice> filter(boolean useNeural, String languages); // FIXME: 2020-11-15 poor name
+
+  public abstract List<String> downloadVoices();
 
 }

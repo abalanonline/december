@@ -23,7 +23,6 @@ import ab.tts.Provider;
 import ab.tts.Voice;
 import ab.tts.Watson;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -36,12 +35,13 @@ import java.util.Map;
 @SpringBootApplication
 public class Application {
 
+  public static final Provider[] PROVIDERS = {new Linux(), new Polly(), new Watson(), new Gcloud()};
+
   @Bean
   public Map<String, Voice> voiceMap() {
     Map<String, Voice> voiceMap = new LinkedHashMap<>();
-    for (Provider provider : Arrays.asList(new Linux(), new Polly(), new Watson(), new Gcloud())) {
-      provider.filter(false).forEach(v -> voiceMap.put(v.getId(), v));
-    }
+    Arrays.stream(PROVIDERS)
+        .forEachOrdered(p -> p.filter(false, "en-US,en-GB").forEach(v -> voiceMap.put(v.getId(), v)));
     voiceMap.keySet().forEach(log::info);
     return voiceMap;
   }

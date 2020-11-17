@@ -16,11 +16,16 @@
 
 package ab;
 
+import ab.tts.Provider;
 import ab.tts.Voice;
+import ab.tts.Watson;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ApplicationTest {
 
@@ -29,6 +34,14 @@ public class ApplicationTest {
   public void voiceMap() {
     Map<String, Voice> voiceMap = new Application().voiceMap();
     voiceMap.entrySet().iterator().next().getValue().mp3File("hello", "target/hello.mp3");
+  }
+
+  @Ignore
+  @Test
+  public void downloadVoices() {
+    for (Provider provider : Application.PROVIDERS) {
+      System.out.println(provider.downloadVoices().stream().collect(Collectors.joining("\", \"")));
+    }
   }
 
 }

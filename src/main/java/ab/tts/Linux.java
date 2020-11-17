@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -38,10 +39,15 @@ public class Linux extends Provider {
   @Getter private final Consumer<String> service = this::exec;
 
   @Override
-  public Set<Voice> filter(boolean useNeural) {
+  public Set<Voice> filter(boolean useNeural, String languages) {
     Set<Voice> set = new LinkedHashSet<>();
     set.add(new LinuxVoice("Linux", this, "texttospeech %1$s %2$s"));
     return set;
+  }
+
+  @Override
+  public List<String> downloadVoices() {
+    return null;
   }
 
   public void exec(String commandLine) {

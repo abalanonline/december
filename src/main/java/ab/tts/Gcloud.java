@@ -22,6 +22,7 @@ import lombok.Getter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,10 +35,15 @@ public class Gcloud extends Provider {
   @Getter(lazy=true) private final TextToSpeechClient service = lazyBuildService();
 
   @Override
-  public Set<Voice> filter(boolean useNeural) {
+  public Set<Voice> filter(boolean useNeural, String languages) {
     Set<Voice> set = new LinkedHashSet<>();
     set.add(new GcloudVoice("G", this));
     return set;
+  }
+
+  @Override
+  public List<String> downloadVoices() {
+    return null;
   }
 
   private TextToSpeechClient lazyBuildService() {

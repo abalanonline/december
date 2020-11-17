@@ -21,6 +21,7 @@ import software.amazon.awssdk.services.polly.PollyClient;
 import software.amazon.awssdk.services.polly.model.VoiceId;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,13 +34,18 @@ public class Polly extends Provider {
   @Getter(lazy=true) private final PollyClient service = lazyBuildService();
 
   @Override
-  public Set<Voice> filter(boolean useNeural) {
+  public Set<Voice> filter(boolean useNeural, String languages) {
     Set<Voice> set = new LinkedHashSet<>();
     set.add(new PollyVoice("Joey", this, VoiceId.JOEY));
     set.add(new PollyVoice("Kimberly", this, VoiceId.KIMBERLY));
     set.add(new PollyVoice("Salli", this, VoiceId.SALLI));
     set.add(new PollyVoice("Matthew", this, VoiceId.MATTHEW));
     return set;
+  }
+
+  @Override
+  public List<String> downloadVoices() {
+    return null;
   }
 
   private PollyClient lazyBuildService() {
