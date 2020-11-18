@@ -36,10 +36,15 @@ public class GcloudVoice extends Voice {
 
   private final Gcloud provider;
 
+  private final String voiceId;
+
+  private final String languageCode;
+
   @Override
   public InputStream mp3Stream(String text) {
     VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
-        .setLanguageCode("en-US")
+        .setLanguageCode(languageCode)
+        .setName(voiceId)
         .build();
     SynthesizeSpeechResponse response = provider.getService().synthesizeSpeech(
         SynthesisInput.newBuilder().setText(text).build(), voice,
