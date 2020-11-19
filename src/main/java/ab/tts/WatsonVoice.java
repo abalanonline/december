@@ -31,7 +31,7 @@ public class WatsonVoice extends Voice {
 
   private final Watson provider;
 
-  private final String voiceId;
+  @Getter private final String voiceId;
 
   @Override
   public InputStream mp3Stream(String text) {

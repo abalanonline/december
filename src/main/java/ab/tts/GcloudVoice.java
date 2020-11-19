@@ -36,7 +36,7 @@ public class GcloudVoice extends Voice {
 
   private final Gcloud provider;
 
-  private final String voiceId;
+  @Getter private final String voiceId;
 
   private final String languageCode;
 

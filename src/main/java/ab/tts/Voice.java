@@ -30,6 +30,8 @@ public abstract class Voice {
 
   public abstract String getId();
 
+  public abstract String getVoiceId();
+
   public abstract InputStream mp3Stream(String text);
 
   public String mp3File(String text, String recommendedFileName) {

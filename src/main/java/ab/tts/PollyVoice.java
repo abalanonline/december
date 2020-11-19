@@ -32,7 +32,7 @@ public class PollyVoice extends Voice {
 
   private final Polly provider;
 
-  private final String voiceId;
+  @Getter private final String voiceId;
 
   @Override
   public InputStream mp3Stream(String text) {

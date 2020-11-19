@@ -40,6 +40,11 @@ public class LinuxVoice extends Voice {
   private final String commandLineFormat;
 
   @Override
+  public String getVoiceId() {
+    return commandLineFormat;
+  }
+
+  @Override
   public InputStream mp3Stream(String text) {
     try {
       Path tempFile = Files.createTempFile(null, ".mp3");

@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,6 +58,13 @@ public class Gcloud extends Provider {
       "IW00000000000m00000000000000000000000000000", "IS00000000000m00000000000000000000000000000",
       "JW00000000000m00000000000000000000000000000", "JS00000000000m00000000000000000000000000000"};
 
+  public static final String[] CUSTOM_NAMES = { // Let's give names for A, B, C, D folks
+      ",Alfa,Bravo,Charlie,Delta,Echo,Foxtrot,Golf,Hotel,India,Juliett",
+      "en-US,Austin,Boston,Chicago,Dallas,Elpaso,Fortworth,Greensboro,Houston,Indianapolis,Jacksonville",
+      "fr-CA,Abbotsford,Brandon,Charlottetown,Drummondville,Edmonton,Fredericton,Guelph,Halifax,Iqaluit,Joliette",
+      "fr-FR,Angers,Bordeaux,Caen,Dijon,Evreux,Frejus,Grenoble,Hyeres,Istres,Joué-lès-Tours",
+      "en-GB,Aberdeen,Birmingham,Cardiff,Derby,Edinburgh,Fareham,Glasgow,Hereford,Inverness,Jarrow"};
+
   @Getter(lazy=true) private final TextToSpeechClient service = lazyBuildService();
 
   @Override
@@ -65,13 +74,20 @@ public class Gcloud extends Provider {
     List<String> cachedLanguages = Arrays.asList(CACHE[0].split(","));
     expectedLanguageSet.retainAll(cachedLanguages);
     char expectedEngine = useNeural ? 'W' : 'S';
+    Map<String, String[]> customNamesMap = new LinkedHashMap<>();
+    for (String customName : CUSTOM_NAMES) {
+      String[] strings = customName.split(",");
+      customNamesMap.put(strings[0], strings);
+    }
     Set<Voice> set = new LinkedHashSet<>();
     for (String expectedLanguage : expectedLanguageSet) {
       int languageIndex = cachedLanguages.indexOf(expectedLanguage) + 2;
       for (int i = 1; i < CACHE.length; i++) {
         String s = CACHE[i];
         if ((expectedEngine == s.charAt(1)) && (s.charAt(languageIndex) != '0')) {
-          set.add(new GcloudVoice(s.charAt(0) + "-" + expectedLanguage, this,
+          String[] customNames = customNamesMap.getOrDefault(expectedLanguage, customNamesMap.get(""));
+          String customName = customNames[s.charAt(0) - 'A' + 1];
+          set.add(new GcloudVoice(customName, this,
               expectedLanguage + "-" + (s.charAt(1) == 'W' ? "Wavenet" : "Standard") + "-" + s.charAt(0),
               expectedLanguage));
         }
