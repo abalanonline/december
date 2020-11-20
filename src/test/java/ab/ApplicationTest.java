@@ -35,6 +35,13 @@ public class ApplicationTest {
 
   @Ignore
   @Test
+  public void providerTest() {
+    Voice voice = (Voice) new ab.tts.Azure().filter(false, "en-US").toArray()[0];
+    voice.mp3File("Success is a lousy teacher. It seduces smart people into thinking they can't lose.", "target/azure.mp3");
+  }
+
+  @Ignore
+  @Test
   public void downloadVoices() {
     for (Provider provider : Application.PROVIDERS) {
       System.out.println("\"" + provider.downloadVoices().stream().collect(Collectors.joining("\", \"")) + "\"");
