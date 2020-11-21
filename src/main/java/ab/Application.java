@@ -16,6 +16,7 @@
 
 package ab;
 
+import ab.tts.Azure;
 import ab.tts.Gcloud;
 import ab.tts.Linux;
 import ab.tts.Polly;
@@ -35,7 +36,7 @@ import java.util.Map;
 @SpringBootApplication
 public class Application {
 
-  public static final Provider[] PROVIDERS = {new Linux(), new Polly(), new Watson(), new Gcloud()};
+  public static final Provider[] PROVIDERS = {new Linux(), new Polly(), new Watson(), new Gcloud(), new Azure()};
 
   @Bean
   public Map<String, Voice> voiceMap() {

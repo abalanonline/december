@@ -16,6 +16,7 @@
 
 package ab;
 
+import ab.tts.Azure;
 import ab.tts.Provider;
 import ab.tts.Voice;
 import org.junit.Ignore;
@@ -36,7 +37,7 @@ public class ApplicationTest {
   @Ignore
   @Test
   public void providerTest() {
-    new ab.tts.Azure().downloadVoices();
+    //System.out.println(new Azure().downloadVoices().stream().collect(Collectors.joining("\", \"")));
     Voice voice = (Voice) new ab.tts.Azure().filter(false, "en-US").toArray()[0];
     voice.mp3File("Success is a lousy teacher. It seduces smart people into thinking they can't lose.", "target/azure.mp3");
   }

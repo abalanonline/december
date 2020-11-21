@@ -37,6 +37,8 @@ public class AzureVoice extends Voice { // FIXME: 2020-11-19 Hello I'm a clumsy 
 
   @Getter private final String voiceId;
 
+  private final String languageCode;
+
   @SneakyThrows
   @Override
   public InputStream mp3Stream(String text) {
@@ -47,16 +49,18 @@ public class AzureVoice extends Voice { // FIXME: 2020-11-19 Hello I'm a clumsy 
     headers1.set("Ocp-Apim-Subscription-Key", System.getenv("MICROSOFT_API_KEY"));
     HttpEntity<String> entity1 = new HttpEntity<>("", headers1);
     String accessToken = restTemplate.postForObject(
-        "https://canadacentral.api.cognitive.microsoft.com/sts/v1.0/issueToken", entity1, String.class);
+        "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".api.cognitive.microsoft.com/sts/v1.0/issueToken",
+        entity1, String.class);
 
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", "application/ssml+xml");
     headers.set("X-Microsoft-OutputFormat", "audio-24khz-96kbitrate-mono-mp3");
     headers.set("Authorization", "Bearer " + accessToken);
-    HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"en-US\">" +
-        "<voice name=\"en-US-Guy24kRUS\" xml:gender=\"Male\" xml:lang=\"en-US\">" +
-        text + "</voice></speak>", headers);
-    byte[] response = restTemplate.postForObject("https://" + System.getenv("MICROSOFT_API_LOCATION") + ".tts.speech.microsoft.com/cognitiveservices/v1", entity, byte[].class);
+    HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"" + languageCode + "\">" +
+        "<voice name=\"" + voiceId + "\">" + text + "</voice></speak>", headers); // xml:lang="languageCode"
+    byte[] response = restTemplate.postForObject(
+        "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".tts.speech.microsoft.com/cognitiveservices/v1",
+        entity, byte[].class);
     return new ByteArrayInputStream(response);
   }
 
