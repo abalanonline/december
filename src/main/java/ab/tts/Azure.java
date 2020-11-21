@@ -16,8 +16,17 @@
 
 package ab.tts;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.watson.text_to_speech.v1.TextToSpeech;
 import lombok.Getter;
+import lombok.SneakyThrows;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -39,9 +48,32 @@ public class Azure extends Provider {
     return set;
   }
 
+  @SneakyThrows
   @Override
   public List<String> downloadVoices() {
     List<String> list = new ArrayList<>();
+    RestTemplate restTemplate = new RestTemplate();
+
+    HttpHeaders headers1 = new HttpHeaders();
+    headers1.set("Ocp-Apim-Subscription-Key", System.getenv("MICROSOFT_API_KEY"));
+    HttpEntity<String> entity1 = new HttpEntity<>("", headers1);
+    String accessToken = restTemplate.postForObject(
+        "https://canadacentral.api.cognitive.microsoft.com/sts/v1.0/issueToken", entity1, String.class);
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", "Bearer " + accessToken);
+    ResponseEntity<String> response = restTemplate.exchange(
+        "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".tts.speech.microsoft.com/cognitiveservices/voices/list",
+        HttpMethod.GET, new HttpEntity<>(headers), String.class);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    String s = objectMapper.writeValueAsString(new AzureVoiceDescription());
+
+    List<AzureVoiceDescription> azureList;
+    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+    azureList = objectMapper.readValue(response.getBody(), new TypeReference<List<AzureVoiceDescription>>() { });
+    AzureVoiceDescription[] azureArray = objectMapper.readValue(response.getBody(), AzureVoiceDescription[].class);
+
     return list;
   }
 

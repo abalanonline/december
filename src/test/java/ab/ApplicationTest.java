@@ -36,6 +36,7 @@ public class ApplicationTest {
   @Ignore
   @Test
   public void providerTest() {
+    new ab.tts.Azure().downloadVoices();
     Voice voice = (Voice) new ab.tts.Azure().filter(false, "en-US").toArray()[0];
     voice.mp3File("Success is a lousy teacher. It seduces smart people into thinking they can't lose.", "target/azure.mp3");
   }

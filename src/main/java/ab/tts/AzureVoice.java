@@ -29,7 +29,7 @@ import java.io.InputStream;
 
 @Slf4j
 @RequiredArgsConstructor
-public class AzureVoice extends Voice {
+public class AzureVoice extends Voice { // FIXME: 2020-11-19 Hello I'm a clumsy design, please do something with me
 
   @Getter private final String id;
 
@@ -44,7 +44,7 @@ public class AzureVoice extends Voice {
     RestTemplate restTemplate = new RestTemplate();
 
     HttpHeaders headers1 = new HttpHeaders();
-    headers1.set("Ocp-Apim-Subscription-Key", "ca286adbf6e64da7bcc39393ccf9c6de");
+    headers1.set("Ocp-Apim-Subscription-Key", System.getenv("MICROSOFT_API_KEY"));
     HttpEntity<String> entity1 = new HttpEntity<>("", headers1);
     String accessToken = restTemplate.postForObject(
         "https://canadacentral.api.cognitive.microsoft.com/sts/v1.0/issueToken", entity1, String.class);
@@ -56,7 +56,7 @@ public class AzureVoice extends Voice {
     HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"en-US\">" +
         "<voice name=\"en-US-Guy24kRUS\" xml:gender=\"Male\" xml:lang=\"en-US\">" +
         text + "</voice></speak>", headers);
-    byte[] response = restTemplate.postForObject("https://canadacentral.tts.speech.microsoft.com/cognitiveservices/v1", entity, byte[].class);
+    byte[] response = restTemplate.postForObject("https://" + System.getenv("MICROSOFT_API_LOCATION") + ".tts.speech.microsoft.com/cognitiveservices/v1", entity, byte[].class);
     return new ByteArrayInputStream(response);
   }
 
