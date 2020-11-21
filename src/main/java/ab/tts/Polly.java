@@ -65,7 +65,7 @@ public class Polly extends Provider {
       Set<String> languageSet = Arrays.stream(a[CACHE_LANGUAGE].split("/")).collect(Collectors.toSet());
       languageSet.retainAll(expectedLanguageSet);
       if (!languageSet.isEmpty() && a[CACHE_ENGINE].contains(expectedEngine)) {
-        set.add(new PollyVoice(a[CACHE_VOICE_ID], this, a[CACHE_VOICE_ID]));
+        set.add(new PollyVoice(a[CACHE_VOICE_ID], this, a[CACHE_VOICE_ID], (String) languageSet.toArray()[0]));
       }
     }
     return set;

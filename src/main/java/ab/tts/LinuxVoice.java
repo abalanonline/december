@@ -33,22 +33,25 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LinuxVoice extends Voice {
 
-  @Getter private final String id;
+  @Getter private final String name;
 
-  private final Linux provider;
+  @Getter private final Provider provider;
 
-  private final String commandLineFormat;
+  @Getter private final String systemId;
+
+  @Getter private final String configuration = "";
+
+  @Getter private final String language;
+
+  @Getter private final boolean neural = false;
+
+  @Getter private final Gender gender = Gender.NEUTRAL;
 
   @Override
-  public String getVoiceId() {
-    return commandLineFormat;
-  }
-
-  @Override
-  public InputStream mp3Stream(String text) {
+  public InputStream mp3Stream(Voice voice, String text) {
     try {
       Path tempFile = Files.createTempFile(null, ".mp3");
-      mp3File(text, tempFile.toString());
+      mp3File(voice, text, tempFile.toString());
       return Files.newInputStream(tempFile);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -56,7 +59,7 @@ public class LinuxVoice extends Voice {
   }
 
   @Override
-  public String mp3File(String text, String recommendedFileName) {
+  public String mp3File(Voice voice, String text, String recommendedFileName) {
     if (!recommendedFileName.endsWith(".mp3")) {
       throw new IllegalArgumentException("Wrong file extension: " + recommendedFileName);
     }
@@ -67,8 +70,8 @@ public class LinuxVoice extends Voice {
         String textFileName = fileName + ".txt";
         Files.write(Paths.get(textFileName), text.getBytes(StandardCharsets.UTF_8));
 
-        String commandLine = String.format(commandLineFormat, textFileName, fileName);
-        provider.getService().accept(commandLine);
+        String commandLine = String.format(voice.getSystemId(), textFileName, fileName); // system id is the command line
+        ((Linux) voice.getProvider()).getService().accept(commandLine);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }

@@ -28,17 +28,25 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class PollyVoice extends Voice {
 
-  @Getter private final String id;
+  @Getter private final String name;
 
-  private final Polly provider;
+  @Getter private final Provider provider;
 
-  @Getter private final String voiceId;
+  @Getter private final String systemId;
+
+  @Getter private final String configuration = "";
+
+  @Getter private final String language;
+
+  @Getter private final boolean neural = false;
+
+  @Getter private final Gender gender = Gender.NEUTRAL;
 
   @Override
-  public InputStream mp3Stream(String text) {
+  public InputStream mp3Stream(Voice voice, String text) {
     SynthesizeSpeechRequest request = SynthesizeSpeechRequest.builder()
-        .text(text).voiceId(voiceId).outputFormat(OutputFormat.MP3).build();
-    return provider.getService().synthesizeSpeech(request);
+        .text(text).voiceId(voice.getSystemId()).outputFormat(OutputFormat.MP3).build();
+    return ((Polly) voice.getProvider()).getService().synthesizeSpeech(request);
   }
 
 }

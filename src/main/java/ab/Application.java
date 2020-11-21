@@ -42,7 +42,7 @@ public class Application {
   public Map<String, Voice> voiceMap() {
     Map<String, Voice> voiceMap = new LinkedHashMap<>();
     Arrays.stream(PROVIDERS)
-        .forEachOrdered(p -> p.filter(false, "en-US,en-GB").forEach(v -> voiceMap.put(v.getId(), v)));
+        .forEachOrdered(p -> p.filter(false, "en-US,en-GB").forEach(v -> voiceMap.put(v.getName(), v)));
     voiceMap.keySet().forEach(log::info);
     return voiceMap;
   }

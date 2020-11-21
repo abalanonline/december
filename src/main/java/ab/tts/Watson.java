@@ -66,7 +66,7 @@ public class Watson extends Provider {
       String name = matcher.group("name");
       String version = matcher.group("version");
       if (expectedLanguageSet.contains(language) && ((null == version) != useNeural)) {
-        set.add(new WatsonVoice(name, this, voiceId));
+        set.add(new WatsonVoice(name, this, voiceId, language));
       }
     }
     return set;

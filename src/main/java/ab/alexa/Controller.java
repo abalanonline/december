@@ -70,7 +70,7 @@ public class Controller {
 
   public ResponseMeta sayAudio(String text) {
     String fileName = voiceMap.get(currentVoice)
-        .mp3File(text, fileLocal + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3");
+        .mp3File(null, text, fileLocal + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3");
     ResponseMeta responseMeta = new ResponseMeta();
     responseMeta.getResponse().getDirectives().add(new DirectiveAudioPlayerPlay(fileUrl + "/" + fileName.substring(fileName.lastIndexOf('/'))));
     return responseMeta;

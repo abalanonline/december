@@ -31,17 +31,23 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class AzureVoice extends Voice { // FIXME: 2020-11-19 Hello I'm a clumsy design, please do something with me
 
-  @Getter private final String id;
+  @Getter private final String name;
 
-  private final Azure provider;
+  @Getter private final Provider provider;
 
-  @Getter private final String voiceId;
+  @Getter private final String systemId;
 
-  private final String languageCode;
+  @Getter private final String configuration = "";
+
+  @Getter private final String language;
+
+  @Getter private final boolean neural = false;
+
+  @Getter private final Gender gender = Gender.NEUTRAL;
 
   @SneakyThrows
   @Override
-  public InputStream mp3Stream(String text) {
+  public InputStream mp3Stream(Voice voice, String text) {
 
     RestTemplate restTemplate = new RestTemplate();
 
@@ -56,8 +62,8 @@ public class AzureVoice extends Voice { // FIXME: 2020-11-19 Hello I'm a clumsy 
     headers.set("Content-Type", "application/ssml+xml");
     headers.set("X-Microsoft-OutputFormat", "audio-24khz-96kbitrate-mono-mp3");
     headers.set("Authorization", "Bearer " + accessToken);
-    HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"" + languageCode + "\">" +
-        "<voice name=\"" + voiceId + "\">" + text + "</voice></speak>", headers); // xml:lang="languageCode"
+    HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"" + voice.getLanguage() + "\">" +
+        "<voice name=\"" + voice.getSystemId() + "\">" + text + "</voice></speak>", headers); // xml:lang="languageCode"
     byte[] response = restTemplate.postForObject(
         "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".tts.speech.microsoft.com/cognitiveservices/v1",
         entity, byte[].class);

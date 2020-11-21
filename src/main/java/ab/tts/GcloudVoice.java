@@ -32,22 +32,28 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class GcloudVoice extends Voice {
 
-  @Getter private final String id;
+  @Getter private final String name;
 
-  private final Gcloud provider;
+  @Getter private final Provider provider;
 
-  @Getter private final String voiceId;
+  @Getter private final String systemId;
 
-  private final String languageCode;
+  @Getter private final String configuration = "";
+
+  @Getter private final String language;
+
+  @Getter private final boolean neural = false;
+
+  @Getter private final Gender gender = Gender.NEUTRAL;
 
   @Override
-  public InputStream mp3Stream(String text) {
-    VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
-        .setLanguageCode(languageCode)
-        .setName(voiceId)
+  public InputStream mp3Stream(Voice voice, String text) {
+    VoiceSelectionParams voiceSelectionParams = VoiceSelectionParams.newBuilder()
+        .setLanguageCode(voice.getLanguage())
+        .setName(voice.getSystemId())
         .build();
-    SynthesizeSpeechResponse response = provider.getService().synthesizeSpeech(
-        SynthesisInput.newBuilder().setText(text).build(), voice,
+    SynthesizeSpeechResponse response = ((Gcloud) voice.getProvider()).getService().synthesizeSpeech(
+        SynthesisInput.newBuilder().setText(text).build(), voiceSelectionParams,
         AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.MP3).build());
     return new ByteArrayInputStream(response.getAudioContent().toByteArray());
   }

@@ -28,13 +28,23 @@ import java.util.UUID;
 
 public abstract class Voice {
 
-  public abstract String getId();
+  public abstract String getName();
 
-  public abstract String getVoiceId();
+  public abstract Provider getProvider();
 
-  public abstract InputStream mp3Stream(String text);
+  public abstract String getSystemId();
 
-  public String mp3File(String text, String recommendedFileName) {
+  public abstract String getConfiguration();
+
+  public abstract String getLanguage();
+
+  public abstract boolean isNeural();
+
+  public abstract Gender getGender();
+
+  public abstract InputStream mp3Stream(Voice voice, String text);
+
+  public String mp3File(Voice voice, String text, String recommendedFileName) {
     if (!recommendedFileName.endsWith(".mp3")) {
       throw new IllegalArgumentException("Wrong file extension: " + recommendedFileName);
     }
@@ -43,7 +53,7 @@ public abstract class Voice {
     if (!Files.exists(filePath)) {
       try {
         Files.write(Paths.get(fileName + ".txt"), text.getBytes(StandardCharsets.UTF_8));
-        Files.copy(mp3Stream(text), filePath, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(mp3Stream(voice, text), filePath, StandardCopyOption.REPLACE_EXISTING);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }

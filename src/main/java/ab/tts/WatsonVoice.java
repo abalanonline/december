@@ -27,17 +27,25 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class WatsonVoice extends Voice {
 
-  @Getter private final String id;
+  @Getter private final String name;
 
-  private final Watson provider;
+  @Getter private final Provider provider;
 
-  @Getter private final String voiceId;
+  @Getter private final String systemId;
+
+  @Getter private final String configuration = "";
+
+  @Getter private final String language;
+
+  @Getter private final boolean neural = false;
+
+  @Getter private final Gender gender = Gender.NEUTRAL;
 
   @Override
-  public InputStream mp3Stream(String text) {
+  public InputStream mp3Stream(Voice voice, String text) {
     SynthesizeOptions synthesizeOptions = new SynthesizeOptions.Builder()
-        .text(text).voice(voiceId).accept("audio/mp3").build();
-    return provider.getService().synthesize(synthesizeOptions).execute().getResult();
+        .text(text).voice(voice.getSystemId()).accept("audio/mp3").build();
+    return ((Watson) voice.getProvider()).getService().synthesize(synthesizeOptions).execute().getResult();
   }
 
 }
