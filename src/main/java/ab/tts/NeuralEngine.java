@@ -18,7 +18,7 @@ package ab.tts;
 
 public enum NeuralEngine {
 
-  STANDARD, NEURAL, WAVENET, V3;
+  STANDARD, NEURAL, WAVENET, V3, RICHCONTEXT;
 
   public char toChar() {
     return this == V3 ? '3' : this.toString().toLowerCase().charAt(0);
@@ -30,14 +30,18 @@ public enum NeuralEngine {
       case 'n': return NeuralEngine.NEURAL;
       case 'w': return NeuralEngine.WAVENET;
       case '3': return NeuralEngine.V3;
+      case 'r': return NeuralEngine.RICHCONTEXT;
     }
     throw new IllegalArgumentException("engine: " + e);
   }
 
   public static NeuralEngine fromString(String engine) {
     switch (engine) {
+      case "":
       case "Standard": return NeuralEngine.STANDARD;
       case "Wavenet": return NeuralEngine.WAVENET;
+      case "RUS": return NeuralEngine.RICHCONTEXT;
+      case "Neural": return NeuralEngine.NEURAL;
     }
     throw new IllegalArgumentException("engine: " + engine);
   }

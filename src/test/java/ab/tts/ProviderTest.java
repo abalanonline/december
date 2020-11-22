@@ -27,7 +27,7 @@ public class ProviderTest {
   @Ignore
   public void downloadVoicesTest() {
     StringBuilder stringBuilder = new StringBuilder();
-    new Gcloud().downloadVoices().forEach(s -> {
+    new Azure().downloadVoices().forEach(s -> {
       stringBuilder.append('"').append(s).append("\", ");
     });
     System.out.println(stringBuilder.toString());

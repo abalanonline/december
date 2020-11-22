@@ -30,11 +30,12 @@ import org.springframework.web.client.RestTemplate;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -43,59 +44,45 @@ import java.util.stream.Collectors;
  */
 public class Azure extends Provider {
 
-  public static final String[] CACHE = {
-      "ar-EG-Hoda,f", "ar-EG-SalmaNeural,f", "ar-SA-Naayf,m", "ar-SA-ZariyahNeural,f", "bg-BG-Ivan,m",
-      "bg-BG-KalinaNeural,f", "ca-ES-AlbaNeural,f", "ca-ES-HerenaRUS,f", "cs-CZ-Jakub,m", "cs-CZ-VlastaNeural,f",
-      "da-DK-ChristelNeural,f", "da-DK-HelleRUS,f", "de-AT-IngridNeural,f", "de-AT-Michael,m", "de-CH-Karsten,m",
-      "de-CH-LeniNeural,f", "de-DE-ConradNeural,m", "de-DE-HeddaRUS,f", "de-DE-KatjaNeural,f", "de-DE-Stefan,m",
-      "el-GR-AthinaNeural,f", "el-GR-Stefanos,m", "en-AU-Catherine,f", "en-AU-HayleyRUS,f", "en-AU-NatashaNeural,f",
-      "en-AU-WilliamNeural,m", "en-CA-ClaraNeural,f", "en-CA-HeatherRUS,f", "en-CA-Linda,f", "en-GB-George,m",
-      "en-GB-HazelRUS,f", "en-GB-LibbyNeural,f", "en-GB-MiaNeural,f", "en-GB-RyanNeural,m", "en-GB-Susan,f",
-      "en-IE-EmilyNeural,f", "en-IE-Sean,m", "en-IN-Heera,f", "en-IN-NeerjaNeural,f", "en-IN-PriyaRUS,f",
-      "en-IN-Ravi,m", "en-US-AriaNeural,f", "en-US-AriaRUS,f", "en-US-BenjaminRUS,m", "en-US-GuyNeural,m",
-      "en-US-GuyRUS,m", "en-US-JennyNeural,f", "en-US-ZiraRUS,f", "es-ES-AlvaroNeural,m", "es-ES-ElviraNeural,f",
-      "es-ES-HelenaRUS,f", "es-ES-Laura,f", "es-ES-Pablo,m", "es-MX-DaliaNeural,f", "es-MX-HildaRUS,f",
-      "es-MX-JorgeNeural,m", "es-MX-Raul,m", "fi-FI-HeidiRUS,f", "fi-FI-NooraNeural,f", "fr-CA-Caroline,f",
-      "fr-CA-HarmonieRUS,f", "fr-CA-JeanNeural,m", "fr-CA-SylvieNeural,f", "fr-CH-ArianeNeural,f", "fr-CH-Guillaume,m",
-      "fr-FR-DeniseNeural,f", "fr-FR-HenriNeural,m", "fr-FR-HortenseRUS,f", "fr-FR-Julie,f", "fr-FR-Paul,m",
-      "he-IL-Asaf,m", "he-IL-HilaNeural,m", "hi-IN-Hemant,m", "hi-IN-Kalpana,f", "hi-IN-SwaraNeural,f",
-      "hr-HR-GabrijelaNeural,f", "hr-HR-Matej,m", "hu-HU-NoemiNeural,f", "hu-HU-Szabolcs,m", "id-ID-Andika,m",
-      "id-ID-ArdiNeural,m", "it-IT-Cosimo,m", "it-IT-DiegoNeural,m", "it-IT-ElsaNeural,f", "it-IT-IsabellaNeural,f",
-      "it-IT-LuciaRUS,f", "ja-JP-Ayumi,f", "ja-JP-HarukaRUS,f", "ja-JP-Ichiro,m", "ja-JP-KeitaNeural,m",
-      "ja-JP-NanamiNeural,f", "ko-KR-HeamiRUS,f", "ko-KR-InJoonNeural,m", "ko-KR-SunHiNeural,f", "ms-MY-Rizwan,m",
-      "ms-MY-YasminNeural,f", "nb-NO-HuldaRUS,f", "nb-NO-IselinNeural,f", "nl-NL-ColetteNeural,f", "nl-NL-HannaRUS,f",
-      "pl-PL-PaulinaRUS,f", "pl-PL-ZofiaNeural,f", "pt-BR-AntonioNeural,m", "pt-BR-Daniel,m", "pt-BR-FranciscaNeural,f",
-      "pt-BR-HeloisaRUS,f", "pt-PT-FernandaNeural,f", "pt-PT-HeliaRUS,f", "ro-RO-AlinaNeural,f", "ro-RO-Andrei,m",
-      "ru-RU-DariyaNeural,f", "ru-RU-EkaterinaRUS,f", "ru-RU-Irina,f", "ru-RU-Pavel,m", "sk-SK-Filip,m",
-      "sk-SK-ViktoriaNeural,f", "sl-SI-Lado,m", "sl-SI-PetraNeural,f", "sv-SE-HedvigRUS,f", "sv-SE-HilleviNeural,f",
-      "ta-IN-PallaviNeural,f", "ta-IN-Valluvar,m", "te-IN-Chitra,f", "te-IN-ShrutiNeural,f", "th-TH-AcharaNeural,f",
-      "th-TH-Pattara,m", "th-TH-PremwadeeNeural,f", "tr-TR-EmelNeural,f", "tr-TR-SedaRUS,f", "vi-VN-An,m",
-      "vi-VN-HoaiMyNeural,f", "zh-CN-HuihuiRUS,f", "zh-CN-Kangkang,m", "zh-CN-XiaoxiaoNeural,f",
-      "zh-CN-XiaoyouNeural,f", "zh-CN-Yaoyao,f", "zh-CN-YunyangNeural,m", "zh-CN-YunyeNeural,m", "zh-HK-Danny,m",
-      "zh-HK-HiugaaiNeural,f", "zh-HK-TracyRUS,f", "zh-TW-HanHanRUS,f", "zh-TW-HsiaoYuNeural,f", "zh-TW-Yating,f",
-      "zh-TW-Zhiwei,m"};
+  public static final Pattern ID_PATTERN = Pattern.compile("(?<language>.+)-(?<name>\\w*?)(?<engine>|RUS|Neural)");
+
+  public static final String CACHE =
+      "46sfHoda,46nfSalma,47smNaayf,47nfZariyah,48smIvan,48nfKalina,49nfAlba,49rfHerena,32smJakub,32nfVlasta," +
+      "18nfChristel,18rfHelle,51nfIngrid,51smMichael,52smKarsten,52nfLeni,02nmConrad,02rfHedda,02nfKatja,02smStefan," +
+      "33nfAthina,33smStefanos,12sfCatherine,12rfHayley,12nfNatasha,12nmWilliam,53nfClara,53rfHeather,53sfLinda," +
+      "01smGeorge,01rfHazel,01nfLibby,01nfMia,01nmRyan,01sfSusan,55nfEmily,55smSean,15sfHeera,15nfNeerja,15rfPriya," +
+      "15smRavi,00nfAria,00rfAria,00rmBenjamin,00nmGuy,00rmGuy,00nfJenny,00rfZira,04nmAlvaro,04nfElvira,04rfHelena," +
+      "04sfLaura,04smPablo,25nfDalia,25rfHilda,25nmJorge,25smRaul,34rfHeidi,34nfNoora,16sfCaroline,16rfHarmonie," +
+      "16nmJean,16nfSylvie,57nfAriane,57smGuillaume,03nfDenise,03nmHenri,03rfHortense,03sfJulie,03smPaul,58smAsaf," +
+      "58nmHila,21smHemant,21sfKalpana,21nfSwara,59nfGabrijela,59smMatej,36nfNoemi,36smSzabolcs,22smAndika,22nmArdi," +
+      "05smCosimo,05nmDiego,05nfElsa,05nfIsabella,05rfLucia,06sfAyumi,06rfHaruka,06smIchiro,06nmKeita,06nfNanami," +
+      "10rfHeami,10nmInJoon,10nfSunHi,61smRizwan,61nfYasmin,20rfHulda,20nfIselin,08nfColette,08rfHanna,11rfPaulina," +
+      "11nfZofia,07nmAntonio,07smDaniel,07nfFrancisca,07rfHeloisa,17nfFernanda,17rfHelia,29nfAlina,29smAndrei," +
+      "14nfDariya,14rfEkaterina,14sfIrina,14smPavel,39smFilip,39nfViktoria,62smLado,62nfPetra,26rfHedvig,26nfHillevi," +
+      "40nfPallavi,40smValluvar,41sfChitra,41nfShruti,42nfAchara,42smPattara,42nfPremwadee,19nfEmel,19rfSeda,23smAn," +
+      "23nfHoaiMy,09rfHuihui,09smKangkang,09nfXiaoxiao,09nfXiaoyou,09sfYaoyao,09nmYunyang,09nmYunye,63smDanny," +
+      "63nfHiugaai,63rfTracy,64rfHanHan,64nfHsiaoYu,64sfYating,64smZhiwei";
 
   @Getter(lazy=true) private final Object service = lazyBuildService();
 
+  private Voice voice(String cache) {
+    Language language = Language.fromDoubleChar(cache.substring(0, 2));
+    NeuralEngine engine = NeuralEngine.fromChar(cache.charAt(2));
+    Gender gender = Gender.fromChar(cache.charAt(3));
+    final String engineName;
+    switch (engine) {
+      case STANDARD: engineName = ""; break;
+      case RICHCONTEXT: engineName = "RUS"; break;
+      case NEURAL: engineName = "Neural"; break;
+      default: throw new IllegalArgumentException();
+    }
+    String name = cache.substring(4);
+    return new Voice(name, this, language.toLanguageCode() + '-' + name + engineName, null, language, engine, gender);
+  }
+
   @Override
   public Set<Voice> filter(boolean useNeural, String languages) {
-    Set<String> expectedLanguageSet = Arrays.stream(languages.split(",")).collect(Collectors.toSet());
-    Set<Voice> set = new LinkedHashSet<>();
-    for (String s : CACHE) {
-      s = s.substring(0, s.indexOf(','));
-      String language = s.substring(0, s.lastIndexOf('-'));
-      String name = s.substring(s.lastIndexOf('-') + 1);
-      if (name.endsWith("RUS")) {
-        name = name.substring(0, name.length() - 3);
-      }
-      if (name.endsWith("Neural")) {
-        name = name.substring(0, name.length() - 6);
-      }
-      if ((s.endsWith("Neural") == useNeural) && expectedLanguageSet.contains(language)) {
-        set.add(new Voice(name, this, s, Language.fromLanguageCode(language)));
-      }
-    }
-    return set;
+    return Arrays.stream(CACHE.split(",")).map(this::voice).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   @SneakyThrows
@@ -119,9 +106,19 @@ public class Azure extends Provider {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
     AzureVoiceDescription[] azureArray = objectMapper.readValue(response.getBody(), AzureVoiceDescription[].class);
-    return Arrays.stream(azureArray)
-        .map(description -> description.getShortName() + "," + description.getGender().substring(0, 1).toLowerCase())
-        .collect(Collectors.toList());
+    return Collections.singletonList(Arrays.stream(azureArray).map(v -> {
+      String systemId = v.getShortName();
+      Matcher matcher = ID_PATTERN.matcher(systemId);
+      boolean matches = matcher.matches();
+      assert matches;
+      Language language = Language.fromLanguageCode(matcher.group("language"));
+      String name = matcher.group("name");
+      NeuralEngine engine = NeuralEngine.fromString(matcher.group("engine"));
+      Gender gender = Gender.fromString(v.getGender());
+      String cache = language.toDoubleChar() + engine.toChar() + gender.toChar() + name;
+      assert voice(cache).getSystemId().equals(systemId);
+      return cache;
+    }).collect(Collectors.joining(",")));
   }
 
   private TextToSpeech lazyBuildService() {

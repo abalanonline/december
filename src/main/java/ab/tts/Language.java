@@ -58,6 +58,14 @@ public class Language {
     return new Language(languageCode);
   }
 
+  public String toDoubleChar() {
+    return String.format("%02d", index);
+  }
+
+  public static Language fromDoubleChar(String doubleChar) {
+    return new Language(Integer.parseInt(doubleChar));
+  }
+
   @Override
   public String toString() {
     return toLanguageCode();
