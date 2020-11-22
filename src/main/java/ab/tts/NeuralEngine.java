@@ -16,33 +16,30 @@
 
 package ab.tts;
 
-public enum Gender {
+public enum NeuralEngine {
 
-  MALE, FEMALE, NEUTRAL;
+  STANDARD, NEURAL, WAVENET, V3;
 
   public char toChar() {
-    return this.toString().toLowerCase().charAt(0);
+    return this == V3 ? '3' : this.toString().toLowerCase().charAt(0);
   }
 
-  public static Gender fromChar(char g) {
-    switch (g) {
-      case 'M':
-      case 'm': return Gender.MALE;
-      case 'F':
-      case 'f': return Gender.FEMALE;
-      case 'N':
-      case 'n': return Gender.NEUTRAL;
+  public static NeuralEngine fromChar(char e) {
+    switch (e) {
+      case 's': return NeuralEngine.STANDARD;
+      case 'n': return NeuralEngine.NEURAL;
+      case 'w': return NeuralEngine.WAVENET;
+      case '3': return NeuralEngine.V3;
     }
-    throw new IllegalArgumentException("gender: " + g);
+    throw new IllegalArgumentException("engine: " + e);
   }
 
-  public static Gender fromString(String gender) {
-    switch (gender.toLowerCase()) {
-      case "male": return Gender.MALE;
-      case "female": return Gender.FEMALE;
-      case "neutral": return Gender.NEUTRAL;
+  public static NeuralEngine fromString(String engine) {
+    switch (engine) {
+      case "Standard": return NeuralEngine.STANDARD;
+      case "Wavenet": return NeuralEngine.WAVENET;
     }
-    throw new IllegalArgumentException("gender: " + gender);
+    throw new IllegalArgumentException("engine: " + engine);
   }
 
 }

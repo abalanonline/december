@@ -25,6 +25,7 @@ import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.google.cloud.texttospeech.v1.TextToSpeechClient;
 import com.google.cloud.texttospeech.v1.VoiceSelectionParams;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -46,24 +47,22 @@ import java.util.stream.Collectors;
  * Environment variables: GOOGLE_APPLICATION_CREDENTIALS
  * https://cloud.google.com/text-to-speech/docs/quickstart-client-libraries
  */
+@Slf4j
 public class Gcloud extends Provider {
 
   public static final Pattern ID_PATTERN = Pattern.compile("(?<language>.+)-(?<engine>Wavenet|Standard)-(?<name>[A-Z])");
 
   public static final String[] CACHE = {
-      "ar-XA,bn-IN,cmn-CN,cmn-TW,cs-CZ,da-DK,de-DE,el-GR,en-AU,en-GB,en-IN,en-US,es-ES,fi-FI,fil-PH,fr-CA," +
-      "fr-FR,gu-IN,hi-IN,hu-HU,id-ID,it-IT,ja-JP,kn-IN,ko-KR,ml-IN,nb-NO,nl-NL,pl-PL,pt-BR,pt-PT,ru-RU," +
-      "sk-SK,sv-SE,ta-IN,te-IN,th-TH,tr-TR,uk-UA,vi-VN,yue-HK",
-      "AWf0fffffffffm0ffff0fffff0f0ffffffff000fff0", "ASfffffffffff0fffffffffffffffffffffffffffff",
-      "BWm0mm00m0mmmmm0fmm0m0mff0f0mmm0mm00000m0m0", "BSmmmm00m0mmmmm0fmmmm0mffmfmmmm0mm00mm0m0mm",
-      "CWm0mm0mf0ffmf00mff0m0mmm0m0fmm0mf00000f0f0", "CSm0mm0m00ffmf00mff0m0mmm0m0fmm0mf00000f0ff",
-      "DW00f00fm0mmfm00mmm0f0fmm0m0mff0fm00000f0m0", "DSf0f00f00mmfm00mmm0f0fmm0m0mff0fm00000f0mm",
-      "EW00000fm0000f0000f0000000000ff00f00000m000", "ES00000fm0000f0000f0000000000ff00f00000m000",
-      "FW000000f00f0f00000000000000000000000000000", "FS000000f00f0000000000000000000000000000000",
-      "GW00000000000f00000000000000000000000000000", "GS00000000000f00000000000000000000000000000",
-      "HW00000000000f00000000000000000000000000000", "HS00000000000f00000000000000000000000000000",
-      "IW00000000000m00000000000000000000000000000", "IS00000000000m00000000000000000000000000000",
-      "JW00000000000m00000000000000000000000000000", "JS00000000000m00000000000000000000000000000"};
+      "As0fffffff00fff0fffffffffff0f0f0fffffffffffffff", "Awmfff0ffff0fff0fffffffffff0fff00ffff0f00f000f0",
+      "Bsmmmmmff0m0fmm0mmmm0mmmmmm00fm0mm000m0mm0mm00m", "Bwmmmmmff0m0fmm0mmmm0mmmmmm00fm00m0000000000000",
+      "Csff0f0mm0m0mmf0fmfmmffmmfm00mm00m000000000000f", "Cwffff0mm0m0mmf0fmfmmffmmfm00mm00m0000000000000",
+      "Dsmm0m0mm0f0mfm0mfmfffmffmf00mf000000000000000m", "Dwmmmm0mm0f0mfm0mfmfffmffmf00m00000000000000000",
+      "Esf0mf0000f00f00f000fm0000000000000000000000000", "Ewf0mf0000f00f00f000fm0000000000000000000000000",
+      "Fs0ff000000000000000000000000000000000000000000", "Fwfff000000000000000000000000000000000000000000",
+      "Gsf00000000000000000000000000000000000000000000", "Gwf00000000000000000000000000000000000000000000",
+      "Hsf00000000000000000000000000000000000000000000", "Hwf00000000000000000000000000000000000000000000",
+      "Ism00000000000000000000000000000000000000000000", "Iwm00000000000000000000000000000000000000000000",
+      "Jsm00000000000000000000000000000000000000000000", "Jwm00000000000000000000000000000000000000000000"};
 
   public static final String[] CUSTOM_NAMES = { // Let's give names for A, B, C, D folks
       ",Alfa,Bravo,Charlie,Delta,Echo,Foxtrot,Golf,Hotel,India,Juliett",
@@ -72,7 +71,19 @@ public class Gcloud extends Provider {
       "fr-FR,Angers,Bordeaux,Caen,Dijon,Evreux,Frejus,Grenoble,Hyeres,Istres,Joué-lès-Tours",
       "en-GB,Aberdeen,Birmingham,Cardiff,Derby,Edinburgh,Fareham,Glasgow,Hereford,Inverness,Jarrow"};
 
+  public static final char NOT_EXIST = '0';
+
   @Getter(lazy=true) private final TextToSpeechClient service = lazyBuildService();
+
+  private String systemId(Language language, NeuralEngine engine, char name) {
+    final String engineName;
+    switch (engine) {
+      case STANDARD: engineName = "Standard"; break;
+      case WAVENET: engineName = "Wavenet"; break;
+      default: throw new IllegalArgumentException();
+    }
+    return language.toLanguageCode() + "-" + engineName + "-" + name;
+  }
 
   @Override
   public Set<Voice> filter(boolean useNeural, String languages) {
@@ -91,7 +102,7 @@ public class Gcloud extends Provider {
       int languageIndex = cachedLanguages.indexOf(expectedLanguage) + 2;
       for (int i = 1; i < CACHE.length; i++) {
         String s = CACHE[i];
-        if ((expectedEngine == s.charAt(1)) && (s.charAt(languageIndex) != '0')) {
+        if ((expectedEngine == s.charAt(1)) && (s.charAt(languageIndex) != NOT_EXIST)) {
           String[] customNames = customNamesMap.getOrDefault(expectedLanguage, customNamesMap.get(""));
           String customName = customNames[s.charAt(0) - 'A' + 1];
           set.add(new Voice(customName, this,
@@ -105,43 +116,53 @@ public class Gcloud extends Provider {
 
   @Override
   public List<String> downloadVoices() {
-    ListVoicesRequest request = ListVoicesRequest.newBuilder().build();
-    ListVoicesResponse response = getService().listVoices(request);
-    List<String> languageList = response.getVoicesList().stream()
-        .map(v -> v.getLanguageCodes(0)).distinct().sorted().collect(Collectors.toList());
-    List<String> namesList = response.getVoicesList().stream()
+    // make request
+    List<com.google.cloud.texttospeech.v1.Voice> voicesList =
+        getService().listVoices(ListVoicesRequest.newBuilder().build()).getVoicesList();
+
+    // language size, name list
+    int languageListSize = voicesList.stream().map(v -> v.getLanguageCodesList()).flatMap(List::stream)
+        .mapToInt(s -> Language.fromLanguageCode(s).getIndex()).max().orElse(0) + 1;
+    List<String> namesList = voicesList.stream()
         .map(v -> v.getName().substring(v.getName().lastIndexOf('-') + 1))
         .distinct().sorted().collect(Collectors.toList());
-    char[][][] contains = new char[2][namesList.size()][languageList.size()];
-    for (char[][] engine : contains) {
-      for (char[] name : engine) {
-        Arrays.fill(name, '-');
-      }
-    }
-    for (com.google.cloud.texttospeech.v1.Voice voice : response.getVoicesList()) {
+    // make array, fill with dashes
+    char[][][] contains = new char[NeuralEngine.values().length][namesList.size()][languageListSize];
+    Arrays.stream(contains).forEach(e -> Arrays.stream(e).forEach(n -> Arrays.fill(n, NOT_EXIST)));
+
+    // fill the array
+    for (com.google.cloud.texttospeech.v1.Voice voice : voicesList) {
       Matcher matcher = ID_PATTERN.matcher(voice.getName());
       boolean matches = matcher.matches();
       assert matches;
-      String language = matcher.group("language");
-      if ("nb-no".equals(language)) {
-        continue; // small mistake here (;-_-)
+      Language language = null;
+      try {
+        language = Language.fromLanguageCode(matcher.group("language"));
+      } catch (IllegalArgumentException e) {
+        log.warn(e.getMessage()); // nb-no
+        continue;
       }
       String name = matcher.group("name");
-      String engineName = matcher.group("engine");
-      assert languageList.contains(language) : language;
+      assert name.length() == 1;
       assert namesList.contains(name);
-      int engine = "Wavenet".equals(engineName) ? 0 : "Standard".equals(engineName) ? 1 : -1;
-      assert engine >= 0;
-      assert contains[engine][namesList.indexOf(name)][languageList.indexOf(language)] == '-';
-      String g = voice.getSsmlGender().toString();
-      contains[engine][namesList.indexOf(name)][languageList.indexOf(language)] =
-          voice.getSsmlGender().toString().toLowerCase().charAt(0);
+      NeuralEngine engine = NeuralEngine.fromString(matcher.group("engine"));
+      assert systemId(language, engine, name.charAt(0)).equals(voice.getName()); // system name can be recreated
+      assert contains[engine.ordinal()][namesList.indexOf(name)][language.getIndex()] == NOT_EXIST;
+      Gender gender = Gender.fromString(voice.getSsmlGender().toString());
+      contains[engine.ordinal()][namesList.indexOf(name)][language.getIndex()] = gender.toChar();
     }
+
+    // array to string list
     List<String> list = new ArrayList<>();
-    list.add(String.join(",", languageList));
     for (int name = 0; name < namesList.size(); name++) {
-      for (int engine = 0; engine < 2; engine++) {
-        list.add(namesList.get(name) + (engine == 0 ? "W" : "S") + new String(contains[engine][name]));
+      for (NeuralEngine engine : NeuralEngine.values()) {
+        boolean empty = true;
+        for (char c : contains[engine.ordinal()][name]) {
+          empty &= (c == NOT_EXIST);
+        }
+        if (!empty) {
+          list.add(namesList.get(name) + engine.toChar() + new String(contains[engine.ordinal()][name]));
+        }
       }
     }
     return list;

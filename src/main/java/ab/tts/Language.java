@@ -16,6 +16,8 @@
 
 package ab.tts;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
 public class Language {
@@ -35,17 +37,17 @@ public class Language {
       "en-IE", "es-LA", "fr-CH", "he-IL", "hr-HR", "is-IS", "ms-MY", "sl-SI", "zh-HK", "zh-TW",
   };
 
-  private final int languageId;
+  @Getter private final int index;
 
   public Language(String languageCode) {
-    languageId = Arrays.asList(LANGUAGE_CODES).indexOf(languageCode);
-    if (languageId < 0) {
+    index = Arrays.asList(LANGUAGE_CODES).indexOf(languageCode);
+    if (index < 0) {
       throw new IllegalArgumentException("language: " + languageCode);
     }
   }
 
   public String toLanguageCode() {
-    return LANGUAGE_CODES[languageId];
+    return LANGUAGE_CODES[index];
   }
 
   public static Language fromLanguageCode(String languageCode) {
