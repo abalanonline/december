@@ -27,6 +27,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -88,7 +90,7 @@ public class Azure extends Provider {
         name = name.substring(0, name.length() - 6);
       }
       if ((s.endsWith("Neural") == useNeural) && expectedLanguageSet.contains(language)) {
-        set.add(new AzureVoice(name, this, s, language));
+        set.add(new Voice(name, this, s, language));
       }
     }
     return set;
@@ -122,6 +124,30 @@ public class Azure extends Provider {
 
   private TextToSpeech lazyBuildService() {
     return null;
+  }
+
+  @Override
+  public InputStream mp3Stream(Voice voice, String text) {
+
+    RestTemplate restTemplate = new RestTemplate();
+
+    HttpHeaders headers1 = new HttpHeaders();
+    headers1.set("Ocp-Apim-Subscription-Key", System.getenv("MICROSOFT_API_KEY"));
+    HttpEntity<String> entity1 = new HttpEntity<>("", headers1);
+    String accessToken = restTemplate.postForObject(
+        "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".api.cognitive.microsoft.com/sts/v1.0/issueToken",
+        entity1, String.class);
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Content-Type", "application/ssml+xml");
+    headers.set("X-Microsoft-OutputFormat", "audio-24khz-96kbitrate-mono-mp3");
+    headers.set("Authorization", "Bearer " + accessToken);
+    HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"" + voice.getLanguage() + "\">" +
+        "<voice name=\"" + voice.getSystemId() + "\">" + text + "</voice></speak>", headers); // xml:lang="languageCode"
+    byte[] response = restTemplate.postForObject(
+        "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".tts.speech.microsoft.com/cognitiveservices/v1",
+        entity, byte[].class);
+    return new ByteArrayInputStream(response);
   }
 
 }

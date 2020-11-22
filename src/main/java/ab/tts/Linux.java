@@ -21,12 +21,18 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -42,7 +48,7 @@ public class Linux extends Provider {
   @Override
   public Set<Voice> filter(boolean useNeural, String languages) {
     Set<Voice> set = new LinkedHashSet<>();
-    set.add(new LinuxVoice("Linux", this, "texttospeech %1$s %2$s", "en-US"));
+    set.add(new Voice("Linux", this, "texttospeech %1$s %2$s", "en-US"));
     return set;
   }
 
@@ -63,6 +69,38 @@ public class Linux extends Provider {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  @Override
+  public InputStream mp3Stream(Voice voice, String text) {
+    try {
+      Path tempFile = Files.createTempFile(null, ".mp3");
+      mp3File(voice, text, tempFile.toString());
+      return Files.newInputStream(tempFile);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  @Override
+  public String mp3File(Voice voice, String text, String recommendedFileName) {
+    if (!recommendedFileName.endsWith(".mp3")) {
+      throw new IllegalArgumentException("Wrong file extension: " + recommendedFileName);
+    }
+    String fileName = recommendedFileName.substring(0, recommendedFileName.length() - 4) + "-" + UUID.randomUUID() + ".mp3";
+    Path filePath = Paths.get(fileName);
+    if (!Files.exists(filePath)) {
+      try {
+        String textFileName = fileName + ".txt";
+        Files.write(Paths.get(textFileName), text.getBytes(StandardCharsets.UTF_8));
+
+        String commandLine = String.format(voice.getSystemId(), textFileName, fileName); // system id is the command line
+        ((Linux) voice.getProvider()).getService().accept(commandLine);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+    return fileName;
   }
 
 }

@@ -21,6 +21,7 @@ import com.ibm.watson.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.text_to_speech.v1.model.SynthesizeOptions;
 import lombok.Getter;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -66,7 +67,7 @@ public class Watson extends Provider {
       String name = matcher.group("name");
       String version = matcher.group("version");
       if (expectedLanguageSet.contains(language) && ((null == version) != useNeural)) {
-        set.add(new WatsonVoice(name, this, voiceId, language));
+        set.add(new Voice(name, this, voiceId, language));
       }
     }
     return set;
@@ -106,6 +107,13 @@ public class Watson extends Provider {
     TextToSpeech textToSpeech = new TextToSpeech(new IamAuthenticator(System.getenv("IBM_API_KEY")));
     textToSpeech.setServiceUrl(System.getenv("IBM_TTS_URL"));
     return textToSpeech;
+  }
+
+  @Override
+  public InputStream mp3Stream(Voice voice, String text) {
+    SynthesizeOptions synthesizeOptions = new SynthesizeOptions.Builder()
+        .text(text).voice(voice.getSystemId()).accept("audio/mp3").build();
+    return ((Watson) voice.getProvider()).getService().synthesize(synthesizeOptions).execute().getResult();
   }
 
 }

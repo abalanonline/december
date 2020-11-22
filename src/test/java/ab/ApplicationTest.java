@@ -31,7 +31,7 @@ public class ApplicationTest {
   @Test
   public void voiceMap() {
     Map<String, Voice> voiceMap = new Application().voiceMap();
-    voiceMap.entrySet().iterator().next().getValue().mp3File(null, "hello", "target/hello.mp3");
+    voiceMap.entrySet().iterator().next().getValue().mp3File("hello", "target/hello.mp3");
   }
 
   @Ignore
@@ -39,7 +39,7 @@ public class ApplicationTest {
   public void providerTest() {
     //System.out.println(new Azure().downloadVoices().stream().collect(Collectors.joining("\", \"")));
     Voice voice = (Voice) new ab.tts.Azure().filter(false, "en-US").toArray()[0];
-    voice.mp3File(null, "Success is a lousy teacher. It seduces smart people into thinking they can't lose.", "target/azure.mp3");
+    voice.mp3File("Success is a lousy teacher. It seduces smart people into thinking they can't lose.", "target/azure.mp3");
   }
 
   @Ignore

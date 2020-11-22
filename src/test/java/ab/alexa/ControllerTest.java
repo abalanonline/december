@@ -18,11 +18,14 @@ package ab.alexa;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 public class ControllerTest {
 
   @Test
   public void randomGreeting() {
-    System.out.println(Controller.randomGreeting("Bobby"));
+    assertThat(Controller.randomGreeting("Bobby"), containsString("Bobby"));
   }
 
 }

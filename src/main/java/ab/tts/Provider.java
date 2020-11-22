@@ -16,8 +16,17 @@
 
 package ab.tts;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public abstract class Provider {
 
@@ -31,5 +40,24 @@ public abstract class Provider {
   public abstract Set<Voice> filter(boolean useNeural, String languages); // FIXME: 2020-11-15 poor name
 
   public abstract List<String> downloadVoices();
+
+  public abstract InputStream mp3Stream(Voice voice, String text);
+
+  public String mp3File(Voice voice, String text, String recommendedFileName) {
+    if (!recommendedFileName.endsWith(".mp3")) {
+      throw new IllegalArgumentException("Wrong file extension: " + recommendedFileName);
+    }
+    String fileName = recommendedFileName.substring(0, recommendedFileName.length() - 4) + "-" + UUID.randomUUID() + ".mp3";
+    Path filePath = Paths.get(fileName);
+    if (!Files.exists(filePath)) {
+      try {
+        Files.write(Paths.get(fileName + ".txt"), text.getBytes(StandardCharsets.UTF_8));
+        Files.copy(mp3Stream(voice, text), filePath, StandardCopyOption.REPLACE_EXISTING);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+    return fileName;
+  }
 
 }

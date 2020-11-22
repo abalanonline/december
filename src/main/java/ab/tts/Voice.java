@@ -16,49 +16,35 @@
 
 package ab.tts;
 
-import java.io.IOException;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
-public abstract class Voice {
+@Getter
+@RequiredArgsConstructor
+public class Voice {
 
-  public abstract String getName();
+  private final String name;
 
-  public abstract Provider getProvider();
+  private final Provider provider;
 
-  public abstract String getSystemId();
+  private final String systemId;
 
-  public abstract String getConfiguration();
+  private final String configuration = "";
 
-  public abstract String getLanguage();
+  private final String language;
 
-  public abstract boolean isNeural();
+  private final boolean neural = false;
 
-  public abstract Gender getGender();
+  private final Gender gender = Gender.NEUTRAL;
 
-  public abstract InputStream mp3Stream(Voice voice, String text);
+  public InputStream mp3Stream(String text) {
+    return getProvider().mp3Stream(this, text);
+  }
 
-  public String mp3File(Voice voice, String text, String recommendedFileName) {
-    if (!recommendedFileName.endsWith(".mp3")) {
-      throw new IllegalArgumentException("Wrong file extension: " + recommendedFileName);
-    }
-    String fileName = recommendedFileName.substring(0, recommendedFileName.length() - 4) + "-" + UUID.randomUUID() + ".mp3";
-    Path filePath = Paths.get(fileName);
-    if (!Files.exists(filePath)) {
-      try {
-        Files.write(Paths.get(fileName + ".txt"), text.getBytes(StandardCharsets.UTF_8));
-        Files.copy(mp3Stream(voice, text), filePath, StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
-    }
-    return fileName;
+  public String mp3File(String text, String recommendedFileName) {
+    return getProvider().mp3File(this, text, recommendedFileName);
   }
 
 }

@@ -20,7 +20,10 @@ import lombok.Getter;
 import software.amazon.awssdk.services.polly.PollyClient;
 import software.amazon.awssdk.services.polly.model.DescribeVoicesRequest;
 import software.amazon.awssdk.services.polly.model.DescribeVoicesResponse;
+import software.amazon.awssdk.services.polly.model.OutputFormat;
+import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -65,7 +68,7 @@ public class Polly extends Provider {
       Set<String> languageSet = Arrays.stream(a[CACHE_LANGUAGE].split("/")).collect(Collectors.toSet());
       languageSet.retainAll(expectedLanguageSet);
       if (!languageSet.isEmpty() && a[CACHE_ENGINE].contains(expectedEngine)) {
-        set.add(new PollyVoice(a[CACHE_VOICE_ID], this, a[CACHE_VOICE_ID], (String) languageSet.toArray()[0]));
+        set.add(new Voice(a[CACHE_VOICE_ID], this, a[CACHE_VOICE_ID], (String) languageSet.toArray()[0]));
       }
     }
     return set;
@@ -90,6 +93,13 @@ public class Polly extends Provider {
 
   private PollyClient lazyBuildService() {
     return PollyClient.builder().build();
+  }
+
+  @Override
+  public InputStream mp3Stream(Voice voice, String text) {
+    SynthesizeSpeechRequest request = SynthesizeSpeechRequest.builder()
+        .text(text).voiceId(voice.getSystemId()).outputFormat(OutputFormat.MP3).build();
+    return ((Polly) voice.getProvider()).getService().synthesizeSpeech(request);
   }
 
 }

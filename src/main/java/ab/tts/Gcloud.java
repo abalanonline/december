@@ -16,12 +16,19 @@
 
 package ab.tts;
 
+import com.google.cloud.texttospeech.v1.AudioConfig;
+import com.google.cloud.texttospeech.v1.AudioEncoding;
 import com.google.cloud.texttospeech.v1.ListVoicesRequest;
 import com.google.cloud.texttospeech.v1.ListVoicesResponse;
+import com.google.cloud.texttospeech.v1.SynthesisInput;
+import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.google.cloud.texttospeech.v1.TextToSpeechClient;
+import com.google.cloud.texttospeech.v1.VoiceSelectionParams;
 import lombok.Getter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +94,7 @@ public class Gcloud extends Provider {
         if ((expectedEngine == s.charAt(1)) && (s.charAt(languageIndex) != '0')) {
           String[] customNames = customNamesMap.getOrDefault(expectedLanguage, customNamesMap.get(""));
           String customName = customNames[s.charAt(0) - 'A' + 1];
-          set.add(new GcloudVoice(customName, this,
+          set.add(new Voice(customName, this,
               expectedLanguage + "-" + (s.charAt(1) == 'W' ? "Wavenet" : "Standard") + "-" + s.charAt(0),
               expectedLanguage));
         }
@@ -146,6 +153,18 @@ public class Gcloud extends Provider {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  @Override
+  public InputStream mp3Stream(Voice voice, String text) {
+    VoiceSelectionParams voiceSelectionParams = VoiceSelectionParams.newBuilder()
+        .setLanguageCode(voice.getLanguage())
+        .setName(voice.getSystemId())
+        .build();
+    SynthesizeSpeechResponse response = ((Gcloud) voice.getProvider()).getService().synthesizeSpeech(
+        SynthesisInput.newBuilder().setText(text).build(), voiceSelectionParams,
+        AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.MP3).build());
+    return new ByteArrayInputStream(response.getAudioContent().toByteArray());
   }
 
 }
