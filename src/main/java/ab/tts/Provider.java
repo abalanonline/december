@@ -35,10 +35,10 @@ public abstract class Provider {
       "en-US", "en-GB", "de-DE", "fr-FR", "es-ES", "it-IT", "ja-JP", "pt-BR", "nl-NL", "zh-CN",
       "ko-KR", "pl-PL", "en-AU", "es-US", "ru-RU", "en-IN", "fr-CA", "pt-PT", "da-DK", "tr-TR",
       "nb-NO", "hi-IN", "id-ID", "vi-VN", "cmn-CN", "es-MX", "sv-SE", "fil-PH", "ar-XA", "ro-RO", // top 30
-      "ar-AR", "ar-EG", "ar-SA", "bg-BG", "bn-IN", "ca-ES", "cmn-TW", "cs-CZ", "cy-GB", "de-AT",
-      "de-CH", "el-GR", "en-CA", "en-GB-WLS", "en-IE", "es-LA", "fi-FI", "fr-CH", "gu-IN", "he-IL",
-      "hr-HR", "hu-HU", "is-IS", "kn-IN", "ml-IN", "ms-MY", "sk-SK", "sl-SI", "ta-IN", "te-IN",
-      "th-TH", "uk-UA", "yue-HK", "zh-HK", "zh-TW"
+      "bn-IN", "cmn-TW", "cs-CZ", "el-GR", "fi-FI", "gu-IN", "hu-HU", "kn-IN", "ml-IN", "sk-SK",
+      "ta-IN", "te-IN", "th-TH", "uk-UA", "yue-HK", // 45
+      "ar-AR", "ar-EG", "ar-SA", "bg-BG", "ca-ES", "cy-GB", "de-AT", "de-CH", "en-CA", "en-GB-WLS",
+      "en-IE", "es-LA", "fr-CH", "he-IL", "hr-HR", "is-IS", "ms-MY", "sl-SI", "zh-HK", "zh-TW",
   };
 
   /**
