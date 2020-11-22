@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -101,6 +102,23 @@ public class Gcloud extends Provider {
       }
     }
     return set;
+  }
+
+  @Override
+  public Map<String, Integer> getVoicesPerLanguage() {
+    Map<String, Integer> map = new LinkedHashMap<>();
+    List<String> cachedLanguages = Arrays.asList(CACHE[0].split(","));
+    for (int languageIndex = 0; languageIndex < cachedLanguages.size(); languageIndex++) {
+      int count = 0;
+      for (int i = 1; i < CACHE.length; i++) {
+        String s = CACHE[i];
+        if (s.charAt(languageIndex + 2) != '0') {
+          count += 1;
+        }
+        map.put(cachedLanguages.get(languageIndex), count);
+      }
+    }
+    return map;
   }
 
   @Override

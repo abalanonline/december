@@ -24,8 +24,11 @@ import lombok.Getter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,6 +74,17 @@ public class Watson extends Provider {
       }
     }
     return set;
+  }
+
+  @Override
+  public Map<String, Integer> getVoicesPerLanguage() {
+    Map<String, Integer> map = new LinkedHashMap<>();
+    for (String s : CACHE) {
+      String language = s.substring(0, s.lastIndexOf('_'));
+      int i = map.getOrDefault(language, 0);
+      map.put(language, i + 1);
+    }
+    return map;
   }
 
   @Override

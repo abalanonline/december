@@ -25,10 +25,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public abstract class Provider {
+
+  public static final String[] LANGUAGES = {
+      "en-US", "en-GB", "de-DE", "fr-FR", "es-ES", "it-IT", "ja-JP", "pt-BR", "nl-NL", "zh-CN",
+      "ko-KR", "pl-PL", "en-AU", "es-US", "ru-RU", "en-IN", "fr-CA", "pt-PT", "da-DK", "tr-TR",
+      "nb-NO", "hi-IN", "id-ID", "vi-VN", "cmn-CN", "es-MX", "sv-SE", "fil-PH", "ar-XA", "ro-RO", // top 30
+      "ar-AR", "ar-EG", "ar-SA", "bg-BG", "bn-IN", "ca-ES", "cmn-TW", "cs-CZ", "cy-GB", "de-AT",
+      "de-CH", "el-GR", "en-CA", "en-GB-WLS", "en-IE", "es-LA", "fi-FI", "fr-CH", "gu-IN", "he-IL",
+      "hr-HR", "hu-HU", "is-IS", "kn-IN", "ml-IN", "ms-MY", "sk-SK", "sl-SI", "ta-IN", "te-IN",
+      "th-TH", "uk-UA", "yue-HK", "zh-HK", "zh-TW"
+  };
 
   /**
    * Provider must provide the service that is connected, authorized, initialized, whatever and ready to use.
@@ -38,6 +49,8 @@ public abstract class Provider {
   public abstract Object getService();
 
   public abstract Set<Voice> filter(boolean useNeural, String languages); // FIXME: 2020-11-15 poor name
+
+  public abstract Map<String, Integer> getVoicesPerLanguage();
 
   public abstract List<String> downloadVoices();
 

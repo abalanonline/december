@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -50,6 +51,11 @@ public class Linux extends Provider {
     Set<Voice> set = new LinkedHashSet<>();
     set.add(new Voice("Linux", this, "texttospeech %1$s %2$s", "en-US"));
     return set;
+  }
+
+  @Override
+  public Map<String, Integer> getVoicesPerLanguage() {
+    return Collections.emptyMap();
   }
 
   @Override

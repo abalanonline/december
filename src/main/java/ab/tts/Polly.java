@@ -26,8 +26,11 @@ import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -72,6 +75,18 @@ public class Polly extends Provider {
       }
     }
     return set;
+  }
+
+  @Override
+  public Map<String, Integer> getVoicesPerLanguage() {
+    Map<String, Integer> map = new LinkedHashMap<>();
+    for (String s : CACHE) {
+      String[] a = s.split(",");
+      String language = a[CACHE_LANGUAGE];
+      int i = map.getOrDefault(language, 0);
+      map.put(language, i + a[CACHE_ENGINE].length());
+    }
+    return map;
   }
 
   @Override
