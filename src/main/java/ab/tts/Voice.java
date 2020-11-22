@@ -39,16 +39,6 @@ public class Voice {
 
   private final Gender gender;
 
-  public Voice(String name, Provider provider, String systemId, Language language) {
-    this.name = name;
-    this.provider = provider;
-    this.systemId = systemId;
-    this.configuration = "{}";
-    this.language = language;
-    this.engine = NeuralEngine.STANDARD;
-    this.gender = Gender.NEUTRAL;
-  }
-
   public InputStream mp3Stream(String text) {
     return getProvider().mp3Stream(this, text);
   }
@@ -57,4 +47,8 @@ public class Voice {
     return getProvider().mp3File(this, text, recommendedFileName);
   }
 
+  @Override
+  public String toString() {
+    return "Voice{" + provider.getClass().getSimpleName() + ":" + systemId + '}';
+  }
 }

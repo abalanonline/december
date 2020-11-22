@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.polly.PollyClient;
 import software.amazon.awssdk.services.polly.model.DescribeVoicesRequest;
 import software.amazon.awssdk.services.polly.model.DescribeVoicesResponse;
+import software.amazon.awssdk.services.polly.model.Engine;
 import software.amazon.awssdk.services.polly.model.OutputFormat;
 import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
 
@@ -50,9 +51,6 @@ public class Polly extends Provider {
       "07smRicardo,18smMads,03smMathieu,03sfLea,18sfNaja,13sfPenelope,14sfTatyana,12nfOlivia,08smRuben,06sfMizuki," +
       "06smTakumi,04sfConchita,05sfCarla,00nfKimberly,00sfKimberly,11smJan,20sfLiv,00nmJoey,00smJoey,13nfLupe," +
       "13sfLupe,10sfSeoyeon,01nfEmma,01sfEmma";
-  public static final int CACHE_LANGUAGE = 0;
-  public static final int CACHE_VOICE_ID = 1;
-  public static final int CACHE_ENGINE = 2;
 
   @Getter(lazy=true) private final PollyClient service = lazyBuildService();
 
@@ -65,7 +63,7 @@ public class Polly extends Provider {
   }
 
   @Override
-  public Set<Voice> filter(boolean useNeural, String languages) {
+  public Set<Voice> getVoiceSet() {
     return Arrays.stream(CACHE.split(",")).map(this::voice).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
@@ -105,8 +103,12 @@ public class Polly extends Provider {
 
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
+    Engine engine = Engine.fromValue(voice.getEngine().toString().toLowerCase());
+    if (engine.equals(Engine.UNKNOWN_TO_SDK_VERSION)) {
+      throw new IllegalStateException("engine: " + voice.getEngine());
+    }
     SynthesizeSpeechRequest request = SynthesizeSpeechRequest.builder()
-        .text(text).voiceId(voice.getSystemId()).outputFormat(OutputFormat.MP3).build();
+        .text(text).engine(engine).voiceId(voice.getSystemId()).outputFormat(OutputFormat.MP3).build();
     return ((Polly) voice.getProvider()).getService().synthesizeSpeech(request);
   }
 

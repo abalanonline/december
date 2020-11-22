@@ -85,7 +85,7 @@ public class Gcloud extends Provider {
   }
 
   @Override
-  public Set<Voice> filter(boolean useNeural, String languages) {
+  public Set<Voice> getVoiceSet() {
     // London Tokyo
     Map<String, Map<Character, String>> customNamesMap = new LinkedHashMap<>();
     for (String customName : CUSTOM_NAMES) {

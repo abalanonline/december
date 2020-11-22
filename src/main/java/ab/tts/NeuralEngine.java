@@ -16,9 +16,18 @@
 
 package ab.tts;
 
+import java.util.Arrays;
+import java.util.List;
+
 public enum NeuralEngine {
 
   STANDARD, NEURAL, WAVENET, V3, RICHCONTEXT;
+
+  public static final List<NeuralEngine> NEURAL_ENGINES_LIST = Arrays.asList(NEURAL, WAVENET, V3);
+
+  public boolean isNeural() {
+    return NEURAL_ENGINES_LIST.contains(this);
+  }
 
   public char toChar() {
     return this == V3 ? '3' : this.toString().toLowerCase().charAt(0);

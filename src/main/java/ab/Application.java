@@ -28,22 +28,39 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @SpringBootApplication
 public class Application {
 
-  public static final Provider[] PROVIDERS = {new Linux(), new Polly(), new Watson(), new Gcloud(), new Azure()};
+  public static final Provider[] PROVIDERS = {new Linux(), new Watson(), new Polly(), new Gcloud(), new Azure()};
+
+  public static final Set<Voice> VOICE_SET = Arrays.stream(PROVIDERS).map(Provider::getVoiceSet)
+      .flatMap(Set::stream).collect(Collectors.toCollection(LinkedHashSet::new)); // this thing is huge, 500+ items
 
   @Bean
   public Map<String, Voice> voiceMap() {
-    Map<String, Voice> voiceMap = new LinkedHashMap<>();
-    Arrays.stream(PROVIDERS)
-        .forEachOrdered(p -> p.filter(false, "en-US,en-GB").forEach(v -> voiceMap.put(v.getName(), v)));
-    voiceMap.keySet().forEach(log::info);
+    Set<String> languageCodes = Arrays.stream(new String[]{"en-US", "en-GB"}).collect(Collectors.toSet());
+    Map<String, Voice> voiceMap = VOICE_SET.stream()
+        .filter(v -> languageCodes.contains(v.getLanguage().toLanguageCode()))
+        .filter(v -> !v.getEngine().isNeural())
+        .collect(Collectors.toMap(Voice::getName, v -> v,
+            (a, b) -> { log.warn("Duplicate item discarded: " + b); return a; }, LinkedHashMap::new));
+
+    ArrayList<String> voiceNamesList = new ArrayList<>(voiceMap.keySet());
+    for (int i = 0; i < voiceNamesList.size(); i++) {
+      String key = voiceNamesList.get(i);
+      log.info(i + ": " + key + " - " + voiceMap.get(key));
+    }
     return voiceMap;
   }
 

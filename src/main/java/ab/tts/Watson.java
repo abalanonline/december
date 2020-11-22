@@ -66,7 +66,7 @@ public class Watson extends Provider {
   }
 
   @Override
-  public Set<Voice> filter(boolean useNeural, String languages) {
+  public Set<Voice> getVoiceSet() {
     return Arrays.stream(CACHE.split(",")).map(this::voice).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 

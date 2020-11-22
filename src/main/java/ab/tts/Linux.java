@@ -47,9 +47,10 @@ public class Linux extends Provider {
   @Getter private final Consumer<String> service = this::exec;
 
   @Override
-  public Set<Voice> filter(boolean useNeural, String languages) {
+  public Set<Voice> getVoiceSet() {
     Set<Voice> set = new LinkedHashSet<>();
-    set.add(new Voice("Linux", this, "texttospeech %1$s %2$s", Language.fromLanguageCode("en-US")));
+    set.add(new Voice("Linux", this, "texttospeech %1$s %2$s", null,
+        Language.fromLanguageCode("en-US"), NeuralEngine.STANDARD, Gender.NEUTRAL));
     return set;
   }
 
