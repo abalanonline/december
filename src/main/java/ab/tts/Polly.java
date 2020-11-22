@@ -17,6 +17,7 @@
 package ab.tts;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.polly.PollyClient;
 import software.amazon.awssdk.services.polly.model.DescribeVoicesRequest;
 import software.amazon.awssdk.services.polly.model.DescribeVoicesResponse;
@@ -26,10 +27,9 @@ import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,42 +38,35 @@ import java.util.stream.Collectors;
  * Environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
  * https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html
  */
+@Slf4j
 public class Polly extends Provider {
 
-  public static final String[] CACHE = {
-      "nl-NL,Lotte,s,f", "ru-RU,Maxim,s,m", "en-US,Salli,ns,f", "en-GB-WLS,Geraint,s,m", "es-US,Miguel,s,m",
-      "de-DE,Marlene,s,f", "it-IT,Giorgio,s,m", "pt-PT,Ines,s,f", "arb,Zeina,s,f", "cmn-CN,Zhiyu,s,f",
-      "cy-GB,Gwyneth,s,f", "is-IS,Karl,s,m", "en-US,Joanna,ns,f", "es-ES,Lucia,s,f", "pt-PT,Cristiano,s,m",
-      "sv-SE,Astrid,s,f", "de-DE,Vicki,s,f", "es-MX,Mia,s,f", "it-IT,Bianca,s,f", "pt-BR,Vitoria,s,f",
-      "en-IN,Raveena,s,f", "fr-CA,Chantal,s,f", "en-GB,Amy,ns,f", "en-GB,Brian,ns,m", "en-US,Kevin,n,m",
-      "en-AU,Russell,s,m", "en-IN/hi-IN,Aditi,s,f", "en-US,Matthew,ns,m", "is-IS,Dora,s,f", "es-ES,Enrique,s,m",
-      "de-DE,Hans,s,m", "ro-RO,Carmen,s,f", "en-US,Ivy,ns,f", "pl-PL,Ewa,s,f", "pl-PL,Maja,s,f",
-      "en-AU,Nicole,s,f", "pt-BR,Camila,ns,f", "tr-TR,Filiz,s,f", "pl-PL,Jacek,s,m", "en-US,Justin,ns,m",
-      "fr-FR,Celine,s,f", "en-US,Kendra,ns,f", "pt-BR,Ricardo,s,m", "da-DK,Mads,s,m", "fr-FR,Mathieu,s,m",
-      "fr-FR,Lea,s,f", "da-DK,Naja,s,f", "es-US,Penelope,s,f", "ru-RU,Tatyana,s,f", "en-AU,Olivia,n,f",
-      "nl-NL,Ruben,s,m", "ja-JP,Mizuki,s,f", "ja-JP,Takumi,s,m", "es-ES,Conchita,s,f", "it-IT,Carla,s,f",
-      "en-US,Kimberly,ns,f", "pl-PL,Jan,s,m", "nb-NO,Liv,s,f", "en-US,Joey,ns,m", "es-US,Lupe,ns,f",
-      "ko-KR,Seoyeon,s,f", "en-GB,Emma,ns,f"};
+  public static final String CACHE =
+      "08sfLotte,14smMaxim,00nfSalli,00sfSalli,54smGeraint,13smMiguel,02sfMarlene,05smGiorgio,17sfInes,24sfZhiyu," +
+      "50sfGwyneth,60smKarl,00nfJoanna,00sfJoanna,04sfLucia,17smCristiano,26sfAstrid,02sfVicki,25sfMia,05sfBianca," +
+      "07sfVitoria,15sfRaveena,16sfChantal,01nfAmy,01sfAmy,01nmBrian,01smBrian,00nmKevin,12smRussell,15sfAditi," +
+      "21sfAditi,00nmMatthew,00smMatthew,60sfDora,04smEnrique,02smHans,29sfCarmen,00nfIvy,00sfIvy,11sfEwa,11sfMaja," +
+      "12sfNicole,07nfCamila,07sfCamila,19sfFiliz,11smJacek,00nmJustin,00smJustin,03sfCeline,00nfKendra,00sfKendra," +
+      "07smRicardo,18smMads,03smMathieu,03sfLea,18sfNaja,13sfPenelope,14sfTatyana,12nfOlivia,08smRuben,06sfMizuki," +
+      "06smTakumi,04sfConchita,05sfCarla,00nfKimberly,00sfKimberly,11smJan,20sfLiv,00nmJoey,00smJoey,13nfLupe," +
+      "13sfLupe,10sfSeoyeon,01nfEmma,01sfEmma";
   public static final int CACHE_LANGUAGE = 0;
   public static final int CACHE_VOICE_ID = 1;
   public static final int CACHE_ENGINE = 2;
 
   @Getter(lazy=true) private final PollyClient service = lazyBuildService();
 
+  private Voice voice(String cache) {
+    Language language = Language.fromDoubleChar(cache.substring(0, 2));
+    NeuralEngine engine = NeuralEngine.fromChar(cache.charAt(2));
+    Gender gender = Gender.fromChar(cache.charAt(3));
+    String name = cache.substring(4);
+    return new Voice(name, this, name, null, language, engine, gender);
+  }
+
   @Override
   public Set<Voice> filter(boolean useNeural, String languages) {
-    Set<String> expectedLanguageSet = Arrays.stream(languages.split(",")).collect(Collectors.toSet());
-    String expectedEngine = useNeural ? "n" : "s";
-    Set<Voice> set = new LinkedHashSet<>();
-    for (String s : CACHE) {
-      String[] a = s.split(",");
-      Set<String> languageSet = Arrays.stream(a[CACHE_LANGUAGE].split("/")).collect(Collectors.toSet());
-      languageSet.retainAll(expectedLanguageSet);
-      if (!languageSet.isEmpty() && a[CACHE_ENGINE].contains(expectedEngine)) {
-        set.add(new Voice(a[CACHE_VOICE_ID], this, a[CACHE_VOICE_ID], Language.fromLanguageCode((String) languageSet.toArray()[0])));
-      }
-    }
-    return set;
+    return Arrays.stream(CACHE.split(",")).map(this::voice).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   @Override
@@ -86,11 +79,24 @@ public class Polly extends Provider {
       List<String> languages = new ArrayList<>();
       languages.add(voice.languageCodeAsString());
       languages.addAll(voice.additionalLanguageCodesAsStrings());
-      list.add(String.join("/", languages) + "," + voice.idAsString() + "," +
-          voice.supportedEnginesAsStrings().stream().map(e -> e.substring(0, 1)).collect(Collectors.joining()) + "," +
-          voice.genderAsString().substring(0, 1).toLowerCase());
+      List<String> supportedEngines = voice.supportedEnginesAsStrings();
+      for (String l : languages) {
+        for (String supportedEngine : supportedEngines) {
+          Language language = null;
+          try {
+            language = Language.fromLanguageCode(l);
+          } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage()); // arb
+            continue;
+          }
+          NeuralEngine engine = NeuralEngine.fromString(supportedEngine);
+          Gender gender = Gender.fromString(voice.genderAsString());
+          String cache = language.toDoubleChar() + engine.toChar() + gender.toChar() + voice.idAsString();
+          list.add(cache);
+        }
+      }
     }
-    return list;
+    return Collections.singletonList(String.join(",", list));
   }
 
   private PollyClient lazyBuildService() {

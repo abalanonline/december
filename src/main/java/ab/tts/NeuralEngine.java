@@ -38,9 +38,11 @@ public enum NeuralEngine {
   public static NeuralEngine fromString(String engine) {
     switch (engine) {
       case "":
+      case "standard":
       case "Standard": return NeuralEngine.STANDARD;
       case "Wavenet": return NeuralEngine.WAVENET;
       case "RUS": return NeuralEngine.RICHCONTEXT;
+      case "neural":
       case "Neural": return NeuralEngine.NEURAL;
     }
     throw new IllegalArgumentException("engine: " + engine);
