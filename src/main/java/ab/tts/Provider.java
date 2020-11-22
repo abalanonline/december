@@ -31,16 +31,6 @@ import java.util.UUID;
 
 public abstract class Provider {
 
-  public static final String[] LANGUAGES = {
-      "en-US", "en-GB", "de-DE", "fr-FR", "es-ES", "it-IT", "ja-JP", "pt-BR", "nl-NL", "zh-CN",
-      "ko-KR", "pl-PL", "en-AU", "es-US", "ru-RU", "en-IN", "fr-CA", "pt-PT", "da-DK", "tr-TR",
-      "nb-NO", "hi-IN", "id-ID", "vi-VN", "cmn-CN", "es-MX", "sv-SE", "fil-PH", "ar-XA", "ro-RO", // top 30
-      "bn-IN", "cmn-TW", "cs-CZ", "el-GR", "fi-FI", "gu-IN", "hu-HU", "kn-IN", "ml-IN", "sk-SK",
-      "ta-IN", "te-IN", "th-TH", "uk-UA", "yue-HK", // 45
-      "ar-AR", "ar-EG", "ar-SA", "bg-BG", "ca-ES", "cy-GB", "de-AT", "de-CH", "en-CA", "en-GB-WLS",
-      "en-IE", "es-LA", "fr-CH", "he-IL", "hr-HR", "is-IS", "ms-MY", "sl-SI", "zh-HK", "zh-TW",
-  };
-
   /**
    * Provider must provide the service that is connected, authorized, initialized, whatever and ready to use.
    * Implementation may vary, but cached service with lazy initialization is preferable.
@@ -49,8 +39,6 @@ public abstract class Provider {
   public abstract Object getService();
 
   public abstract Set<Voice> filter(boolean useNeural, String languages); // FIXME: 2020-11-15 poor name
-
-  public abstract Map<String, Integer> getVoicesPerLanguage();
 
   public abstract List<String> downloadVoices();
 

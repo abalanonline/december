@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -97,28 +96,11 @@ public class Gcloud extends Provider {
           String customName = customNames[s.charAt(0) - 'A' + 1];
           set.add(new Voice(customName, this,
               expectedLanguage + "-" + (s.charAt(1) == 'W' ? "Wavenet" : "Standard") + "-" + s.charAt(0),
-              expectedLanguage));
+              Language.fromLanguageCode(expectedLanguage)));
         }
       }
     }
     return set;
-  }
-
-  @Override
-  public Map<String, Integer> getVoicesPerLanguage() {
-    Map<String, Integer> map = new LinkedHashMap<>();
-    List<String> cachedLanguages = Arrays.asList(CACHE[0].split(","));
-    for (int languageIndex = 0; languageIndex < cachedLanguages.size(); languageIndex++) {
-      int count = 0;
-      for (int i = 1; i < CACHE.length; i++) {
-        String s = CACHE[i];
-        if (s.charAt(languageIndex + 2) != '0') {
-          count += 1;
-        }
-        map.put(cachedLanguages.get(languageIndex), count);
-      }
-    }
-    return map;
   }
 
   @Override
@@ -176,7 +158,7 @@ public class Gcloud extends Provider {
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
     VoiceSelectionParams voiceSelectionParams = VoiceSelectionParams.newBuilder()
-        .setLanguageCode(voice.getLanguage())
+        .setLanguageCode(voice.getLanguage().toLanguageCode())
         .setName(voice.getSystemId())
         .build();
     SynthesizeSpeechResponse response = ((Gcloud) voice.getProvider()).getService().synthesizeSpeech(

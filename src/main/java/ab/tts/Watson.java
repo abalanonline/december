@@ -24,7 +24,6 @@ import lombok.Getter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -70,21 +69,10 @@ public class Watson extends Provider {
       String name = matcher.group("name");
       String version = matcher.group("version");
       if (expectedLanguageSet.contains(language) && ((null == version) != useNeural)) {
-        set.add(new Voice(name, this, voiceId, language));
+        set.add(new Voice(name, this, voiceId, Language.fromLanguageCode(language)));
       }
     }
     return set;
-  }
-
-  @Override
-  public Map<String, Integer> getVoicesPerLanguage() {
-    Map<String, Integer> map = new LinkedHashMap<>();
-    for (String s : CACHE) {
-      String language = s.substring(0, s.lastIndexOf('_'));
-      int i = map.getOrDefault(language, 0);
-      map.put(language, i + 1);
-    }
-    return map;
   }
 
   @Override

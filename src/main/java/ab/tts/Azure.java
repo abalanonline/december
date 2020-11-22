@@ -30,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -93,21 +92,10 @@ public class Azure extends Provider {
         name = name.substring(0, name.length() - 6);
       }
       if ((s.endsWith("Neural") == useNeural) && expectedLanguageSet.contains(language)) {
-        set.add(new Voice(name, this, s, language));
+        set.add(new Voice(name, this, s, Language.fromLanguageCode(language)));
       }
     }
     return set;
-  }
-
-  @Override
-  public Map<String, Integer> getVoicesPerLanguage() {
-    Map<String, Integer> map = new LinkedHashMap<>();
-    for (String s : CACHE) {
-      String language = s.substring(0, s.lastIndexOf('-'));
-      int i = map.getOrDefault(language, 0);
-      map.put(language, i + 1);
-    }
-    return map;
   }
 
   @SneakyThrows
@@ -156,7 +144,7 @@ public class Azure extends Provider {
     headers.set("Content-Type", "application/ssml+xml");
     headers.set("X-Microsoft-OutputFormat", "audio-24khz-96kbitrate-mono-mp3");
     headers.set("Authorization", "Bearer " + accessToken);
-    HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"" + voice.getLanguage() + "\">" +
+    HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"" + voice.getLanguage().toLanguageCode() + "\">" +
         "<voice name=\"" + voice.getSystemId() + "\">" + text + "</voice></speak>", headers); // xml:lang="languageCode"
     byte[] response = restTemplate.postForObject(
         "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".tts.speech.microsoft.com/cognitiveservices/v1",

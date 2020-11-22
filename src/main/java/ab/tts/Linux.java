@@ -49,13 +49,8 @@ public class Linux extends Provider {
   @Override
   public Set<Voice> filter(boolean useNeural, String languages) {
     Set<Voice> set = new LinkedHashSet<>();
-    set.add(new Voice("Linux", this, "texttospeech %1$s %2$s", "en-US"));
+    set.add(new Voice("Linux", this, "texttospeech %1$s %2$s", Language.fromLanguageCode("en-US")));
     return set;
-  }
-
-  @Override
-  public Map<String, Integer> getVoicesPerLanguage() {
-    return Collections.emptyMap();
   }
 
   @Override

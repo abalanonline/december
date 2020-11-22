@@ -33,7 +33,7 @@ public class Voice {
 
   private final String configuration = "";
 
-  private final String language;
+  private final Language language;
 
   private final boolean neural = false;
 
