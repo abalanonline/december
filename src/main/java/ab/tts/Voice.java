@@ -16,13 +16,13 @@
 
 package ab.tts;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.io.InputStream;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class Voice {
 
   private final String name;
@@ -31,13 +31,23 @@ public class Voice {
 
   private final String systemId;
 
-  private final String configuration = "";
+  private final String configuration;
 
   private final Language language;
 
-  private final boolean neural = false;
+  private final NeuralEngine engine;
 
-  private final Gender gender = Gender.NEUTRAL;
+  private final Gender gender;
+
+  public Voice(String name, Provider provider, String systemId, Language language) {
+    this.name = name;
+    this.provider = provider;
+    this.systemId = systemId;
+    this.configuration = "{}";
+    this.language = language;
+    this.engine = NeuralEngine.STANDARD;
+    this.gender = Gender.NEUTRAL;
+  }
 
   public InputStream mp3Stream(String text) {
     return getProvider().mp3Stream(this, text);

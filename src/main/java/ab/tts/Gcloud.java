@@ -19,7 +19,6 @@ package ab.tts;
 import com.google.cloud.texttospeech.v1.AudioConfig;
 import com.google.cloud.texttospeech.v1.AudioEncoding;
 import com.google.cloud.texttospeech.v1.ListVoicesRequest;
-import com.google.cloud.texttospeech.v1.ListVoicesResponse;
 import com.google.cloud.texttospeech.v1.SynthesisInput;
 import com.google.cloud.texttospeech.v1.SynthesizeSpeechResponse;
 import com.google.cloud.texttospeech.v1.TextToSpeechClient;
@@ -87,28 +86,31 @@ public class Gcloud extends Provider {
 
   @Override
   public Set<Voice> filter(boolean useNeural, String languages) {
-    Set<String> expectedLanguageSet = Arrays.stream(languages.split(","))
-        .collect(Collectors.toCollection(LinkedHashSet::new));
-    List<String> cachedLanguages = Arrays.asList(CACHE[0].split(","));
-    expectedLanguageSet.retainAll(cachedLanguages);
-    char expectedEngine = useNeural ? 'W' : 'S';
-    Map<String, String[]> customNamesMap = new LinkedHashMap<>();
+    // London Tokyo
+    Map<String, Map<Character, String>> customNamesMap = new LinkedHashMap<>();
     for (String customName : CUSTOM_NAMES) {
       String[] strings = customName.split(",");
-      customNamesMap.put(strings[0], strings);
+      Map<Character, String> map = new LinkedHashMap<>();
+      for (int i = 1; i < strings.length; i++) {
+        map.put((char) ('A' + i - 1), strings[i]);
+      }
+      customNamesMap.put(strings[0], map);
     }
+
     Set<Voice> set = new LinkedHashSet<>();
-    for (String expectedLanguage : expectedLanguageSet) {
-      int languageIndex = cachedLanguages.indexOf(expectedLanguage) + 2;
-      for (int i = 1; i < CACHE.length; i++) {
-        String s = CACHE[i];
-        if ((expectedEngine == s.charAt(1)) && (s.charAt(languageIndex) != NOT_EXIST)) {
-          String[] customNames = customNamesMap.getOrDefault(expectedLanguage, customNamesMap.get(""));
-          String customName = customNames[s.charAt(0) - 'A' + 1];
-          set.add(new Voice(customName, this,
-              expectedLanguage + "-" + (s.charAt(1) == 'W' ? "Wavenet" : "Standard") + "-" + s.charAt(0),
-              Language.fromLanguageCode(expectedLanguage)));
+    for (String cache : CACHE) {
+      char charName = cache.charAt(0);
+      NeuralEngine engine = NeuralEngine.fromChar(cache.charAt(1));
+      for (int i = 2; i < cache.length(); i++) {
+        char c = cache.charAt(i);
+        if (c == NOT_EXIST) {
+          continue;
         }
+        Gender gender = Gender.fromChar(c);
+        Language language = new Language(i - 2);
+        set.add(new Voice(
+            customNamesMap.getOrDefault(language.toLanguageCode(), customNamesMap.get("")).get(charName),
+            this, systemId(language, engine, charName), null, language, engine, gender));
       }
     }
     return set;

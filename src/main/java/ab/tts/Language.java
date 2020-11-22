@@ -39,6 +39,10 @@ public class Language {
 
   @Getter private final int index;
 
+  public Language(int index) {
+    this.index = index;
+  }
+
   public Language(String languageCode) {
     index = Arrays.asList(LANGUAGE_CODES).indexOf(languageCode);
     if (index < 0) {
