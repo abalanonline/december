@@ -24,10 +24,9 @@ import lombok.Getter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,39 +39,35 @@ import java.util.stream.Collectors;
  */
 public class Watson extends Provider {
 
-  public static final Pattern ID_PATTERN = Pattern.compile("(?<language>[^_]+)_(?<name>\\D+)(?<version>V[23])?Voice");
+  public static final Pattern ID_PATTERN = Pattern.compile("(?<language>[^_]+)_(?<name>\\D+)(?<engine>|V2|V3)Voice");
 
-  public static final String[] CACHE = {
-      "en-GB_KateV3Voice,f,t,f", "pt-BR_IsabelaVoice,f,t,f", "en-US_LisaV3Voice,f,t,f", "en-US_EmilyV3Voice,f,t,f",
-      "es-US_SofiaV3Voice,f,t,f", "en-GB_CharlotteV3Voice,f,t,f", "en-US_HenryV3Voice,m,t,f", "en-US_MichaelV3Voice,m,t,f",
-      "en-US_OliviaV3Voice,f,t,f", "pt-BR_IsabelaV3Voice,f,t,f", "ja-JP_EmiV3Voice,f,t,f", "en-US_KevinV3Voice,m,t,f",
-      "en-GB_JamesV3Voice,m,t,f", "es-LA_SofiaVoice,f,t,f", "de-DE_BirgitV3Voice,f,t,f", "de-DE_DieterV3Voice,m,t,f",
-      "en-US_AllisonV3Voice,f,t,f", "de-DE_ErikaV3Voice,f,t,f", "fr-FR_NicolasV3Voice,m,t,f", "fr-FR_ReneeV3Voice,f,t,f",
-      "es-LA_SofiaV3Voice,f,t,f", "es-ES_LauraV3Voice,f,t,f", "it-IT_FrancescaV3Voice,f,t,f", "es-ES_EnriqueV3Voice,m,t,f",
-      "de-DE_BirgitVoice,f,t,f", "de-DE_DieterVoice,m,t,f", "it-IT_FrancescaVoice,f,t,f", "es-ES_LauraVoice,f,t,f",
-      "ja-JP_EmiVoice,f,t,f", "en-US_AllisonVoice,f,t,t", "es-US_SofiaVoice,f,t,f", "en-US_LisaVoice,f,t,t",
-      "en-GB_KateVoice,f,t,f", "fr-FR_ReneeVoice,f,t,f", "es-ES_EnriqueVoice,m,t,f", "en-US_MichaelVoice,m,t,t",
-      "ar-AR_OmarVoice,m,f,f", "ko-KR_YoungmiVoice,f,t,f", "ko-KR_YunaVoice,f,t,f", "nl-NL_EmmaVoice,f,t,f",
-      "nl-NL_LiamVoice,m,t,f", "zh-CN_LiNaVoice,f,t,f", "zh-CN_WangWeiVoice,m,t,f", "zh-CN_ZhangJingVoice,f,t,f"};
+  public static final String CACHE =
+      "563fSofia,07sfIsabela,003mKevin,013fKate,063fEmi,033fRenee,003fLisa,053fFrancesca,133fSofia,043mEnrique," +
+      "003fOlivia,013fCharlotte,073fIsabela,043fLaura,003mMichael,023fErika,003mHenry,003fEmily,033mNicolas," +
+      "013mJames,023mDieter,56sfSofia,003fAllison,023fBirgit,02sfBirgit,00sfAllison,00sfLisa,00smMichael,03sfRenee," +
+      "04smEnrique,13sfSofia,05sfFrancesca,06sfEmi,04sfLaura,02smDieter,01sfKate,45smOmar,10sfYoungmi,10sfYuna," +
+      "08sfEmma,08smLiam,09sfLiNa,09smWangWei,09sfZhangJing";
 
   @Getter(lazy=true) private final TextToSpeech service = lazyBuildService();
 
+  private Voice voice(String cache) {
+    Language language = Language.fromDoubleChar(cache.substring(0, 2));
+    NeuralEngine engine = NeuralEngine.fromChar(cache.charAt(2));
+    Gender gender = Gender.fromChar(cache.charAt(3));
+    final String engineName;
+    switch (engine) {
+      case STANDARD: engineName = ""; break;
+      case V3: engineName = "V3"; break;
+      default: throw new IllegalArgumentException();
+    }
+    String name = cache.substring(4);
+    return new Voice(name, this, language.toLanguageCode() + '_' + name + engineName + "Voice",
+        null, language, engine, gender);
+  }
+
   @Override
   public Set<Voice> filter(boolean useNeural, String languages) {
-    Set<String> expectedLanguageSet = Arrays.stream(languages.split(",")).collect(Collectors.toSet());
-    Set<Voice> set = new LinkedHashSet<>();
-    for (String s : CACHE) {
-      String voiceId = s.substring(0, s.indexOf(','));
-      Matcher matcher = ID_PATTERN.matcher(voiceId);
-      boolean matches = matcher.matches();
-      String language = matcher.group("language");
-      String name = matcher.group("name");
-      String version = matcher.group("version");
-      if (expectedLanguageSet.contains(language) && ((null == version) != useNeural)) {
-        set.add(new Voice(name, this, voiceId, Language.fromLanguageCode(language)));
-      }
-    }
-    return set;
+    return Arrays.stream(CACHE.split(",")).map(this::voice).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   @Override
@@ -82,27 +77,19 @@ public class Watson extends Provider {
       Matcher matcher = ID_PATTERN.matcher(voice.getName());
       boolean matches = matcher.matches();
       assert matches;
-      String language = matcher.group("language");
+      Language language = Language.fromLanguageCode(matcher.group("language"));
       String name = matcher.group("name");
-      String version = matcher.group("version");
+      String version = matcher.group("engine");
       if ("V2".equals(version)) {
         continue; // discontinued https://cloud.ibm.com/docs/text-to-speech?topic=text-to-speech-voices
       }
-      // Description
-      assert voice.getDescription().replace(" ", "").startsWith(name + ":");
-      assert voice.getDescription().endsWith(" " + voice.getGender() + " voice." + (null == version ? "" : " Dnn technology."));
-      // Customizable
-      assert voice.isCustomizable().equals(voice.getSupportedFeatures().isCustomPronunciation());
-      // Customization
-      assert voice.getCustomization() == null;
-      // Language
-      assert voice.getLanguage().equals(language);
-
-      list.add(voice.getName() + "," + voice.getGender().substring(0, 1) + "," +
-          voice.getSupportedFeatures().isCustomPronunciation().toString().substring(0, 1) + "," +
-          voice.getSupportedFeatures().isVoiceTransformation().toString().substring(0, 1));
+      NeuralEngine engine = NeuralEngine.fromString(version);
+      Gender gender = Gender.fromString(voice.getGender());
+      String cache = language.toDoubleChar() + engine.toChar() + gender.toChar() + name;
+      assert voice(cache).getSystemId().equals(voice.getName());
+      list.add(cache);
     }
-    return list;
+    return Collections.singletonList(String.join(",", list));
   }
 
   private TextToSpeech lazyBuildService() {

@@ -44,6 +44,7 @@ public enum NeuralEngine {
       case "RUS": return NeuralEngine.RICHCONTEXT;
       case "neural":
       case "Neural": return NeuralEngine.NEURAL;
+      case "V3": return NeuralEngine.V3;
     }
     throw new IllegalArgumentException("engine: " + engine);
   }
