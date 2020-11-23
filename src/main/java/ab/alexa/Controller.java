@@ -36,8 +36,13 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @RestController
@@ -111,6 +116,37 @@ public class Controller {
     return null;
   }
 
+  static List<Integer> listVoices = null;
+  static int listVoicesCurrent = 0;
+  public ResponseMeta listvoices(RequestMeta requestMeta) {
+    switch (requestMeta.getRequestType()) {
+      case "LaunchRequest":
+        log.info("i: list voices");
+        if (listVoices == null) {
+          listVoices = IntStream.range(0, voiceMap.keySet().size()).boxed().collect(Collectors.toList());
+        }
+        Collections.shuffle(listVoices);
+        listVoicesCurrent = -1;
+      case "AudioPlayer.PlaybackNearlyFinished":
+        listVoicesCurrent += 1;
+        try {
+          //String s = voiceMap.keySet().toArray(new String[0])[listVoices.get(listVoicesCurrent)];
+          ArrayList<String> voiceNamesList = new ArrayList<>(voiceMap.keySet());
+          currentVoice = voiceNamesList.get(listVoices.get(listVoicesCurrent));
+        } catch (IndexOutOfBoundsException e) {
+          log.info("o: end of the list");
+          return null;
+        }
+        log.info("o: " + listVoices.get(listVoicesCurrent) + " " + currentVoice + " " + voiceMap.get(currentVoice));
+        ResponseMeta response =
+            sayAudio("number " + listVoices.get(listVoicesCurrent) + ", " + randomGreeting(currentVoice) + ", ");
+        DirectiveAudioPlayerPlay directive = (DirectiveAudioPlayerPlay) response.getResponse().getDirectives().get(0);
+        directive.setPlayBehavior("REPLACE_ENQUEUED");
+        return response;
+    }
+    return null;
+  }
+
   private static final String[] RANDOM_GREETINGS = {
       "Hi, it's %s",
       "Hi, it's %s speaking",
@@ -162,6 +198,7 @@ public class Controller {
     log.debug("i: " + skill + " - " + requestMeta.getRequestType() + ": " + requestString);
     ResponseMeta responseMeta = null;
     switch (skill) {
+      case "listvoices": responseMeta = listvoices(requestMeta); break;
       case "thenews": responseMeta = thenews(requestMeta); break;
       case "justlisten": responseMeta = justlisten(requestMeta); break;
       case "selectvoice": responseMeta = selectvoice(requestMeta); break;

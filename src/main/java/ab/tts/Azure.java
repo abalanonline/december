@@ -19,8 +19,8 @@ package ab.tts;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.watson.text_to_speech.v1.TextToSpeech;
-import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,6 +29,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
  * Microsoft Azure Text to Speech https://azure.microsoft.com/en-ca/services/cognitive-services/text-to-speech/
  * Environment variables: MICROSOFT_API_KEY, MICROSOFT_API_LOCATION
  */
+@Slf4j
 public class Azure extends Provider {
 
   public static final Pattern ID_PATTERN = Pattern.compile("(?<language>.+)-(?<name>\\w*?)(?<engine>|RUS|Neural)");
@@ -63,7 +66,24 @@ public class Azure extends Provider {
       "23nfHoaiMy,09rfHuihui,09smKangkang,09nfXiaoxiao,09nfXiaoyou,09sfYaoyao,09nmYunyang,09nmYunye,63smDanny," +
       "63nfHiugaai,63rfTracy,64rfHanHan,64nfHsiaoYu,64sfYating,64smZhiwei";
 
-  @Getter(lazy=true) private final Object service = lazyBuildService();
+  private String oauthToken = "";
+  private Instant oauthTokenExpiration = Instant.now();
+  @Override
+  public HttpHeaders getService() {
+    if (Instant.now().isAfter(oauthTokenExpiration)) { // FIXME: 2020-11-22 synchronization
+      HttpHeaders headers1 = new HttpHeaders();
+      headers1.set("Ocp-Apim-Subscription-Key", System.getenv("MICROSOFT_API_KEY"));
+      HttpEntity<String> entity1 = new HttpEntity<>("", headers1);
+      oauthToken = new RestTemplate().postForObject(
+          "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".api.cognitive.microsoft.com/sts/v1.0/issueToken",
+          entity1, String.class);
+      log.debug("oauthToken requested");
+      oauthTokenExpiration = Instant.now().plus(9, ChronoUnit.MINUTES);
+    }
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", "Bearer " + oauthToken);
+    return headers;
+  }
 
   private Voice voice(String cache) {
     Language language = Language.fromDoubleChar(cache.substring(0, 2));
@@ -90,15 +110,7 @@ public class Azure extends Provider {
   public List<String> downloadVoices() {
     RestTemplate restTemplate = new RestTemplate();
 
-    HttpHeaders headers1 = new HttpHeaders();
-    headers1.set("Ocp-Apim-Subscription-Key", System.getenv("MICROSOFT_API_KEY"));
-    HttpEntity<String> entity1 = new HttpEntity<>("", headers1);
-    String accessToken = restTemplate.postForObject(
-        "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".api.cognitive.microsoft.com/sts/v1.0/issueToken",
-        entity1, String.class);
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.set("Authorization", "Bearer " + accessToken);
+    HttpHeaders headers = getService();
     ResponseEntity<String> response = restTemplate.exchange(
         "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".tts.speech.microsoft.com/cognitiveservices/voices/list",
         HttpMethod.GET, new HttpEntity<>(headers), String.class);
@@ -130,17 +142,9 @@ public class Azure extends Provider {
 
     RestTemplate restTemplate = new RestTemplate();
 
-    HttpHeaders headers1 = new HttpHeaders();
-    headers1.set("Ocp-Apim-Subscription-Key", System.getenv("MICROSOFT_API_KEY"));
-    HttpEntity<String> entity1 = new HttpEntity<>("", headers1);
-    String accessToken = restTemplate.postForObject(
-        "https://" + System.getenv("MICROSOFT_API_LOCATION") + ".api.cognitive.microsoft.com/sts/v1.0/issueToken",
-        entity1, String.class);
-
-    HttpHeaders headers = new HttpHeaders();
+    HttpHeaders headers = getService();
     headers.set("Content-Type", "application/ssml+xml");
     headers.set("X-Microsoft-OutputFormat", "audio-24khz-96kbitrate-mono-mp3");
-    headers.set("Authorization", "Bearer " + accessToken);
     HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"" + voice.getLanguage().toLanguageCode() + "\">" +
         "<voice name=\"" + voice.getSystemId() + "\">" + text + "</voice></speak>", headers); // xml:lang="languageCode"
     byte[] response = restTemplate.postForObject(

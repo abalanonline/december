@@ -30,6 +30,7 @@ public class ApplicationTest {
   @Test
   public void voiceMap() {
     Map<String, Voice> voiceMap = new Application().voiceMap();
+    voiceMap.get("Guy").mp3File("hello", "target/guy.mp3");
     voiceMap.get("Brian").mp3File("hello", "target/brian.mp3");
     voiceMap.entrySet().iterator().next().getValue().mp3File("hello", "target/hello.mp3");
   }
