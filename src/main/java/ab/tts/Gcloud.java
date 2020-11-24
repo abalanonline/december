@@ -33,10 +33,8 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -85,7 +83,7 @@ public class Gcloud extends Provider {
   }
 
   @Override
-  public Set<Voice> getVoiceSet() {
+  public List<Voice> getVoiceList() {
     // London Tokyo
     Map<String, Map<Character, String>> customNamesMap = new LinkedHashMap<>();
     for (String customName : CUSTOM_NAMES) {
@@ -97,7 +95,7 @@ public class Gcloud extends Provider {
       customNamesMap.put(strings[0], map);
     }
 
-    Set<Voice> set = new LinkedHashSet<>();
+    List<Voice> list = new ArrayList<>();
     for (String cache : CACHE) {
       char charName = cache.charAt(0);
       NeuralEngine engine = NeuralEngine.fromChar(cache.charAt(1));
@@ -108,12 +106,12 @@ public class Gcloud extends Provider {
         }
         Gender gender = Gender.fromChar(c);
         Language language = new Language(i - 2);
-        set.add(new Voice(
+        list.add(new Voice(
             customNamesMap.getOrDefault(language.toLanguageCode(), customNamesMap.get("")).get(charName),
             this, systemId(language, engine, charName), null, language, engine, gender));
       }
     }
-    return set;
+    return list;
   }
 
   @Override

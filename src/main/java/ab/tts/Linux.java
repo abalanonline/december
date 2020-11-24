@@ -28,11 +28,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -47,11 +45,11 @@ public class Linux extends Provider {
   @Getter private final Consumer<String> service = this::exec;
 
   @Override
-  public Set<Voice> getVoiceSet() {
-    Set<Voice> set = new LinkedHashSet<>();
-    set.add(new Voice("Linux", this, "texttospeech %1$s %2$s", null,
+  public List<Voice> getVoiceList() {
+    List<Voice> list = new ArrayList<>();
+    list.add(new Voice("Linux", this, "texttospeech %1$s %2$s", null,
         Language.fromLanguageCode("en-US"), NeuralEngine.STANDARD, Gender.NEUTRAL));
-    return set;
+    return list;
   }
 
   @Override

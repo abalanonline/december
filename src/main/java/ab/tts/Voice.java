@@ -18,26 +18,38 @@ package ab.tts;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.InputStream;
 
 @Getter
+@Setter
 @AllArgsConstructor
 public class Voice {
 
-  private final String name;
+  private String name;
 
   private final Provider provider;
 
   private final String systemId;
 
-  private final String configuration;
+  private VoiceConfiguration configuration;
 
-  private final Language language;
+  private Language language;
 
   private final NeuralEngine engine;
 
   private final Gender gender;
+
+  public Voice(Voice v) { // copy constructor
+    this.name = v.name;
+    this.provider = v.provider;
+    this.systemId = v.systemId;
+    this.configuration = v.configuration;
+    this.language = v.language;
+    this.engine = v.engine;
+    this.gender = v.gender;
+  }
 
   public InputStream mp3Stream(String text) {
     return getProvider().mp3Stream(this, text);

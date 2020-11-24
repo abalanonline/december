@@ -33,9 +33,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -101,8 +99,8 @@ public class Azure extends Provider {
   }
 
   @Override
-  public Set<Voice> getVoiceSet() {
-    return Arrays.stream(CACHE.split(",")).map(this::voice).collect(Collectors.toCollection(LinkedHashSet::new));
+  public List<Voice> getVoiceList() {
+    return Arrays.stream(CACHE.split(",")).map(this::voice).collect(Collectors.toList());
   }
 
   @SneakyThrows

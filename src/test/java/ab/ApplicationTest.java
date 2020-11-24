@@ -17,6 +17,7 @@
 package ab;
 
 import ab.tts.Provider;
+import ab.tts.TtsService;
 import ab.tts.Voice;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class ApplicationTest {
   @Ignore
   @Test
   public void voiceMap() {
-    Map<String, Voice> voiceMap = new Application().voiceMap();
+    Map<String, Voice> voiceMap = new TtsService(new String[]{"en-US", "en-GB"}, false, null).getVoiceMap();
     voiceMap.get("Guy").mp3File("hello", "target/guy.mp3");
     voiceMap.get("Brian").mp3File("hello", "target/brian.mp3");
     voiceMap.entrySet().iterator().next().getValue().mp3File("hello", "target/hello.mp3");
@@ -39,14 +40,14 @@ public class ApplicationTest {
   @Test
   public void providerTest() {
     //System.out.println(new Azure().downloadVoices().stream().collect(Collectors.joining("\", \"")));
-    Voice voice = (Voice) new ab.tts.Azure().getVoiceSet().toArray()[0];
+    Voice voice = (Voice) new ab.tts.Azure().getVoiceList().toArray()[0];
     voice.mp3File("Success is a lousy teacher. It seduces smart people into thinking they can't lose.", "target/azure.mp3");
   }
 
   @Ignore
   @Test
   public void downloadVoices() {
-    for (Provider provider : Application.PROVIDERS) {
+    for (Provider provider : TtsService.PROVIDERS) {
       System.out.println("\"" + provider.downloadVoices().stream().collect(Collectors.joining("\", \"")) + "\"");
     }
   }

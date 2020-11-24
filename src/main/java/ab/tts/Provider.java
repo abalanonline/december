@@ -25,8 +25,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public abstract class Provider {
@@ -38,7 +36,13 @@ public abstract class Provider {
    */
   public abstract Object getService();
 
-  public abstract Set<Voice> getVoiceSet();
+  /**
+   * In the design of v0.2 there were Set<Voice> getVoiceSet() in ab.tts.Provider
+   * and Map<String, Voice> voiceMap() in Application.
+   * Then Enrique and friends appeared and questioned why the names or even voices must be unique?
+   * There is no obvious reason for such restriction. And v0.3 was redesigned to plain old java array/list
+   */
+  public abstract List<Voice> getVoiceList();
 
   public abstract List<String> downloadVoices();
 

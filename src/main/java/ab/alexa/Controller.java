@@ -16,6 +16,7 @@
 
 package ab.alexa;
 
+import ab.tts.TtsService;
 import ab.tts.Voice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +62,7 @@ public class Controller {
   private ObjectMapper objectMapper;
 
   @Autowired
-  private Map<String, Voice> voiceMap;
+  private TtsService ttsService;
 
   public ResponseMeta dialogPlain(String text) {
     ResponseMeta responseMeta = text != null && !text.isEmpty() ? new ResponseMeta(text) :
@@ -71,10 +72,10 @@ public class Controller {
     return responseMeta;
   }
 
-  private static String currentVoice = "Linux"; // FIXME: 2020-11-16 read from configuration file
+  private static int currentVoiceIndex = 0; // FIXME: 2020-11-16 read from configuration file
 
   public ResponseMeta sayAudio(String text) {
-    String fileName = voiceMap.get(currentVoice)
+    String fileName = ttsService.getVoiceList().get(currentVoiceIndex)
         .mp3File(text, fileLocal + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3");
     ResponseMeta responseMeta = new ResponseMeta();
     responseMeta.getResponse().getDirectives().add(new DirectiveAudioPlayerPlay(fileUrl + "/" + fileName.substring(fileName.lastIndexOf('/'))));
@@ -123,23 +124,22 @@ public class Controller {
       case "LaunchRequest":
         log.info("i: list voices");
         if (listVoices == null) {
-          listVoices = IntStream.range(0, voiceMap.keySet().size()).boxed().collect(Collectors.toList());
+          listVoices = IntStream.range(0, ttsService.getVoiceList().size()).boxed().collect(Collectors.toList());
         }
         Collections.shuffle(listVoices);
         listVoicesCurrent = -1;
       case "AudioPlayer.PlaybackNearlyFinished":
         listVoicesCurrent += 1;
         try {
-          //String s = voiceMap.keySet().toArray(new String[0])[listVoices.get(listVoicesCurrent)];
-          ArrayList<String> voiceNamesList = new ArrayList<>(voiceMap.keySet());
-          currentVoice = voiceNamesList.get(listVoices.get(listVoicesCurrent));
+          currentVoiceIndex = listVoices.get(listVoicesCurrent);
         } catch (IndexOutOfBoundsException e) {
           log.info("o: end of the list");
           return null;
         }
-        log.info("o: " + listVoices.get(listVoicesCurrent) + " " + currentVoice + " " + voiceMap.get(currentVoice));
+        Voice v = ttsService.getVoiceList().get(currentVoiceIndex);
+        log.info("o: " + currentVoiceIndex + " " + v.getName() + " " + v);
         ResponseMeta response =
-            sayAudio("number " + listVoices.get(listVoicesCurrent) + ", " + randomGreeting(currentVoice) + ", ");
+            sayAudio("number " + currentVoiceIndex + ", " + randomGreeting(v.getName()) + ", ");
         DirectiveAudioPlayerPlay directive = (DirectiveAudioPlayerPlay) response.getResponse().getDirectives().get(0);
         directive.setPlayBehavior("REPLACE_ENQUEUED");
         return response;
@@ -179,8 +179,8 @@ public class Controller {
       case "IntentRequest":
         String input = requestMeta.getAnyIntentValue();
         log.info("i: " + input);
-        currentVoice = (String) voiceMap.keySet().toArray()[Integer.parseInt(input)];
-        return sayAudio(randomGreeting(currentVoice));
+        currentVoiceIndex = Integer.parseInt(input);
+        return sayAudio(randomGreeting(ttsService.getVoiceList().get(currentVoiceIndex).getName()));
     }
     return null;
   }
