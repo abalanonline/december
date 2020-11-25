@@ -30,10 +30,15 @@ public class ApplicationTest {
   @Ignore
   @Test
   public void voiceMap() {
-    Map<String, Voice> voiceMap = new TtsService(new String[]{"en-US", "en-GB"}, false, null).getVoiceMap();
-    voiceMap.get("Guy").mp3File("hello", "target/guy.mp3");
-    voiceMap.get("Brian").mp3File("hello", "target/brian.mp3");
-    voiceMap.entrySet().iterator().next().getValue().mp3File("hello", "target/hello.mp3");
+    String text = "Man is distinguished, not only by his reason, but by this singular passion from other animals, " +
+        "which is a lust of the mind, that by a perseverance of delight in the continued and indefatigable " +
+        "generation of knowledge, exceeds the short vehemence of any carnal pleasure.";
+    String[] jsonAdd = {
+        "{\"copy\":\"Guy\",\"name\":\"Test1\"}",
+        "{\"copy\":\"Brian\",\"name\":\"Test2\"}"};
+    Map<String, Voice> voiceMap = new TtsService(new String[]{"en-US", "en-GB"}, false, jsonAdd).getVoiceMap();
+    voiceMap.get("Test1").mp3File(text, "target/test1.mp3");
+    voiceMap.get("Test2").mp3File(text, "target/test2.mp3");
   }
 
   @Ignore

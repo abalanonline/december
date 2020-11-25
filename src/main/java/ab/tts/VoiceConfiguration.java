@@ -22,6 +22,15 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Examples:
+ * rename ordinary Enrique to a stylish Rafael
+ * {"name":"Rafael","move":"Enrique","provider":"Polly"}
+ * invite french canadian Chantal to an anglophone party
+ * {"copy":"Chantal","provider":"Polly","language":"en-US","xml_lang":"en-US"}
+ * make a copy of Lisa with 60% breeze timbre and name her Julie
+ * {"name":"Julie","copy":"Lisa","provider":"Watson","timbre":"Breeze","timbre_extent":"60%"}
+ */
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -35,7 +44,10 @@ public class VoiceConfiguration {
   private String name; // new name - optional
   private String language; // new language - optional
 
-  // transformation
+  // bilingual https://docs.aws.amazon.com/polly/latest/dg/bilingual-voices.html
+  private String xml_lang;
+
+  // transformation https://cloud.ibm.com/docs/text-to-speech?topic=text-to-speech-transformation
   private String pitch;
   private String pitch_range;
   private String glottal_tension;

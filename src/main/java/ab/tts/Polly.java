@@ -24,6 +24,7 @@ import software.amazon.awssdk.services.polly.model.DescribeVoicesResponse;
 import software.amazon.awssdk.services.polly.model.Engine;
 import software.amazon.awssdk.services.polly.model.OutputFormat;
 import software.amazon.awssdk.services.polly.model.SynthesizeSpeechRequest;
+import software.amazon.awssdk.services.polly.model.TextType;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -101,11 +102,16 @@ public class Polly extends Provider {
 
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
+    TextType textType = TextType.TEXT;
+    if (voice.getConfiguration().getXml_lang() != null) {
+      text = "<speak><lang xml:lang=\"" + voice.getConfiguration().getXml_lang() + "\">" + text + "</lang></speak>";
+      textType = TextType.SSML;
+    }
     Engine engine = Engine.fromValue(voice.getEngine().toString().toLowerCase());
     if (engine.equals(Engine.UNKNOWN_TO_SDK_VERSION)) {
       throw new IllegalStateException("engine: " + voice.getEngine());
     }
-    SynthesizeSpeechRequest request = SynthesizeSpeechRequest.builder()
+    SynthesizeSpeechRequest request = SynthesizeSpeechRequest.builder().textType(textType)
         .text(text).engine(engine).voiceId(voice.getSystemId()).outputFormat(OutputFormat.MP3).build();
     return ((Polly) voice.getProvider()).getService().synthesizeSpeech(request);
   }

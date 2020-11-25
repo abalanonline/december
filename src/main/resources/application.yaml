@@ -1,0 +1,7 @@
+december.voiceAdd:
+  - '{"name":"Rafael","copy":"Enrique","provider":"Polly"}'
+  - '{"name":"Leonardo","copy":"Enrique","provider":"Watson"}'
+logging.level.ab.alexa.Controller: INFO
+logging.level.ab.tts.Azure: DEBUG
+fileLocal: ./target
+fileUrl: http://localhost
