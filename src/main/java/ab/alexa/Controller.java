@@ -178,6 +178,9 @@ public class Controller {
         return dialogPlain("mmm");
       case "IntentRequest":
         String input = requestMeta.getAnyIntentValue();
+        if ("?".equals(input)) {
+          return null;
+        }
         log.info("i: " + input);
         currentVoiceIndex = Integer.parseInt(input);
         return sayAudio(randomGreeting(ttsService.getVoiceList().get(currentVoiceIndex).getName()));

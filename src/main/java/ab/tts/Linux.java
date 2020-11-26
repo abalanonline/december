@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 /**
  * Command line for on-premise linux text-to-speech engine. Works on windows too.
  * Default is "texttospeech input.txt output.mp3" where texttospeech can be a batch/shell script in path doing anything
+ * and input.txt and output.mp3 are a placeholders that will be replaced by real paths in the file system
  */
 @Slf4j
 public class Linux extends Provider {
@@ -47,7 +48,7 @@ public class Linux extends Provider {
   @Override
   public List<Voice> getVoiceList() {
     List<Voice> list = new ArrayList<>();
-    list.add(new Voice("Linux", this, "texttospeech %1$s %2$s", null,
+    list.add(new Voice("Linux", this, "texttospeech input.txt output.mp3", null,
         Language.fromLanguageCode("en-US"), NeuralEngine.STANDARD, Gender.NEUTRAL));
     return list;
   }
@@ -94,7 +95,10 @@ public class Linux extends Provider {
         String textFileName = fileName + ".txt";
         Files.write(Paths.get(textFileName), text.getBytes(StandardCharsets.UTF_8));
 
-        String commandLine = String.format(voice.getSystemId(), textFileName, fileName); // system id is the command line
+        String commandLineFormat = voice.getConfiguration().getCommand_line();
+        commandLineFormat = commandLineFormat == null ? voice.getSystemId() : commandLineFormat;
+        commandLineFormat = commandLineFormat.replace("input.txt", "%1$s").replace("output.mp3", "%2$s");
+        String commandLine = String.format(commandLineFormat, textFileName, fileName); // system id is the command line
         ((Linux) voice.getProvider()).getService().accept(commandLine);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
