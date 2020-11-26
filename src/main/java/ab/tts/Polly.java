@@ -102,18 +102,38 @@ public class Polly extends Provider {
 
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
+    VoiceConfiguration vc = voice.getConfiguration();
+    StringBuilder prosody = new StringBuilder();
+    if (vc.getPitch() != null) {
+      prosody.append(" pitch=\"").append(vc.getPitch()).append('"');
+    }
+    if (vc.getRate() != null) {
+      prosody.append(" rate=\"").append(vc.getRate()).append('"');
+    }
+    if (vc.getVolume() != null) {
+      prosody.append(" volume=\"").append(vc.getVolume()).append('"');
+    }
+
     TextType textType = TextType.TEXT;
-    if (voice.getConfiguration().getXml_lang() != null) {
-      text = "<speak><lang xml:lang=\"" + voice.getConfiguration().getXml_lang() + "\">" + text + "</lang></speak>";
+    if (prosody.length() > 0) {
+      text = "<prosody" + prosody.toString() + '>' + text + "</prosody>";
       textType = TextType.SSML;
     }
+    if (vc.getXml_lang() != null) {
+      text = "<lang xml:lang=\"" + vc.getXml_lang() + "\">" + text + "</lang>";
+      textType = TextType.SSML;
+    }
+    if (textType == TextType.SSML) {
+      text = "<speak>" + text + "</speak>";
+    }
+
     Engine engine = Engine.fromValue(voice.getEngine().toString().toLowerCase());
     if (engine.equals(Engine.UNKNOWN_TO_SDK_VERSION)) {
       throw new IllegalStateException("engine: " + voice.getEngine());
     }
     SynthesizeSpeechRequest request = SynthesizeSpeechRequest.builder().textType(textType)
         .text(text).engine(engine).voiceId(voice.getSystemId()).outputFormat(OutputFormat.MP3).build();
-    return ((Polly) voice.getProvider()).getService().synthesizeSpeech(request);
+    return getService().synthesizeSpeech(request);
   }
 
 }

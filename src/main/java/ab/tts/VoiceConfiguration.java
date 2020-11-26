@@ -47,12 +47,18 @@ public class VoiceConfiguration {
   // bilingual https://docs.aws.amazon.com/polly/latest/dg/bilingual-voices.html
   private String xml_lang;
 
+  // ssml https://aws.amazon.com/polly/features/#Adjust_Speaking_Style.2C_Speech_Rate.2C_Pitch.2C_and_Loudness
+  // https://docs.aws.amazon.com/polly/latest/dg/supportedtags.html
+  private String pitch; // x-low, low, medium/default, high, x-high
+  private String rate; // x-slow, slow, medium/default, fast, x-fast
+  private String volume; // x-soft, soft, medium, loud, x-loud
+
   // transformation https://cloud.ibm.com/docs/text-to-speech?topic=text-to-speech-transformation
-  private String pitch;
+  //private String pitch; // same as polly
   private String pitch_range;
   private String glottal_tension;
   private String breathiness;
-  private String rate;
+  //private String rate; // same as polly
   private String timbre;
   private String timbre_extent;
 
