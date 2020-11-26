@@ -98,9 +98,36 @@ public class Watson extends Provider {
 
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
+    VoiceConfiguration vc = voice.getConfiguration();
+    StringBuilder voiceTransformation = new StringBuilder();
+    if (vc.getPitch() != null) {
+      voiceTransformation.append(" pitch=\"").append(vc.getPitch()).append('"');
+    }
+    if (vc.getPitch_range() != null) {
+      voiceTransformation.append(" pitch_range=\"").append(vc.getPitch_range()).append('"');
+    }
+    if (vc.getGlottal_tension() != null) {
+      voiceTransformation.append(" glottal_tension=\"").append(vc.getGlottal_tension()).append('"');
+    }
+    if (vc.getBreathiness() != null) {
+      voiceTransformation.append(" breathiness=\"").append(vc.getBreathiness()).append('"');
+    }
+    if (vc.getRate() != null) {
+      voiceTransformation.append(" rate=\"").append(vc.getRate()).append('"');
+    }
+    if (vc.getTimbre() != null) {
+      voiceTransformation.append(" timbre=\"").append(vc.getTimbre()).append('"');
+    }
+    if (vc.getTimbre_extent() != null) {
+      voiceTransformation.append(" timbre_extent=\"").append(vc.getTimbre_extent()).append('"');
+    }
+    if (voiceTransformation.length() > 0) {
+      text = "<voice-transformation type=\"Custom\"" + voiceTransformation.toString() + '>'
+          + text + "</voice-transformation>";
+    }
     SynthesizeOptions synthesizeOptions = new SynthesizeOptions.Builder()
         .text(text).voice(voice.getSystemId()).accept("audio/mp3").build();
-    return ((Watson) voice.getProvider()).getService().synthesize(synthesizeOptions).execute().getResult();
+    return getService().synthesize(synthesizeOptions).execute().getResult();
   }
 
 }

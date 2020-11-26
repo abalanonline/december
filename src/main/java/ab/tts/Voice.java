@@ -61,6 +61,8 @@ public class Voice {
 
   @Override
   public String toString() {
-    return "Voice{" + provider.getClass().getSimpleName() + ":" + systemId + '}';
+    return configuration == null
+        ? "Voice{" + provider.getClass().getSimpleName() + ":" + systemId + '}'
+        : "Voice{" + name + ":configured}";
   }
 }
