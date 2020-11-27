@@ -99,6 +99,9 @@ public class Watson extends Provider {
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
     VoiceConfiguration vc = voice.getConfiguration();
+    if (vc == null) {
+      vc = new VoiceConfiguration();
+    }
     StringBuilder voiceTransformation = new StringBuilder();
     if (vc.getPitch() != null) {
       voiceTransformation.append(" pitch=\"").append(vc.getPitch()).append('"');

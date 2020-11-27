@@ -103,6 +103,9 @@ public class Polly extends Provider {
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
     VoiceConfiguration vc = voice.getConfiguration();
+    if (vc == null) {
+      vc = new VoiceConfiguration();
+    }
     StringBuilder prosody = new StringBuilder();
     if (vc.getPitch() != null) {
       prosody.append(" pitch=\"").append(vc.getPitch()).append('"');

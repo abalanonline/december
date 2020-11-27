@@ -95,7 +95,7 @@ public class Linux extends Provider {
         String textFileName = fileName + ".txt";
         Files.write(Paths.get(textFileName), text.getBytes(StandardCharsets.UTF_8));
 
-        String commandLineFormat = voice.getConfiguration().getCommand_line();
+        String commandLineFormat = voice.getConfiguration() == null ? null : voice.getConfiguration().getCommand_line();
         commandLineFormat = commandLineFormat == null ? voice.getSystemId() : commandLineFormat;
         commandLineFormat = commandLineFormat.replace("input.txt", "%1$s").replace("output.mp3", "%2$s");
         String commandLine = String.format(commandLineFormat, textFileName, fileName); // system id is the command line
