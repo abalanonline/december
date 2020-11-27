@@ -19,15 +19,28 @@ package ab.tts;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.UUID;
 
 public abstract class Provider {
+
+  public static UUID toUuid(String s) { // String to MD5 UUID, nothing special
+    try {
+      ByteBuffer byteBuffer =
+          ByteBuffer.wrap(MessageDigest.getInstance("MD5").digest(s.getBytes(StandardCharsets.UTF_8)));
+      return new UUID(byteBuffer.getLong(), byteBuffer.getLong());
+    } catch (NoSuchAlgorithmException e) {
+      throw new Error(); // required to be supported
+    }
+  }
 
   /**
    * Provider must provide the service that is connected, authorized, initialized, whatever and ready to use.
@@ -52,7 +65,8 @@ public abstract class Provider {
     if (!recommendedFileName.endsWith(".mp3")) {
       throw new IllegalArgumentException("Wrong file extension: " + recommendedFileName);
     }
-    String fileName = recommendedFileName.substring(0, recommendedFileName.length() - 4) + "-" + UUID.randomUUID() + ".mp3";
+    String fileName = recommendedFileName.substring(0, recommendedFileName.length() - 4)
+        + "-" + toUuid(voice.toUuid() + text) + ".mp3";
     Path filePath = Paths.get(fileName);
     if (!Files.exists(filePath)) {
       try {

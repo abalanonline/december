@@ -31,7 +31,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -88,7 +87,8 @@ public class Linux extends Provider {
     if (!recommendedFileName.endsWith(".mp3")) {
       throw new IllegalArgumentException("Wrong file extension: " + recommendedFileName);
     }
-    String fileName = recommendedFileName.substring(0, recommendedFileName.length() - 4) + "-" + UUID.randomUUID() + ".mp3";
+    String fileName = recommendedFileName.substring(0, recommendedFileName.length() - 4)
+        + "-" + toUuid(voice.toUuid() + text) + ".mp3";
     Path filePath = Paths.get(fileName);
     if (!Files.exists(filePath)) {
       try {

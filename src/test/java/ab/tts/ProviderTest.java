@@ -19,6 +19,7 @@ package ab.tts;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 public class ProviderTest {
@@ -32,4 +33,10 @@ public class ProviderTest {
     });
     System.out.println(stringBuilder.toString());
   }
+
+  @Test
+  public void toUuidTest() {
+    assertThat(Provider.toUuid("").toString().toLowerCase(), equalTo("d41d8cd9-8f00-b204-e980-0998ecf8427e"));
+  }
+
 }

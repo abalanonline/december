@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.InputStream;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -57,6 +58,19 @@ public class Voice {
 
   public String mp3File(String text, String recommendedFileName) {
     return getProvider().mp3File(this, text, recommendedFileName);
+  }
+
+  /**
+   * To UUID method perform tasks similar to hashCode but better.
+   * It remains consistent between application executions. (Not necessary between builds)
+   * The size is 128 bit which is 4x to java hashCode.
+   * If two objects are not equal their UUIDs will be different.
+   * @return hash code UUID
+   */
+  public UUID toUuid() {
+    return Provider.toUuid(name + '/' + provider.getClass().getSimpleName() + '/' + systemId + '/'
+        + language.getIndex() + '/' + engine.ordinal() + '/' + gender.ordinal() + '/'
+        + (configuration == null ? "" : configuration.getJson()));
   }
 
   @Override
