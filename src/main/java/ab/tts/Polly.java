@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
  * Amazon Polly https://aws.amazon.com/polly/
  * Environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
  * https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html
+ * mp3: 22050 Hz 48 kbit/s https://docs.aws.amazon.com/polly/latest/dg/API_SynthesizeSpeech.html
  */
 @Slf4j
 public class Polly extends Provider {
@@ -58,7 +59,7 @@ public class Polly extends Provider {
     NeuralEngine engine = NeuralEngine.fromChar(cache.charAt(2));
     Gender gender = Gender.fromChar(cache.charAt(3));
     String name = cache.substring(4);
-    return new Voice(name, this, name, null, language, engine, gender);
+    return new Voice(name, this, name, null, language, engine, gender, engine.isNeural() ? 24000 : 22050);
   }
 
   @Override

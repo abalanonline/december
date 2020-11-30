@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
  * IBM Watson Text to Speech https://www.ibm.com/cloud/watson-text-to-speech
  * Environment variables: IBM_API_KEY, IBM_TTS_URL
  * https://cloud.ibm.com/apidocs/text-to-speech?code=java
+ * mp3: 22050 Hz 96 kbit/s https://cloud.ibm.com/apidocs/text-to-speech#synthesize
  */
 public class Watson extends Provider {
 
@@ -60,7 +61,7 @@ public class Watson extends Provider {
     }
     String name = cache.substring(4);
     return new Voice(name, this, language.toLanguageCode() + '_' + name + engineName + "Voice",
-        null, language, engine, gender);
+        null, language, engine, gender, 22050);
   }
 
   @Override

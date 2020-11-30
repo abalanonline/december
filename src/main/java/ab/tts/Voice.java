@@ -42,6 +42,8 @@ public class Voice {
 
   private final Gender gender;
 
+  private final int sampleRate; // Hertz
+
   public Voice(Voice v) { // copy constructor
     this.name = v.name;
     this.provider = v.provider;
@@ -50,6 +52,7 @@ public class Voice {
     this.language = v.language;
     this.engine = v.engine;
     this.gender = v.gender;
+    this.sampleRate = v.sampleRate;
   }
 
   public InputStream mp3Stream(String text) {

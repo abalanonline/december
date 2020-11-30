@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
  * Google Cloud Text-to-Speech https://cloud.google.com/text-to-speech/
  * Environment variables: GOOGLE_APPLICATION_CREDENTIALS
  * https://cloud.google.com/text-to-speech/docs/quickstart-client-libraries
+ * mp3: 24000 Hz 32 kbit/s (undocumented)
  */
 @Slf4j
 public class Gcloud extends Provider {
@@ -108,7 +109,7 @@ public class Gcloud extends Provider {
         Language language = new Language(i - 2);
         list.add(new Voice(
             customNamesMap.getOrDefault(language.toLanguageCode(), customNamesMap.get("")).get(charName),
-            this, systemId(language, engine, charName), null, language, engine, gender));
+            this, systemId(language, engine, charName), null, language, engine, gender, 24000));
       }
     }
     return list;

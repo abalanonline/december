@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 /**
  * Microsoft Azure Text to Speech https://azure.microsoft.com/en-ca/services/cognitive-services/text-to-speech/
  * Environment variables: MICROSOFT_API_KEY, MICROSOFT_API_LOCATION
+ * mp3: 24000 Hz 48 kbit/s https://docs.microsoft.com/en-us/java/api/com.microsoft.cognitiveservices.speech.speechsynthesisoutputformat
  */
 @Slf4j
 public class Azure extends Provider {
@@ -95,7 +96,8 @@ public class Azure extends Provider {
       default: throw new IllegalArgumentException();
     }
     String name = cache.substring(4);
-    return new Voice(name, this, language.toLanguageCode() + '-' + name + engineName, null, language, engine, gender);
+    return new Voice(name, this, language.toLanguageCode() + '-' + name + engineName,
+        null, language, engine, gender, 24000);
   }
 
   @Override
@@ -142,7 +144,7 @@ public class Azure extends Provider {
 
     HttpHeaders headers = getService();
     headers.set("Content-Type", "application/ssml+xml");
-    headers.set("X-Microsoft-OutputFormat", "audio-24khz-96kbitrate-mono-mp3");
+    headers.set("X-Microsoft-OutputFormat", "audio-24khz-48kbitrate-mono-mp3");
     HttpEntity<String> entity = new HttpEntity<>("<speak version=\"1.0\" xml:lang=\"" + voice.getLanguage().toLanguageCode() + "\">" +
         "<voice name=\"" + voice.getSystemId() + "\">" + text + "</voice></speak>", headers); // xml:lang="languageCode"
     byte[] response = restTemplate.postForObject(
