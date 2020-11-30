@@ -18,6 +18,7 @@ package ab.alexa;
 
 import ab.tts.TtsService;
 import ab.tts.Voice;
+import ab.weather.Noaa;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,8 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -54,6 +53,9 @@ public class Controller {
 
   @Value("${fileUrl:http://localhost}")
   private String fileUrl;
+
+  @Value("${fileCache:target}")
+  private String fileCache;
 
   public static final String INTENT_NAME = "intent";
   public static final String SLOT_NAME = "slot";
@@ -74,12 +76,18 @@ public class Controller {
 
   private static int currentVoiceIndex = 0; // FIXME: 2020-11-16 read from configuration file
 
+  public ResponseMeta playMp3(String fileName) {
+    ResponseMeta responseMeta = new ResponseMeta();
+    responseMeta.getResponse().getDirectives()
+        .add(new DirectiveAudioPlayerPlay(fileUrl + "/" + fileName.substring(fileName.lastIndexOf('/') + 1)));
+    return responseMeta;
+  }
+
   public ResponseMeta sayAudio(String text) {
     String fileName = ttsService.getVoiceList().get(currentVoiceIndex)
-        .mp3File(text, fileLocal + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3");
-    ResponseMeta responseMeta = new ResponseMeta();
-    responseMeta.getResponse().getDirectives().add(new DirectiveAudioPlayerPlay(fileUrl + "/" + fileName.substring(fileName.lastIndexOf('/'))));
-    return responseMeta;
+        .mp3File(text, fileLocal.endsWith(".mp3") ? fileLocal :
+            (fileLocal + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3"));
+    return playMp3(fileName);
   }
 
   public ResponseMeta dialogAudio(String text) {
@@ -113,6 +121,17 @@ public class Controller {
       String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
           .format(DateTimeFormatter.ofPattern("h:mm"));
       return sayAudio("In Montreal, it's " + timeInMontreal + ". And everything is fine.");
+    }
+    return null;
+  }
+
+  public ResponseMeta decemberweather(RequestMeta requestMeta) {
+    if ("LaunchRequest".equals(requestMeta.getRequestType())) {
+      String fileName = new Noaa().getMp3(
+          ttsService.getVoiceList().get(currentVoiceIndex),
+          fileLocal.endsWith(".mp3") ? fileLocal.substring(0, fileLocal.lastIndexOf('/')) : fileLocal,
+          null);
+      return playMp3(fileName);
     }
     return null;
   }
@@ -205,6 +224,7 @@ public class Controller {
       case "thenews": responseMeta = thenews(requestMeta); break;
       case "justlisten": responseMeta = justlisten(requestMeta); break;
       case "selectvoice": responseMeta = selectvoice(requestMeta); break;
+      case "decemberweather": responseMeta = decemberweather(requestMeta); break;
     }
     if (responseMeta == null) {
       responseMeta = genericResponse(requestMeta);
