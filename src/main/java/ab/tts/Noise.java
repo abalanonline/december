@@ -69,7 +69,7 @@ public class Noise extends Provider {
   }
 
   private boolean isProcessable(String text) {
-    return SSML_BREAK.matcher(text).matches();
+    return text.isEmpty() || SSML_BREAK.matcher(text).matches();
   }
 
   @Override
@@ -78,12 +78,15 @@ public class Noise extends Provider {
       return null;
     }
 
+    int durationMs = 0;
     Matcher matcher = SSML_BREAK.matcher(text);
-    matcher.matches();
-    int durationMs = Integer.parseInt(matcher.group("duration"));
+    if (matcher.matches()) {
+      durationMs = Integer.parseInt(matcher.group("duration"));
+    }
 
     // 576 samples per frame, https://www.codeproject.com/Articles/8295/MPEG-Audio-Frame-Header
     int frames = (int) Math.round(voice.getSampleRate() * durationMs / 576000.0);
+    frames = Math.max(1, frames); // the file should have at least one frame to be an mp3
     byte[] frameContent = silenceMp3.get(voice.getSampleRate());
     
     byte[] response = new byte[frameContent.length * frames];

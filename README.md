@@ -33,3 +33,7 @@ voice | number | voice {number} | AMAZON.NUMBER
 * v0.1 - echo skill with aws lambda
 * v0.2 - external speech synthesis
 * v0.3 - weather radio (AWOS/NOAA/CMB style)
+* v0.4 - neural network voice engine
+* v0.5 - test of google hardware features and limitations
+* v0.6 - achieving continuous conversation
+* v0.7 - artificial intelligence script interpreter

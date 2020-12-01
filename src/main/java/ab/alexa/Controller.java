@@ -130,7 +130,7 @@ public class Controller {
       String fileName = new Noaa().getMp3(
           ttsService.getVoiceList().get(currentVoiceIndex),
           fileLocal.endsWith(".mp3") ? fileLocal.substring(0, fileLocal.lastIndexOf('/')) : fileLocal,
-          null);
+          fileCache);
       return playMp3(fileName);
     }
     return null;

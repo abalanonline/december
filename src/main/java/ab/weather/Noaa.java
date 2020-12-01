@@ -20,9 +20,13 @@ import ab.tts.Voice;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -72,10 +76,29 @@ public class Noaa {
   }
 
   public String getMp3(Voice voice, String mp3Folder, String cacheFolder) {
-    String fileName = voice.mp3File(
-        String.join(". ", getWeather()),
-        mp3Folder + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3");
-    return fileName;
+    String pause = voice.mp3File("<speak><break time=\"100ms\"/></speak>",
+        cacheFolder + "/adjustable_noaa_pause_" + voice.getName() + ".mp3");
+    List<String> audiofiles = new ArrayList<>();
+    for (String weatherLine : getWeather()) {
+      String fileName = weatherLine
+          .replace("-", " minus ").replace("+", " plus ").replaceAll("\\W", " ")
+          .trim().toLowerCase().replaceAll("\\s+", "_");
+      fileName = fileName.isEmpty() ? "_" : fileName;
+      if (!weatherLine.isEmpty()) {
+        audiofiles.add(voice.mp3File(weatherLine, cacheFolder + "/" + fileName + ".mp3"));
+      }
+      audiofiles.add(pause);
+    }
+
+    String outputFile = mp3Folder + "/noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 23) + ".mp3";
+    try (OutputStream outputStream = new FileOutputStream(outputFile)) {
+      for (String audiofile : audiofiles) {
+        Files.copy(Paths.get(audiofile), outputStream);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return outputFile;
   }
 
 }
