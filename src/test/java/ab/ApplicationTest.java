@@ -37,6 +37,8 @@ public class ApplicationTest {
         "{\"copy\":\"Guy\",\"name\":\"Test1\"}",
         "{\"copy\":\"Brian\",\"name\":\"Test2\"}"};
     Map<String, Voice> voiceMap = new TtsService(new String[]{"en-US", "en-GB"}, false, jsonAdd).getVoiceMap();
+    voiceMap.get("Test1").mp3File("<speak><break time=\"10000ms\"/></speak>", "target/test0.mp3");
+    voiceMap.get("Test2").mp3File("<speak><break time=\"10000ms\"/></speak>", "target/test0.mp3");
     voiceMap.get("Test1").mp3File(text, "target/test1.mp3");
     voiceMap.get("Test2").mp3File(text, "target/test2.mp3");
   }

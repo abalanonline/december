@@ -28,6 +28,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Voice {
 
+  public static final Provider PROVIDER_NOISE = new Noise();
+
   private String name;
 
   private final Provider provider;
@@ -56,11 +58,13 @@ public class Voice {
   }
 
   public InputStream mp3Stream(String text) {
-    return getProvider().mp3Stream(this, text);
+    final InputStream noise = PROVIDER_NOISE.mp3Stream(this, text);
+    return noise == null ? getProvider().mp3Stream(this, text) : noise;
   }
 
   public String mp3File(String text, String recommendedFileName) {
-    return getProvider().mp3File(this, text, recommendedFileName);
+    final String noise = PROVIDER_NOISE.mp3File(this, text, recommendedFileName);
+    return noise == null ? getProvider().mp3File(this, text, recommendedFileName) : noise;
   }
 
   /**
