@@ -31,15 +31,15 @@ import org.springframework.context.annotation.Bean;
 import java.util.List;
 
 @Slf4j
-@ConfigurationProperties("december")
+@ConfigurationProperties("voice")
 @SpringBootApplication
 public class Application {
 
-  @Getter @Setter private String[] voiceAdd;
+  @Getter @Setter private String[] add; // voice.add
 
   @Bean
   public TtsService ttsServiceBean() {
-    TtsService ttsService = new TtsService(new String[]{"en-US", "en-GB"}, false, voiceAdd);
+    TtsService ttsService = new TtsService(new String[]{"en-US", "en-GB"}, false, add);
 
     List<Voice> voiceList = ttsService.getVoiceList();
     for (int i = 0; i < voiceList.size(); i++) {

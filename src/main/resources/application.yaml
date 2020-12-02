@@ -1,6 +1,8 @@
-december.voiceAdd:
-  - '{"name":"Rafael","copy":"Enrique","provider":"Polly"}'
-  - '{"name":"Leonardo","copy":"Enrique","provider":"Watson"}'
+voice:
+  add:
+    - '{"name":"Rafael","copy":"Enrique","provider":"Polly"}'
+    - '{"name":"Leonardo","copy":"Enrique","provider":"Watson"}'
+  default: Michael
 logging.level.ab.alexa.Controller: INFO
 logging.level.ab.tts.Azure: DEBUG
 fileLocal: ./target

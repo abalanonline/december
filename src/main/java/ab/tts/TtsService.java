@@ -59,7 +59,7 @@ public class TtsService {
         throw new UncheckedIOException(e);
       }
       vc.setJson(json);
-      Assert.isTrue((vc.getCopy() == null) ^ (vc.getMove() == null), "voiceAdd - should be copy or move");
+      Assert.isTrue((vc.getCopy() == null) ^ (vc.getMove() == null), "voice add - should be copy or move");
       boolean doCopy = vc.getCopy() != null;
       String fromName = doCopy ? vc.getCopy() : vc.getMove();
       String provider = vc.getProvider();

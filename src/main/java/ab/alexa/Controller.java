@@ -57,6 +57,11 @@ public class Controller {
   @Value("${fileCache:target}")
   private String fileCache;
 
+  @Value("${voice.default}")
+  private String defaultVoice;
+
+  private int currentVoiceIndex = 0;
+
   public static final String INTENT_NAME = "intent";
   public static final String SLOT_NAME = "slot";
 
@@ -77,8 +82,6 @@ public class Controller {
     return responseMeta;
   }
 
-  private static int currentVoiceIndex = 0; // FIXME: 2020-11-16 read from configuration file
-
   public ResponseMeta playMp3(String fileName) {
     ResponseMeta responseMeta = new ResponseMeta();
     responseMeta.getResponse().getDirectives()
@@ -87,10 +90,15 @@ public class Controller {
   }
 
   public ResponseMeta sayAudio(String text) {
-    String fileName = ttsService.getVoiceList().get(currentVoiceIndex)
-        .mp3File(text, fileLocal.endsWith(".mp3") ? fileLocal :
+    String fileName = getCurrentVoice().mp3File(text, fileLocal.endsWith(".mp3") ? fileLocal :
             (fileLocal + "/" + Instant.now().toString().replace(':', '-').replace('.', '-') + ".mp3"));
     return playMp3(fileName);
+  }
+
+  private Voice getCurrentVoice() {
+    return currentVoiceIndex == 0
+        ? ttsService.getVoiceMap().get(defaultVoice)
+        : ttsService.getVoiceList().get(currentVoiceIndex);
   }
 
   public ResponseMeta dialogAudio(String text) {
@@ -131,7 +139,7 @@ public class Controller {
   public ResponseMeta decemberweather(RequestMeta requestMeta) {
     if ("LaunchRequest".equals(requestMeta.getRequestType())) {
       String fileName = noaa.getMp3(
-          ttsService.getVoiceList().get(currentVoiceIndex),
+          getCurrentVoice(),
           fileLocal.endsWith(".mp3")
               ? fileLocal
               : fileLocal + "/noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 23) + ".mp3",
@@ -141,7 +149,7 @@ public class Controller {
     return null;
   }
 
-  static List<Integer> listVoices = null;
+  static List<Integer> listVoices = null; // FIXME: 2020-12-02 static variable
   static int listVoicesCurrent = 0;
   public ResponseMeta listvoices(RequestMeta requestMeta) {
     switch (requestMeta.getRequestType()) {
