@@ -66,6 +66,9 @@ public class Controller {
   @Autowired
   private TtsService ttsService;
 
+  @Autowired
+  private Noaa noaa;
+
   public ResponseMeta dialogPlain(String text) {
     ResponseMeta responseMeta = text != null && !text.isEmpty() ? new ResponseMeta(text) :
         new ResponseMeta(); // which make no sense, it will be rejected by api
@@ -127,9 +130,11 @@ public class Controller {
 
   public ResponseMeta decemberweather(RequestMeta requestMeta) {
     if ("LaunchRequest".equals(requestMeta.getRequestType())) {
-      String fileName = new Noaa().getMp3(
+      String fileName = noaa.getMp3(
           ttsService.getVoiceList().get(currentVoiceIndex),
-          fileLocal.endsWith(".mp3") ? fileLocal.substring(0, fileLocal.lastIndexOf('/')) : fileLocal,
+          fileLocal.endsWith(".mp3")
+              ? fileLocal
+              : fileLocal + "/noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 23) + ".mp3",
           fileCache);
       return playMp3(fileName);
     }

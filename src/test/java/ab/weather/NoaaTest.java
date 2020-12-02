@@ -16,7 +16,10 @@
 
 package ab.weather;
 
+import ab.tts.Gcloud;
 import ab.tts.Linux;
+import ab.tts.TtsService;
+import ab.tts.Voice;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.java.Log;
@@ -26,6 +29,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -54,7 +58,13 @@ public class NoaaTest {
   @Ignore
   @Test
   public void getMp3Test() {
-    String fileName = new Noaa().getMp3(new Linux().getVoiceList().get(0), "./target", "./target");
+    TtsService ttsService = new TtsService(new String[]{"en-US"}, false, null);
+    Voice voice = ttsService.getVoiceMap().get("Boston");
+    Noaa noaa = new Noaa();
+    noaa.setGreeting("hello");
+    noaa.setCity("Montreal");
+    String fileName = noaa.getMp3(voice,
+        "./target/_noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 23) + ".mp3", "./target");
     log.info(fileName);
     assertThat(fileName, containsString("mp3"));
   }

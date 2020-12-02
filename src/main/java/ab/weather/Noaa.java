@@ -19,6 +19,10 @@ package ab.weather;
 import ab.tts.Voice;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,13 +32,19 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+@Service
+@ConfigurationProperties("noaa")
 public class Noaa {
+
+  @Getter @Setter private String greeting;
+
+  @Getter @Setter private String city;
 
   public List<String> getWeather() {
     ObjectMapper objectMapper = new ObjectMapper();
@@ -49,7 +59,9 @@ public class Noaa {
     }
     List<AccuWeatherDailyForecast> dailyForecasts = accuWeatherFiveDays.getDailyForecasts();
 
-    List<String> weatherList = new ArrayList<>();
+    List<String> weatherList = new ArrayList<>(Arrays.asList(greeting.split("\n")));
+    weatherList.add("");
+    weatherList.add("Forecast for " + city);
     weatherList.add("The outlook");
     for (AccuWeatherDailyForecast forecast : dailyForecasts) {
       DayOfWeek dayOfWeek =
@@ -75,9 +87,9 @@ public class Noaa {
     return weatherList;
   }
 
-  public String getMp3(Voice voice, String mp3Folder, String cacheFolder) {
+  public String getMp3(Voice voice, String recommendedFileName, String cacheFolder) {
     String pause = voice.mp3File("<speak><break time=\"100ms\"/></speak>",
-        cacheFolder + "/adjustable_noaa_pause_" + voice.getName() + ".mp3");
+        cacheFolder + "/_noaa_pause_" + voice.getName() + ".mp3");
     List<String> audiofiles = new ArrayList<>();
     for (String weatherLine : getWeather()) {
       String fileName = weatherLine
@@ -90,15 +102,14 @@ public class Noaa {
       audiofiles.add(pause);
     }
 
-    String outputFile = mp3Folder + "/noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 23) + ".mp3";
-    try (OutputStream outputStream = new FileOutputStream(outputFile)) {
+    try (OutputStream outputStream = new FileOutputStream(recommendedFileName)) {
       for (String audiofile : audiofiles) {
         Files.copy(Paths.get(audiofile), outputStream);
       }
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
-    return outputFile;
+    return recommendedFileName;
   }
 
 }
