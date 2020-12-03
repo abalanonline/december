@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package ab.weather;
+package ab.weather.aw;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class AccuWeatherUnitValue {
-  private double value;
-  private String unit;
-  private int unitType;
+public class AccuWeatherMetricImperial {
+  private AccuWeatherUnitValue metric;
+  private AccuWeatherUnitValue imperial;
 }

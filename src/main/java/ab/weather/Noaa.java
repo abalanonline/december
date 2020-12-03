@@ -17,6 +17,11 @@
 package ab.weather;
 
 import ab.tts.Voice;
+import ab.weather.aw.AccuWeatherAir;
+import ab.weather.aw.AccuWeatherDailyForecast;
+import ab.weather.aw.AccuWeatherDayNight;
+import ab.weather.aw.AccuWeatherFiveDays;
+import ab.weather.aw.AccuWeatherObservation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

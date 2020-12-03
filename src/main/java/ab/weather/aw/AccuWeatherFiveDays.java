@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package ab.weather;
+package ab.weather.aw;
 
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Map;
+
 @Getter
 @Setter
-public class AccuWeatherAir {
-  private String name;
-  private int value;
-  private String category;
-  private int categoryValue;
-  private String type;
+public class AccuWeatherFiveDays {
+  private Map<String, Object> headline;
+  private List<AccuWeatherDailyForecast> dailyForecasts;
 }

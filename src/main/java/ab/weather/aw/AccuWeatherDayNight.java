@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ab.weather;
+package ab.weather.aw;
 
 import lombok.Getter;
 import lombok.Setter;

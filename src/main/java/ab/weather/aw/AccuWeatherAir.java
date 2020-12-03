@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package ab.weather;
+package ab.weather.aw;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class AccuWeatherDirection {
-  private int degrees;
-  private String localized;
-  private String english;
+public class AccuWeatherAir {
+  private String name;
+  private int value;
+  private String category;
+  private int categoryValue;
+  private String type;
 }
