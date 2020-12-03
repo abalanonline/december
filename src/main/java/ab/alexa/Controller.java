@@ -142,7 +142,7 @@ public class Controller {
           getCurrentVoice(),
           fileLocal.endsWith(".mp3")
               ? fileLocal
-              : fileLocal + "/noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 23) + ".mp3",
+              : fileLocal + "/noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 19) + ".mp3",
           fileCache);
       return playMp3(fileName);
     }

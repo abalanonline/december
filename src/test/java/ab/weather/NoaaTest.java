@@ -43,9 +43,21 @@ public class NoaaTest {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
     ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-    InputStream is = classloader.getResourceAsStream("accuweather5day.json");
+    InputStream is = classloader.getResourceAsStream("accuweather_5day.json");
     AccuWeatherFiveDays accuWeatherFiveDays = objectMapper.readValue(is, AccuWeatherFiveDays.class);
     assertThat(accuWeatherFiveDays.getDailyForecasts().size(), equalTo(5)); // 5 days forecast
+  }
+
+  @Test
+  public void degreeToDirectionTest() {
+    Noaa noaa = new Noaa();
+    int i = 120;
+    assertThat(noaa.degreeToDirection(i, 0), equalTo("N")); // 1-wind, wind or no wind
+    assertThat(noaa.degreeToDirection(i, 1), equalTo("S")); // 2-wind, cold wind or hot wind
+    assertThat(noaa.degreeToDirection(i, 2), equalTo("E")); // 4-wind, NESW
+    assertThat(noaa.degreeToDirection(i, 3), equalTo("SE")); // 8-wind
+    assertThat(noaa.degreeToDirection(i, 4), equalTo("ESE")); // 16
+    assertThat(noaa.degreeToDirection(i, 5), equalTo("SEbE")); // 32
   }
 
   @Ignore
@@ -64,7 +76,7 @@ public class NoaaTest {
     noaa.setGreeting("hello");
     noaa.setCity("Montreal");
     String fileName = noaa.getMp3(voice,
-        "./target/_noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 23) + ".mp3", "./target");
+        "./target/_noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 19) + ".mp3", "./target");
     log.info(fileName);
     assertThat(fileName, containsString("mp3"));
   }

@@ -21,8 +21,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AccuWeatherTemperature1 {
-  private double value;
-  private String unit;
-  private int unitType;
+public class AccuWeatherAir {
+  private String name;
+  private int value;
+  private String category;
+  private int categoryValue;
+  private String type;
 }

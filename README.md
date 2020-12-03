@@ -20,7 +20,11 @@ Testing text-to-speech voices of Kimberly and Matthew (Amazon Polly) and James (
 ### v0.2.1 "list voices"
 Play all the en-us/uk voices from all the providers. More than forty of them including very special ones. ([video](https://youtu.be/_oEXTOOjgpo))
 
-![v0.2.1](https://img.youtube.com/vi/_oEXTOOjgpo/mqdefault.jpg)
+### v0.3 "december weather"
+Automated radio that broadcast weather forecasts over the GMRS radio channel. Open source replica of NOAA radio. 
+The rig generate synthesized voice reports 24/7 and can be used as a base for commercial product. ([video](https://youtu.be/ZXkDPnFoQPc))
+
+![v0.3](https://img.youtube.com/vi/ZXkDPnFoQPc/mqdefault.jpg)
 
 ### Alexa skill configuration
 

@@ -21,7 +21,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AccuWeatherTemperature {
-  private AccuWeatherTemperature1 minimum;
-  private AccuWeatherTemperature1 maximum;
+public class AccuWeatherWind {
+  private AccuWeatherDirection direction;
+  private AccuWeatherMetricImperial speed;
 }

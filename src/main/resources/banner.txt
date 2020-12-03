@@ -1,0 +1,2 @@
+
+    ${AnsiColor.BRIGHT_RED}>>${AnsiColor.DEFAULT} D.E.C.E.M.B.E.R. ${AnsiColor.BRIGHT_RED}>>${AnsiColor.DEFAULT} 44 65 63 65 6d 62 65 72 ${AnsiColor.BRIGHT_RED}>>${AnsiColor.DEFAULT} D.E.C.E.M.B.E.R. ${AnsiColor.BRIGHT_RED}>>${AnsiColor.DEFAULT} ${application.version}

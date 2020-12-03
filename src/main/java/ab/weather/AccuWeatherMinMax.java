@@ -19,25 +19,9 @@ package ab.weather;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-import java.util.Map;
-
 @Getter
 @Setter
-public class AccuWeatherDailyForecast {
-  private String date;
-  private long epochDate;
-  private Map<String, Object> sun;
-  private Map<String, Object> moon;
-  private AccuWeatherMinMax temperature;
-  private AccuWeatherMinMax realFeelTemperature;
-  private AccuWeatherMinMax realFeelTemperatureShade;
-  private Object hoursOfSun;
-  private Map<String, Object> degreeDaySummary;
-  private List<AccuWeatherAir> airAndPollen;
-  private AccuWeatherDayNight day;
-  private AccuWeatherDayNight night;
-  private List<Object> sources;
-  private Object mobileLink;
-  private Object link;
+public class AccuWeatherMinMax {
+  private AccuWeatherUnitValue minimum;
+  private AccuWeatherUnitValue maximum;
 }
