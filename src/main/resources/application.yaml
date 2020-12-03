@@ -13,4 +13,4 @@ noaa:
   city: Montreal
 accuweather:
   location: 56186
-  apiKey: "00000000000000000000000000000000"
+  apikey: "00000000000000000000000000000000"

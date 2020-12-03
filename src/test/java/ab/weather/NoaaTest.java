@@ -16,8 +16,6 @@
 
 package ab.weather;
 
-import ab.tts.Gcloud;
-import ab.tts.Linux;
 import ab.tts.TtsService;
 import ab.tts.Voice;
 import ab.weather.aw.AccuWeather;
@@ -25,7 +23,6 @@ import ab.weather.aw.WeeklyForecast;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.java.Log;
-import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -75,7 +72,7 @@ public class NoaaTest {
     TtsService ttsService = new TtsService(new String[]{"en-US"}, false, null);
     Voice voice = ttsService.getVoiceMap().get("Boston");
     AccuWeather accuWeather = new AccuWeather();
-    accuWeather.setApiKey("00000000000000000000000000000000");
+    accuWeather.setApikey("00000000000000000000000000000000");
     accuWeather.setLocation("56186");
     Noaa noaa = new Noaa();
     noaa.setGreeting("hello");

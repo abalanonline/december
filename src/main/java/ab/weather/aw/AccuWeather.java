@@ -23,7 +23,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
@@ -32,38 +34,49 @@ import java.util.List;
 @ConfigurationProperties("accuweather")
 public class AccuWeather {
 
+  public static final String DATA_SERVICE = "https://dataservice.accuweather.com/";
+
   @Getter @Setter private String location;
 
-  @Getter @Setter private String apiKey;
+  @Getter @Setter private String apikey;
+
+  public <T> T readMock(String resourceName, TypeReference<T> typeReference) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+    ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    try {
+      return objectMapper.readValue(classloader.getResourceAsStream(resourceName), typeReference);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public <T> T getJson(String restUrl, TypeReference<T> typeReference) {
+    RestTemplate restTemplate = new RestTemplate();
+    byte[] bytes = restTemplate.getForObject(DATA_SERVICE + restUrl + '/' + location
+        + "?apikey=" + apikey + "&details=true&metric=true", byte[].class);
+
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+    try {
+      return objectMapper.readValue(new ByteArrayInputStream(bytes), typeReference);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
 
   public WeeklyForecast getWeeklyForecast() {
-    if (apiKey.equals("00000000000000000000000000000000")) {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-      ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-      try {
-        return objectMapper.readValue(classloader.getResourceAsStream("accuweather_5day.json"), WeeklyForecast.class);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
+    if (apikey.equals("00000000000000000000000000000000")) {
+      return readMock("accuweather_5day.json", new TypeReference<WeeklyForecast>() {});
     }
-    return null;
+    return getJson("forecasts/v1/daily/5day", new TypeReference<WeeklyForecast>() {});
   }
 
   public Observation getCurrentObservation() {
-    if (apiKey.equals("00000000000000000000000000000000")) {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-      ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-      try {
-        List<Observation> accuWeatherObservations = objectMapper.readValue(classloader.getResourceAsStream("accuweather_current.json"),
-            new TypeReference<List<Observation>>() {});
-        return accuWeatherObservations.get(0);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
+    if (apikey.equals("00000000000000000000000000000000")) {
+      return readMock("accuweather_current.json", new TypeReference<List<Observation>>() {}).get(0);
     }
-    return null;
+    return getJson("currentconditions/v1", new TypeReference<List<Observation>>() {}).get(0);
   }
 
 }
