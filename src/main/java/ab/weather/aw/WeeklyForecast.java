@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class AccuWeatherFiveDays {
+public class WeeklyForecast {
   private Map<String, Object> headline;
   private List<AccuWeatherDailyForecast> dailyForecasts;
 }

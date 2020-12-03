@@ -20,7 +20,7 @@ import ab.tts.Gcloud;
 import ab.tts.Linux;
 import ab.tts.TtsService;
 import ab.tts.Voice;
-import ab.weather.aw.AccuWeatherFiveDays;
+import ab.weather.aw.WeeklyForecast;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.java.Log;
@@ -45,8 +45,8 @@ public class NoaaTest {
     objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
     ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     InputStream is = classloader.getResourceAsStream("accuweather_5day.json");
-    AccuWeatherFiveDays accuWeatherFiveDays = objectMapper.readValue(is, AccuWeatherFiveDays.class);
-    assertThat(accuWeatherFiveDays.getDailyForecasts().size(), equalTo(5)); // 5 days forecast
+    WeeklyForecast weeklyForecast = objectMapper.readValue(is, WeeklyForecast.class);
+    assertThat(weeklyForecast.getDailyForecasts().size(), equalTo(5)); // 5 days forecast
   }
 
   @Test

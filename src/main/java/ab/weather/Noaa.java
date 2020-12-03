@@ -20,7 +20,7 @@ import ab.tts.Voice;
 import ab.weather.aw.AccuWeatherAir;
 import ab.weather.aw.AccuWeatherDailyForecast;
 import ab.weather.aw.AccuWeatherDayNight;
-import ab.weather.aw.AccuWeatherFiveDays;
+import ab.weather.aw.WeeklyForecast;
 import ab.weather.aw.AccuWeatherObservation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -147,17 +147,17 @@ public class Noaa {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
     ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-    AccuWeatherFiveDays accuWeatherFiveDays = null;
+    WeeklyForecast weeklyForecast = null;
     List<AccuWeatherObservation> accuWeatherObservations = null;
     try {
-      accuWeatherFiveDays =
-          objectMapper.readValue(classloader.getResourceAsStream("accuweather_5day.json"), AccuWeatherFiveDays.class);
+      weeklyForecast =
+          objectMapper.readValue(classloader.getResourceAsStream("accuweather_5day.json"), WeeklyForecast.class);
       accuWeatherObservations = objectMapper.readValue(classloader.getResourceAsStream("accuweather_current.json"),
           new TypeReference<List<AccuWeatherObservation>>() {});
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
-    List<AccuWeatherDailyForecast> dailyForecasts = accuWeatherFiveDays.getDailyForecasts();
+    List<AccuWeatherDailyForecast> dailyForecasts = weeklyForecast.getDailyForecasts();
     AccuWeatherObservation currentObservation = accuWeatherObservations.get(0);
 
     List<String> weatherList = new ArrayList<>(Arrays.asList(greeting.split("\n")));
