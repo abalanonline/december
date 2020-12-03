@@ -23,7 +23,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class AccuWeatherObservation {
+public class Observation {
   private String localObservationDateTime;
   private String epochTime;
   private String weatherText;

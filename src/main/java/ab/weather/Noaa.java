@@ -18,10 +18,10 @@ package ab.weather;
 
 import ab.tts.Voice;
 import ab.weather.aw.AccuWeatherAir;
-import ab.weather.aw.AccuWeatherDailyForecast;
+import ab.weather.aw.DailyForecast;
 import ab.weather.aw.AccuWeatherDayNight;
 import ab.weather.aw.WeeklyForecast;
-import ab.weather.aw.AccuWeatherObservation;
+import ab.weather.aw.Observation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,7 +80,7 @@ public class Noaa {
     return String.join(" ", result);
   }
 
-  public List<String> getWeather12(AccuWeatherDailyForecast forecast, boolean night, int index, String[] airQuality) {
+  public List<String> getWeather12(DailyForecast forecast, boolean night, int index, String[] airQuality) {
     if (index < 0) { // skip the morning forecast
       return Collections.emptyList();
     }
@@ -148,17 +148,17 @@ public class Noaa {
     objectMapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
     ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     WeeklyForecast weeklyForecast = null;
-    List<AccuWeatherObservation> accuWeatherObservations = null;
+    List<Observation> accuWeatherObservations = null;
     try {
       weeklyForecast =
           objectMapper.readValue(classloader.getResourceAsStream("accuweather_5day.json"), WeeklyForecast.class);
       accuWeatherObservations = objectMapper.readValue(classloader.getResourceAsStream("accuweather_current.json"),
-          new TypeReference<List<AccuWeatherObservation>>() {});
+          new TypeReference<List<Observation>>() {});
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
-    List<AccuWeatherDailyForecast> dailyForecasts = weeklyForecast.getDailyForecasts();
-    AccuWeatherObservation currentObservation = accuWeatherObservations.get(0);
+    List<DailyForecast> dailyForecasts = weeklyForecast.getDailyForecasts();
+    Observation currentObservation = accuWeatherObservations.get(0);
 
     List<String> weatherList = new ArrayList<>(Arrays.asList(greeting.split("\n")));
     int hourNow = OffsetDateTime.now().getHour();
@@ -166,7 +166,7 @@ public class Noaa {
     // 1. forecast
     int index12 = ((hourNow < 5) || (hourNow >= 17)) ? -1 : 0; // nighttime
     String[] airQuality = new String[BRIEF_INDEX];
-    for (AccuWeatherDailyForecast forecast : dailyForecasts) {
+    for (DailyForecast forecast : dailyForecasts) {
       weatherList.addAll(getWeather12(forecast, false, index12++, airQuality));
       weatherList.addAll(getWeather12(forecast, true, index12++, airQuality));
     }

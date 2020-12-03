@@ -26,5 +26,5 @@ import java.util.Map;
 @Setter
 public class WeeklyForecast {
   private Map<String, Object> headline;
-  private List<AccuWeatherDailyForecast> dailyForecasts;
+  private List<DailyForecast> dailyForecasts;
 }

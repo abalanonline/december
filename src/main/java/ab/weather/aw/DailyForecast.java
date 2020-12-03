@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class AccuWeatherDailyForecast {
+public class DailyForecast {
   private String date;
   private long epochDate;
   private Map<String, Object> sun;
