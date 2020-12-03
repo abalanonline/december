@@ -20,6 +20,7 @@ import ab.tts.Gcloud;
 import ab.tts.Linux;
 import ab.tts.TtsService;
 import ab.tts.Voice;
+import ab.weather.aw.AccuWeather;
 import ab.weather.aw.WeeklyForecast;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,9 +74,13 @@ public class NoaaTest {
   public void getMp3Test() {
     TtsService ttsService = new TtsService(new String[]{"en-US"}, false, null);
     Voice voice = ttsService.getVoiceMap().get("Boston");
+    AccuWeather accuWeather = new AccuWeather();
+    accuWeather.setApiKey("00000000000000000000000000000000");
+    accuWeather.setLocation("56186");
     Noaa noaa = new Noaa();
     noaa.setGreeting("hello");
     noaa.setCity("Montreal");
+    noaa.setAccuWeather(accuWeather);
     String fileName = noaa.getMp3(voice,
         "./target/_noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 19) + ".mp3", "./target");
     log.info(fileName);

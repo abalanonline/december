@@ -11,3 +11,6 @@ fileCache: ./target
 noaa:
   greeting: hello
   city: Montreal
+accuweather:
+  location: 56186
+  apiKey: "00000000000000000000000000000000"
