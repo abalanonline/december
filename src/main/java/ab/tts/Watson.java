@@ -20,6 +20,7 @@ import com.ibm.cloud.sdk.core.security.IamAuthenticator;
 import com.ibm.watson.text_to_speech.v1.TextToSpeech;
 import com.ibm.watson.text_to_speech.v1.model.SynthesizeOptions;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
  * https://cloud.ibm.com/apidocs/text-to-speech?code=java
  * mp3: 22050 Hz 96 kbit/s https://cloud.ibm.com/apidocs/text-to-speech#synthesize
  */
+@Slf4j
 public class Watson extends Provider {
 
   public static final Pattern ID_PATTERN = Pattern.compile("(?<language>[^_]+)_(?<name>\\D+)(?<engine>|V2|V3)Voice");
@@ -99,6 +101,7 @@ public class Watson extends Provider {
 
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
+    log.info("watson: " + text.trim());
     VoiceConfiguration vc = voice.getConfiguration();
     if (vc == null) {
       vc = new VoiceConfiguration();

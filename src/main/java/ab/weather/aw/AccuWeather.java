@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 
+@Slf4j
 @Service
 @ConfigurationProperties("accuweather")
 public class AccuWeather {
@@ -69,6 +71,7 @@ public class AccuWeather {
     if (apikey.equals("00000000000000000000000000000000")) {
       return readMock("accuweather_5day.json", new TypeReference<WeeklyForecast>() {});
     }
+    log.info("accuweather: forecast 5day");
     return getJson("forecasts/v1/daily/5day", new TypeReference<WeeklyForecast>() {});
   }
 
@@ -76,6 +79,7 @@ public class AccuWeather {
     if (apikey.equals("00000000000000000000000000000000")) {
       return readMock("accuweather_current.json", new TypeReference<List<Observation>>() {}).get(0);
     }
+    log.info("accuweather: current conditions");
     return getJson("currentconditions/v1", new TypeReference<List<Observation>>() {}).get(0);
   }
 

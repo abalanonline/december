@@ -74,6 +74,8 @@ public class Controller {
   @Autowired
   private Noaa noaa;
 
+  private String currentMp3Url;
+
   public ResponseMeta dialogPlain(String text) {
     ResponseMeta responseMeta = text != null && !text.isEmpty() ? new ResponseMeta(text) :
         new ResponseMeta(); // which make no sense, it will be rejected by api
@@ -84,9 +86,17 @@ public class Controller {
 
   public ResponseMeta playMp3(String fileName) {
     ResponseMeta responseMeta = new ResponseMeta();
-    responseMeta.getResponse().getDirectives()
-        .add(new DirectiveAudioPlayerPlay(fileUrl + "/" + fileName.substring(fileName.lastIndexOf('/') + 1)));
+    currentMp3Url = fileUrl + "/" + fileName.substring(fileName.lastIndexOf('/') + 1);
+    responseMeta.getResponse().getDirectives().add(new DirectiveAudioPlayerPlay(currentMp3Url));
     return responseMeta;
+  }
+
+  public ResponseMeta repeatMp3() {
+    ResponseMeta response = new ResponseMeta();
+    DirectiveAudioPlayerPlay directive = new DirectiveAudioPlayerPlay(currentMp3Url);
+    directive.setPlayBehavior("REPLACE_ENQUEUED");
+    response.getResponse().getDirectives().add(directive);
+    return response;
   }
 
   public ResponseMeta sayAudio(String text) {
@@ -137,14 +147,17 @@ public class Controller {
   }
 
   public ResponseMeta decemberweather(RequestMeta requestMeta) {
-    if ("LaunchRequest".equals(requestMeta.getRequestType())) {
-      String fileName = noaa.getMp3(
-          getCurrentVoice(),
-          fileLocal.endsWith(".mp3")
-              ? fileLocal
-              : fileLocal + "/noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 19) + ".mp3",
-          fileCache);
-      return playMp3(fileName);
+    switch (requestMeta.getRequestType()) {
+      case "LaunchRequest":
+        String fileName = noaa.getMp3(
+            getCurrentVoice(),
+            fileLocal.endsWith(".mp3")
+                ? fileLocal
+                : fileLocal + "/noaa-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 19) + ".mp3",
+            fileCache);
+        return playMp3(fileName);
+      case "AudioPlayer.PlaybackNearlyFinished":
+        return repeatMp3();
     }
     return null;
   }
@@ -221,8 +234,21 @@ public class Controller {
   }
 
   public ResponseMeta genericResponse(RequestMeta requestMeta) {
-    if ("System.ExceptionEncountered".equals(requestMeta.getRequestType())) {
-      log.error(requestMeta.getError());
+    switch (requestMeta.getRequestType()) {
+      case "System.ExceptionEncountered":
+        log.error(requestMeta.getError());
+        break;
+      case "IntentRequest":
+        if (requestMeta.getIntentName().equals("AMAZON.PauseIntent")) {
+          log.info("pause/stop");
+          ResponseMeta response = new ResponseMeta();
+          DirectiveAudioPlayerPlay directive = new DirectiveAudioPlayerPlay(null);
+          directive.setType("AudioPlayer.Stop");
+          directive.setAudioItem(null);
+          response.getResponse().getDirectives().add(directive);
+          return response;
+        }
+        break;
     }
     return new ResponseMeta();
   }
