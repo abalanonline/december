@@ -26,6 +26,9 @@ The rig generate synthesized voice reports 24/7 and can be used as a base for co
 
 ![v0.3](https://img.youtube.com/vi/ZXkDPnFoQPc/mqdefault.jpg)
 
+### v0.3.1
+The same as 0.3, but with AWOS aviation broadcast text and METAR provider.
+
 ### Alexa skill configuration
 
 Intent | Slot | Utterance | Type

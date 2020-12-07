@@ -179,6 +179,7 @@ public class Gcloud extends Provider {
 
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
+    log.info("gcloud: " + text.trim());
     VoiceSelectionParams voiceSelectionParams = VoiceSelectionParams.newBuilder()
         .setLanguageCode(voice.getLanguage().toLanguageCode())
         .setName(voice.getSystemId())

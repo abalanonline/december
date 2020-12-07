@@ -84,4 +84,16 @@ public class NoaaTest {
     assertThat(fileName, containsString("mp3"));
   }
 
+  @Ignore
+  @Test
+  public void awosTest() {
+    TtsService ttsService = new TtsService(new String[]{"en-US"}, false, null);
+    Voice voice = ttsService.getVoiceMap().get("Boston");
+    Awos awos = new Awos();
+    String fileName = awos.getMp3(voice,
+        "./target/_awos-" + Instant.now().toString().replaceAll("\\D", "-").substring(0, 19) + ".mp3", "./target");
+    log.info(fileName);
+    assertThat(fileName, containsString("mp3"));
+  }
+
 }

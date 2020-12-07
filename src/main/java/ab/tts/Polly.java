@@ -103,6 +103,7 @@ public class Polly extends Provider {
 
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
+    log.info("polly: " + text.trim());
     VoiceConfiguration vc = voice.getConfiguration();
     if (vc == null) {
       vc = new VoiceConfiguration();

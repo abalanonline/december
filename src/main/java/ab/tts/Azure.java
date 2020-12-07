@@ -139,6 +139,7 @@ public class Azure extends Provider {
 
   @Override
   public InputStream mp3Stream(Voice voice, String text) {
+    log.info("azure: " + text.trim());
 
     RestTemplate restTemplate = new RestTemplate();
 

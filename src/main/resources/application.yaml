@@ -1,16 +1,21 @@
-voice:
-  add:
-    - '{"name":"Rafael","copy":"Enrique","provider":"Polly"}'
-    - '{"name":"Leonardo","copy":"Enrique","provider":"Watson"}'
-  default: Michael
 logging.level.ab.alexa.Controller: INFO
 logging.level.ab.tts.Azure: DEBUG
 fileLocal: ./target
 fileUrl: http://localhost
 fileCache: ./target
+
+voice:
+  add:
+    - '{"name":"Rafael","copy":"Enrique","provider":"Polly"}'
+    - '{"name":"Leonardo","copy":"Enrique","provider":"Watson"}'
+  default: Michael
 noaa:
   greeting: hello
   city: Montreal
 accuweather:
   location: 56186
   apikey: "00000000000000000000000000000000"
+awos:
+  station: CYUL
+  city: Montreal
+  metarurl: ~
