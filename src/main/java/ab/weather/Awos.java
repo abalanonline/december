@@ -202,7 +202,7 @@ public class Awos {
       String q = queue.remove();
       s = s.isEmpty() ? q : s;
     }
-    int i = Integer.parseInt((s + "000").substring(3));
+    int i = s.length() <= 3 ? 0 : Integer.parseInt((s).substring(3));
     switch (s.substring(0, 3)) {
       case "CLR": return Collections.singletonList("sky clear");
       case "FEW": s = "few"; break;
