@@ -58,6 +58,10 @@ public class Language {
     return new Language(languageCode);
   }
 
+  public static Language findFirstLanguageCode(String languageCode) {
+    return new Language(Arrays.stream(LANGUAGE_CODES).filter(s -> s.startsWith(languageCode)).findFirst().get());
+  }
+
   public String toDoubleChar() {
     return String.format("%02d", index);
   }

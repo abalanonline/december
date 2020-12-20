@@ -35,7 +35,8 @@ import java.util.stream.Collectors;
  */
 public class TtsService {
 
-  public static final Provider[] PROVIDERS = {new Linux(), new Watson(), new Polly(), new Gcloud(), new Azure()};
+  public static final Provider[] PROVIDERS = {new Linux(), new OpenTts(),
+      new Watson(), new Polly(), new Gcloud(), new Azure()};
 
   @Getter private final List<Voice> systemVoiceList;
 
