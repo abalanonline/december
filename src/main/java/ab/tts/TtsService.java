@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -92,4 +93,19 @@ public class TtsService {
         LinkedHashMap::new));
   }
 
+  public Voice findLocaleVoice(String locale, String voiceName) {
+    Optional<Voice> optionalVoice = voiceList.stream()
+        .filter(v -> v.getLanguage().toLanguageCode().equals(locale) && v.getName().equals(voiceName)).findFirst();
+    if (optionalVoice.isPresent()) {
+      return optionalVoice.get();
+    }
+    String shortLocale = locale.substring(0, locale.indexOf('-') + 1);
+    optionalVoice = voiceList.stream()
+        .filter(v -> v.getLanguage().toLanguageCode().startsWith(shortLocale) && v.getName().equals(voiceName)).findFirst();
+    if (optionalVoice.isPresent()) {
+      return optionalVoice.get();
+    } else {
+      throw new IllegalStateException("Not found: " + locale + ": " + voiceName);
+    }
+  }
 }

@@ -16,7 +16,10 @@
 
 package ab.ai;
 
+import ab.tts.TtsService;
+import ab.tts.Voice;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +37,42 @@ public class AiService { // FIXME: 2020-12-27 This service do not belong here
   @Value("${voice.default}")
   private String defaultVoice;
 
-  public Pair<String, String> apply(String input, boolean generateMp3) {
-    Chatbot chatbot = new Repeater();
-    String output = chatbot.talk(input);
-    return Pair.of(output, chatbot.pronounce(output));
-  }
+  @Autowired
+  private TtsService ttsService;
 
+  /**
+   * Example of bilingual voice configuration:
+   * voice:
+   *   add:
+   *     - '{"name":"Default","copy":"Brian"}'
+   *     - '{"name":"Default","copy":"Brandon"}'
+   *     - '{"name":"Default","copy":"Linux","language":"es-ES"}'
+   *   default: Default
+   *
+   * Brian have en-GB locale that will be accepted by any en-?? request, same with Brandon fr-CA that will accept fr-??
+   * and for language-unaware linux command line engine - the language must be explicitly set
+   *
+   * @param skill bot/skill name
+   * @param locale language locale en-US, en-AU, de-DE
+   * @param input text from user
+   * @param generateMp3 usually true
+   * @return pair of text and mp3 url with generated audio
+   */
+  public Pair<String, String> apply(String skill, String locale, String input, boolean generateMp3) {
+    Chatbot chatbot;
+    switch (skill) {
+      case "repeat": chatbot = new Repeater(); break;
+      default: throw new IllegalStateException("Unknown bot/skill: " + skill);
+    }
+    String output = chatbot.talk(input);
+    String output2 = chatbot.pronounce(output);
+    if (generateMp3) {
+      Voice voice = ttsService.findLocaleVoice(locale, defaultVoice);
+      output2 = voice.mp3File(output2,
+          fileLocal + '/' + skill + ".mp3");
+      output2 = fileUrl + "/" + output2.substring(output2.lastIndexOf('/') + 1);
+    }
+    return Pair.of(output, output2);
+  }
 
 }

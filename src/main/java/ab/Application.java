@@ -21,8 +21,6 @@ import ab.tts.Voice;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -39,7 +37,7 @@ public class Application {
 
   @Bean
   public TtsService ttsServiceBean() {
-    TtsService ttsService = new TtsService(new String[]{"en-US", "en-GB"}, false, add);
+    TtsService ttsService = new TtsService(new String[]{"en-US", "en-GB", "en-CA", "fr-FR", "fr-CA"}, false, add);
 
     List<Voice> voiceList = ttsService.getVoiceList();
     for (int i = 0; i < voiceList.size(); i++) {

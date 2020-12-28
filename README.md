@@ -36,6 +36,14 @@ Intent | Slot | Utterance | Type
 repeat | value | december {value} | AMAZON.SearchQuery
 voice | number | voice {number} | AMAZON.NUMBER
 
+### Google assistant actions configuration
+
+* One type of any name supporting free form text
+* One scene of any name with one slot of any name and type free form text
+* Main invocation transition to the created scene
+* Webhook https://my-free-secured-dynamic-domain.ddns.net/ga/repeat where repeat is a skill/bot name
+* Webhook calls: in main invocation, in scene slot validation, slot prompts for no input (optional)
+
 ### Roadmap
 * v0.1 - echo skill with aws lambda
 * v0.2 - external speech synthesis

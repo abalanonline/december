@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -274,11 +273,6 @@ public class Controller {
         (responseMeta.getResponse().getOutputSpeech() != null || responseMeta.getResponse().getDirectives().size() > 0 ?
         responseString : "empty response"));
     return responseString;
-  }
-
-  @GetMapping("/alexa/{skill}")
-  public String test(@PathVariable("skill") String skill) {
-    return "alexa " + skill;
   }
 
 }

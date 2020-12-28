@@ -58,31 +58,41 @@ public class AiController {
     return response;
   }
 
-  @PostMapping("/ga/aiservice")
-  public String aiservice(@RequestBody String requestString) throws IOException {
-    log.info(requestString);
-
-    requestString = '{' + requestString.substring(requestString.indexOf("\"scene\""));
+  private String getUserInput(String requestString) {
+    if (requestString.contains("\"actions.intent.NO_INPUT_")) {
+      return "";
+    }
+    if (requestString.contains("\"actions.intent.MAIN\"")) {
+      return requestString.contains("{\"locale\":\"fr-") ? "salut" : "hi";
+    }
 
     int i0 = requestString.indexOf("\"value\"") + 7;
     i0 = requestString.indexOf('"', i0) + 1;
     int i1 = requestString.indexOf('}', i0);
     i1 = requestString.lastIndexOf('"', i1);
-    String s = requestString.substring(i0, i1);
+    return requestString.substring(i0, i1);
+  }
 
-    Pair<String, String> response = aiService.apply(s, false);
+  @PostMapping("/ga/{skill}")
+  public String aiservice(@RequestBody String requestString, @PathVariable("skill") String skill) throws IOException {
+    log.info(requestString);
+    int localeIndex = requestString.indexOf('"', requestString.indexOf("\"locale\"") + 8) + 1;
+    String locale = requestString.substring(localeIndex, requestString.indexOf('"', localeIndex));
 
+    Pair<String, String> response = aiService.apply(skill, locale, getUserInput(requestString), true);
+
+    requestString = '{' + requestString.substring(requestString.indexOf("\"scene\""));
     requestString = requestString.replace("\"SLOT_UNSPECIFIED\"", "\"INVALID\"");
     requestString = requestString.substring(0, requestString.indexOf("\"user\""))
-        + "\"prompt\": {\"override\": false, \"firstSimple\": {\"speech\": \""
-        + response.getRight() + "\", \"text\": \""
+        + "\"prompt\": {\"override\": false, \"firstSimple\": {\"speech\": \"<speak><audio src=\\\""
+        + response.getRight() + "\\\"/></speak>\", \"text\": \""
         + response.getLeft() + "\"}}}";
 
     log.info(requestString);
     return requestString;
   }
 
-  @GetMapping("/ga/{skill}")
+  @GetMapping({"/ga/{skill}", "/alexa/{skill}"})
   public String test(@PathVariable("skill") String skill) {
     return "get " + skill;
   }
