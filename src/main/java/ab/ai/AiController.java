@@ -63,7 +63,7 @@ public class AiController {
       return "";
     }
     if (requestString.contains("\"actions.intent.MAIN\"")) {
-      return requestString.contains("{\"locale\":\"fr-") ? "salut" : "hi";
+      return "";
     }
 
     int i0 = requestString.indexOf("\"value\"") + 7;
@@ -75,20 +75,27 @@ public class AiController {
 
   @PostMapping("/ga/{skill}")
   public String aiservice(@RequestBody String requestString, @PathVariable("skill") String skill) throws IOException {
-    log.info(requestString);
+    log.debug(requestString);
     int localeIndex = requestString.indexOf('"', requestString.indexOf("\"locale\"") + 8) + 1;
     String locale = requestString.substring(localeIndex, requestString.indexOf('"', localeIndex));
 
-    Pair<String, String> response = aiService.apply(skill, locale, getUserInput(requestString), true);
+    String userInput = getUserInput(requestString);
+    if (!userInput.isEmpty()) {
+      log.info("i: " + userInput);
+    }
+    Pair<String, String> response = aiService.apply(skill, locale, userInput, true);
+    if (!userInput.isEmpty()) {
+      log.info("o: " + response.getLeft());
+    }
 
     requestString = '{' + requestString.substring(requestString.indexOf("\"scene\""));
     requestString = requestString.replace("\"SLOT_UNSPECIFIED\"", "\"INVALID\"");
     requestString = requestString.substring(0, requestString.indexOf("\"user\""))
         + "\"prompt\": {\"override\": false, \"firstSimple\": {\"speech\": \"<speak><audio src=\\\""
-        + response.getRight() + "\\\"/></speak>\", \"text\": \""
+        + response.getRight() + "\\\" soundLevel=\\\"+10dB\\\"/></speak>\", \"text\": \""
         + response.getLeft() + "\"}}}";
 
-    log.info(requestString);
+    log.debug(requestString);
     return requestString;
   }
 

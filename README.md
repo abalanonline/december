@@ -24,10 +24,21 @@ Play all the en-us/uk voices from all the providers. More than forty of them inc
 Automated radio that broadcast weather forecasts over the GMRS radio channel. Open source replica of NOAA radio. 
 The rig generate synthesized voice reports 24/7 and can be used as a base for commercial product. ([video](https://youtu.be/ZXkDPnFoQPc))
 
-![v0.3](https://img.youtube.com/vi/ZXkDPnFoQPc/mqdefault.jpg)
-
 ### v0.3.1
 The same as 0.3, but with AWOS aviation broadcast text and METAR provider.
+
+### v0.4
+On hold, building neural network hardware.
+
+### v0.5 "december repeat google"
+Test of google home hardware. Device bilingual speech recognition, google assistant actions integrated with java webhooks, 
+speech synthesis with on-prem text-to-speech engine. ([video](https://youtu.be/zjI9jDvpl4M))
+* OpenTTS: https://github.com/synesthesiam/opentts
+* MaryTTS: http://mary.dfki.de/
+* French voice: marytts:enst-dennys-hsmm by https://www.telecom-paris.fr/
+* English voice: marytts:cmu-rms-hsmm by http://festvox.org/cmu_arctic/
+
+![v0.5](https://img.youtube.com/vi/zjI9jDvpl4M/mqdefault.jpg)
 
 ### Alexa skill configuration
 
