@@ -324,13 +324,14 @@ public class Awos implements Chatbot {
 
   @Override
   public String talk(String s) {
-    return String.join("\n", getAwosReport()) + "\n";
+    return String.join("\n", getAwosReport());
   }
 
   @Override
   public String pronounce(String s) {
     return s.replace("-", " minus ").replace("+", " plus ")
-        .replace("\n", "\n<speak><break time=\"100ms\"/></speak>\n");
+        .replace("\n", "\n<speak><break time=\"100ms\"/></speak>\n")
+        + "\n<speak><break time=\"2000ms\"/></speak>";
   }
 
 }

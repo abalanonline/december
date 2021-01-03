@@ -92,7 +92,7 @@ public class AiController {
     requestString = requestString.replace("\"SLOT_UNSPECIFIED\"", "\"INVALID\"");
     requestString = requestString.substring(0, requestString.indexOf("\"user\""))
         + "\"prompt\": {\"override\": false, \"firstSimple\": {\"speech\": \"<speak><audio src=\\\""
-        + response.getRight() + "\\\" soundLevel=\\\"+10dB\\\"/></speak>\", \"text\": \""
+        + response.getRight() + "\\\" soundLevel=\\\"+0dB\\\"/></speak>\", \"text\": \""
         + response.getLeft() + "\"}}}";
 
     log.debug(requestString);

@@ -18,6 +18,7 @@ package ab.ai;
 
 import ab.tts.TtsService;
 import ab.tts.Voice;
+import ab.weather.Noaa;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,9 @@ public class AiService { // FIXME: 2020-12-27 This service do not belong here
 
   @Autowired
   private TtsService ttsService;
+
+  @Autowired
+  private Noaa noaa;
 
   /**
    * Example of bilingual voice configuration:
@@ -62,15 +66,14 @@ public class AiService { // FIXME: 2020-12-27 This service do not belong here
     Chatbot chatbot;
     switch (skill) {
       case "repeat": chatbot = new Repeater(); break;
+      case "weather": chatbot = noaa; break;
       default: throw new IllegalStateException("Unknown bot/skill: " + skill);
     }
     String output = chatbot.talk(input);
     String output2 = chatbot.pronounce(output);
     if (generateMp3) {
       Voice voice = ttsService.findLocaleVoice(locale, defaultVoice);
-      output2 = voice.mp3File(output2,
-          fileLocal + '/' + skill + ".mp3");
-      output2 = fileUrl + "/" + output2.substring(output2.lastIndexOf('/') + 1);
+      output2 = ttsService.multiLineCachedUrl(fileLocal, fileUrl, fileCache, voice, output2);
     }
     return Pair.of(output, output2);
   }

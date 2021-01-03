@@ -20,8 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.springframework.util.Assert;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,4 +114,34 @@ public class TtsService {
       throw new IllegalStateException("Not found: " + locale + ": " + voiceName);
     }
   }
+
+  public String multiLineCachedUrl(String fileLocal, String fileUrl, String fileCache, Voice voice, String s) {
+    // FIXME: 2021-01-02 Clumsy method signature
+    //String output2 = voice.mp3File(s, fileLocal + '/' + skill + ".mp3");
+    //output2 = fileUrl + "/" + output2.substring(output2.lastIndexOf('/') + 1);
+
+    List<String> audioFiles = new ArrayList<>();
+    for (String line : s.split("\n")) {
+      if (line.isEmpty()) {
+        continue;
+      }
+      String fileName = voice.getName() + "_" + line
+          .replace("-", " minus ").replace("+", " plus ").replaceAll("\\W", " ")
+          .trim().toLowerCase().replaceAll("\\s+", "_");
+      audioFiles.add(voice.mp3File(line, fileCache + "/" + fileName + ".mp3"));
+    }
+
+    String fileName = fileLocal + '/' + Instant.now().toString().replaceAll("\\D", "-").substring(0, 19) + ".mp3";
+    try (OutputStream outputStream = new FileOutputStream(fileName)) {
+      Files.write(Paths.get(fileName + ".txt"), s.getBytes());
+      for (String audioFile : audioFiles) {
+        Files.copy(Paths.get(audioFile), outputStream);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    return fileUrl + "/" + fileName.substring(fileName.lastIndexOf('/') + 1);
+  }
+
 }
