@@ -16,6 +16,7 @@
 
 package ab.alexa;
 
+import ab.ai.RandomGreeting;
 import ab.tts.TtsService;
 import ab.tts.Voice;
 import ab.weather.Noaa;
@@ -183,36 +184,12 @@ public class Controller {
         Voice v = ttsService.getVoiceList().get(currentVoiceIndex);
         log.info("o: " + currentVoiceIndex + " " + v.getName() + " " + v);
         ResponseMeta response =
-            sayAudio("number " + currentVoiceIndex + ", " + randomGreeting(v.getName()) + ", ");
+            sayAudio("number " + currentVoiceIndex + ", " + new RandomGreeting().talk(v.getName()) + ", ");
         DirectiveAudioPlayerPlay directive = (DirectiveAudioPlayerPlay) response.getResponse().getDirectives().get(0);
         directive.setPlayBehavior("REPLACE_ENQUEUED");
         return response;
     }
     return null;
-  }
-
-  private static final String[] RANDOM_GREETINGS = {
-      "Hi, it's %s",
-      "Hi, it's %s speaking",
-      "Hi, this is %s",
-      "Hi, this is %s speaking",
-      "Hi, I'm %s",
-      "Hi, my name is %s",
-      "Hi, %s here",
-      "Hello, it's %s",
-      "Hello, it's %s speaking",
-      "Hello, this %s",
-      "Hello, this %s speaking",
-      "Hello, I'm %s",
-      "Hello, my name is %s",
-      "Hello, %s here",
-      "My name is %s",
-      "My name is %s, nice to meet you",
-      "This is %s, nice to meet you",
-      "This is %s speaking, hello",
-      "This is %s"};
-  public static String randomGreeting(String name) {
-    return String.format(RANDOM_GREETINGS[ThreadLocalRandom.current().nextInt(RANDOM_GREETINGS.length)], name);
   }
 
   public ResponseMeta selectvoice(RequestMeta requestMeta) {
@@ -227,7 +204,7 @@ public class Controller {
         }
         log.info("i: " + input);
         currentVoiceIndex = Integer.parseInt(input);
-        return sayAudio(randomGreeting(ttsService.getVoiceList().get(currentVoiceIndex).getName()));
+        return sayAudio(new RandomGreeting().talk(ttsService.getVoiceList().get(currentVoiceIndex).getName()));
     }
     return null;
   }
