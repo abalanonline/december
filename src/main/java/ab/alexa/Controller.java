@@ -17,6 +17,7 @@
 package ab.alexa;
 
 import ab.ai.RandomGreeting;
+import ab.ai.TheNewsStub;
 import ab.tts.TtsService;
 import ab.tts.Voice;
 import ab.weather.Noaa;
@@ -30,17 +31,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -132,16 +125,7 @@ public class Controller {
 
   public ResponseMeta thenews(RequestMeta requestMeta) {
     if ("LaunchRequest".equals(requestMeta.getRequestType())) {
-      if (Files.exists(Paths.get("news.txt"))) {
-        try {
-          return sayAudio(new String(Files.readAllBytes(Paths.get("news.txt")), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      }
-      String timeInMontreal = LocalTime.now(ZoneId.of("America/Montreal"))
-          .format(DateTimeFormatter.ofPattern("h:mm"));
-      return sayAudio("In Montreal, it's " + timeInMontreal + ". And everything is fine.");
+      return sayAudio(new TheNewsStub().talk(""));
     }
     return null;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Aleksei Balan
+ * Copyright 2021 Aleksei Balan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package ab.alexa;
+package ab.ai;
 
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-public class ControllerTest {
+public class RandomGreetingTest {
 
   @Test
-  public void randomGreeting() {
-    assertThat(Controller.randomGreeting("Bobby"), containsString("Bobby"));
+  public void talk() {
+    assertThat(new RandomGreeting().talk("Bobby"), containsString("Bobby"));
   }
-
 }
