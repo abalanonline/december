@@ -16,6 +16,7 @@
 
 package ab.weather;
 
+import ab.ai.Chatbot;
 import ab.tts.Voice;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,10 +41,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -52,7 +51,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 @ConfigurationProperties("awos")
-public class Awos {
+public class Awos implements Chatbot {
 
   @Getter @Setter private String city;
 
@@ -321,6 +320,17 @@ public class Awos {
       throw new UncheckedIOException(e);
     }
     return recommendedFileName;
+  }
+
+  @Override
+  public String talk(String s) {
+    return String.join("\n", getAwosReport()) + "\n";
+  }
+
+  @Override
+  public String pronounce(String s) {
+    return s.replace("-", " minus ").replace("+", " plus ")
+        .replace("\n", "\n<speak><break time=\"100ms\"/></speak>\n");
   }
 
 }

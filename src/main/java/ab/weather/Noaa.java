@@ -16,16 +16,13 @@
 
 package ab.weather;
 
+import ab.ai.Chatbot;
 import ab.tts.Voice;
 import ab.weather.aw.AccuWeather;
 import ab.weather.aw.AccuWeatherAir;
-import ab.weather.aw.DailyForecast;
 import ab.weather.aw.AccuWeatherDayNight;
-import ab.weather.aw.WeeklyForecast;
+import ab.weather.aw.DailyForecast;
 import ab.weather.aw.Observation;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +46,7 @@ import java.util.Optional;
 
 @Service
 @ConfigurationProperties("noaa")
-public class Noaa {
+public class Noaa implements Chatbot {
 
   public static final int BRIEF_INDEX = 3;
 
@@ -208,6 +205,17 @@ public class Noaa {
       throw new UncheckedIOException(e);
     }
     return recommendedFileName;
+  }
+
+  @Override
+  public String talk(String s) {
+    return String.join("\n", getWeather()) + "\n";
+  }
+
+  @Override
+  public String pronounce(String s) {
+    return s.replace("-", " minus ").replace("+", " plus ")
+        .replace("\n", "\n<speak><break time=\"100ms\"/></speak>\n");
   }
 
 }
