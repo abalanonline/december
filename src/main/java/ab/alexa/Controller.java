@@ -213,7 +213,7 @@ public class Controller {
     return new ResponseMeta();
   }
 
-  @PostMapping("/alexa/{skill}")
+  @PostMapping("/legacy/{skill}")
   public String alexa(@RequestBody String requestString, @PathVariable("skill") String skill) throws IOException {
     RequestMeta requestMeta = objectMapper.readValue(requestString, RequestMeta.class);
     log.debug("i: " + skill + " - " + requestMeta.getRequestType() + ": " + requestString);

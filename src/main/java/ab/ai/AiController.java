@@ -73,15 +73,26 @@ public class AiController {
     return requestString.substring(i0, i1);
   }
 
+  private String getUserInputAl(String requestString) {
+    int i0 = requestString.indexOf("\"slot\":{");
+    if (i0 < 0) {
+      return "";
+    }
+    i0 = requestString.indexOf("\"value\"", i0) + 7;
+    i0 = requestString.indexOf('"', i0) + 1;
+    int i1 = requestString.indexOf('"', i0);
+    return requestString.substring(i0, i1);
+  }
+
   @PostMapping("/ga/{skill}")
-  public String aiservice(@RequestBody String requestString, @PathVariable("skill") String skill) throws IOException {
+  public String aiservice(@RequestBody String requestString, @PathVariable("skill") String skill) {
     log.debug(requestString);
     int localeIndex = requestString.indexOf('"', requestString.indexOf("\"locale\"") + 8) + 1;
     String locale = requestString.substring(localeIndex, requestString.indexOf('"', localeIndex));
 
     String userInput = getUserInput(requestString);
     if (!userInput.isEmpty()) {
-      log.info("i: " + userInput);
+      log.info("g " + locale + ": " + userInput);
     }
     Pair<String, String> response = aiService.apply(skill, locale, userInput, true);
     if (!userInput.isEmpty()) {
@@ -94,6 +105,35 @@ public class AiController {
         + "\"prompt\": {\"override\": false, \"firstSimple\": {\"speech\": \"<speak><audio src=\\\""
         + response.getRight() + "\\\" soundLevel=\\\"+0dB\\\"/></speak>\", \"text\": \""
         + response.getLeft() + "\"}}}";
+
+    log.debug(requestString);
+    return requestString;
+  }
+
+  @PostMapping("/alexa/{skill}")
+  public String alexa(@RequestBody String requestString, @PathVariable("skill") String skill) {
+    log.debug(requestString);
+    int localeIndex = requestString.indexOf('"', requestString.indexOf("\"locale\"") + 8) + 1;
+    String locale = requestString.substring(localeIndex, requestString.indexOf('"', localeIndex));
+
+    if (requestString.contains("\"name\":\"AMAZON.StopIntent\"") || requestString.contains("\"name\":\"AMAZON.CancelIntent\"")) {
+      requestString = "{\"version\":\"1.0\",\"response\":{\"shouldEndSession\":true}}";
+    } else {
+      String userInput = getUserInputAl(requestString);
+      if (!userInput.isEmpty()) {
+        log.info("a " + locale + ": " + userInput);
+      }
+      Pair<String, String> response = aiService.apply(skill, locale, userInput, true);
+      if (!userInput.isEmpty()) {
+        log.info("o: " + response.getLeft());
+      }
+
+      requestString = "{\"version\":\"1.0\",\"response\":{\"outputSpeech\":{\"type\":\"SSML\",\"ssml\":\"" +
+          "<speak><audio src=\\\"" + response.getRight() + "\\\" /></speak>" +
+          "\"},\"directives\":[{\"type\":\"Dialog.ElicitSlot\",\"slotToElicit\":\"slot\",\"updatedIntent\":\n" +
+          "{\"name\":\"intent\",\"confirmationStatus\":\"NONE\",\"slots\":{\"slot\":{\"name\":\"slot\",\"value\":null," +
+          "\"confirmationStatus\":\"NONE\",\"source\":null}}}}],\"shouldEndSession\":false}}";
+    }
 
     log.debug(requestString);
     return requestString;
