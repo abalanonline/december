@@ -42,10 +42,12 @@ speech synthesis with on-prem text-to-speech engine. ([video](https://youtu.be/z
 
 ### Alexa skill configuration
 
-Intent | Slot | Utterance | Type
------- | ---- | --------- | ----
-repeat | value | december {value} | AMAZON.SearchQuery
-voice | number | voice {number} | AMAZON.NUMBER
+* Skill: Custom, Provision your own, Start from scratch
+* Intent: intent, utterance: ok {slot}, dialog delegation: enable
+* Slot: slot, type: AMAZON.SearchQuery, required: yes, prompt: any text
+* Endpoint: https://my-free-secured-dynamic-domain.ddns.net/alexa/repeat
+* Interfaces: audio player, auto delegation
+* Test: enable in development
 
 ### Google assistant actions configuration
 
