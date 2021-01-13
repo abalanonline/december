@@ -1,13 +1,13 @@
 #java -Dspring.profiles.active=rose -jar december.jar
 voice:
   add:
-    - '{"name":"Rose","copy":"nanotts:fr-FR"}'
-    - '{"name":"Rose","copy":"nanotts:en-GB"}'
+    - '{"name":"Rose","copy":"Abbotsford"}'
+    - '{"name":"Rose","copy":"Kate"}'
   default: Rose
 repeat:
   stimulus: December
   response: |
-    So what
+    So what?
     Say we'll go there even if we just talk about it.
     You mean, one leg on each side?
     Can you show me?

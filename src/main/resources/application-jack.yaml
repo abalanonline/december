@@ -1,14 +1,14 @@
 #java -Dspring.profiles.active=jack -jar december.jar
 voice:
   add:
-    - '{"name":"Jack","copy":"marytts:enst-dennys-hsmm"}'
-    - '{"name":"Jack","copy":"marytts:cmu-rms-hsmm"}'
+    - '{"name":"Jack","copy":"Nicolas"}'
+    - '{"name":"Jack","copy":"Brian"}'
   default: Jack
 repeat:
-  stimulus: what
+  stimulus: so
   response: |
     Then I went down to Los Angeles
-    No, we'll do it. We'll ride horses like a real cowboys.
+    We'll ride horses like cowboys.
     Yeah.
     Sure, if you like.
     And chew tobacco like a man.

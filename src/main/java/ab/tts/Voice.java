@@ -20,8 +20,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -63,8 +68,23 @@ public class Voice {
   }
 
   public String mp3File(String text, String recommendedFileName) {
-    final String noise = PROVIDER_NOISE.mp3File(this, text, recommendedFileName);
-    return noise == null ? getProvider().mp3File(this, text, recommendedFileName) : noise;
+    String noise = PROVIDER_NOISE.mp3File(this, text, recommendedFileName);
+    if (noise == null) {
+      noise = getProvider().mp3File(this, text, recommendedFileName);
+    }
+    String noise48 = noise + ".mp3";
+    try {
+      // The bit rate must be 48 kbps
+      // https://developer.amazon.com/en-US/docs/alexa/custom-skills/speech-synthesis-markup-language-ssml-reference.html#audio
+      Process process = Runtime.getRuntime().exec(new String[]{"lame", "--resample", "22050", "--quiet", "-b", "48", noise, noise48});
+      String error = new BufferedReader(new InputStreamReader(process.getErrorStream())).lines().collect(Collectors.joining("\n"));
+      if (!error.isEmpty()) {
+        throw new IOException(error);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return noise48;
   }
 
   /**

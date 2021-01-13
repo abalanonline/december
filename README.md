@@ -38,7 +38,13 @@ speech synthesis with on-prem text-to-speech engine. ([video](https://youtu.be/z
 * French voice: marytts:enst-dennys-hsmm by https://www.telecom-paris.fr/
 * English voice: marytts:cmu-rms-hsmm by http://festvox.org/cmu_arctic/
 
-![v0.5](https://img.youtube.com/vi/zjI9jDvpl4M/mqdefault.jpg)
+### v0.6 "cowboys"
+Test of various hardware (Google and Amazon), speech engines (IBM, Google and Amazon) and languages (French, English) at once.
+The devices can keep a simple partially scripted conversation. ([video](https://youtu.be/8XPig8gUBVs))
+* Left: Echo Dot 3rd gen, Google fr-CA-Wavenet-A (French Canadian), IBM Kate (British)
+* Right: Home Mini 1st gen, IBM Nicolas (French), Amazon Brian (British)
+
+![v0.6](https://img.youtube.com/vi/8XPig8gUBVs/mqdefault.jpg)
 
 ### Alexa skill configuration
 
