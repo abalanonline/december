@@ -1,8 +1,9 @@
 logging.level.ab.alexa.Controller: INFO
 logging.level.ab.tts.Azure: DEBUG
-fileLocal: ./target
-fileUrl: http://localhost
-fileCache: ./target
+mp3folder:
+  local: ./target
+  url: http://localhost
+  cache: ./target
 
 voice:
   add:

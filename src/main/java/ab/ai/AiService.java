@@ -26,13 +26,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AiService { // FIXME: 2020-12-27 This service do not belong here
-  @Value("${fileLocal:target}")
+  @Value("${mp3folder.local:target}")
   private String fileLocal;
 
-  @Value("${fileUrl:http://localhost}")
+  @Value("${mp3folder.url:http://localhost}")
   private String fileUrl;
 
-  @Value("${fileCache:target}")
+  @Value("${mp3folder.cache:target}")
   private String fileCache;
 
   @Value("${voice.default}")
@@ -43,6 +43,9 @@ public class AiService { // FIXME: 2020-12-27 This service do not belong here
 
   @Autowired
   private Noaa noaa;
+
+  @Autowired
+  private Repeater repeater;
 
   /**
    * Example of bilingual voice configuration:
@@ -65,7 +68,7 @@ public class AiService { // FIXME: 2020-12-27 This service do not belong here
   public Pair<String, String> apply(String skill, String locale, String input, boolean generateMp3) {
     Chatbot chatbot;
     switch (skill) {
-      case "repeat": chatbot = new Repeater(); break;
+      case "repeat": chatbot = repeater; break;
       case "weather": chatbot = noaa; break;
       default: throw new IllegalStateException("Unknown bot/skill: " + skill);
     }

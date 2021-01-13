@@ -16,9 +16,33 @@
 
 package ab.ai;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+@Service
 public class Repeater implements Chatbot {
+
+  @Value("${repeat.stimulus:stimulus}")
+  private String stimulus;
+
+  @Value("${repeat.response:response}")
+  private String response;
+
+  private int responseLine;
+
   @Override
   public String talk(String s) {
+    if (s.isEmpty()) {
+      responseLine = 0;
+    }
+    if ((responseLine > 0) || (s.contains(stimulus))) {
+      String[] strings = response.split("\n");
+      s = strings[responseLine++];
+      if (responseLine >= strings.length) {
+        responseLine = 0;
+      }
+      return s;
+    }
     return s + "?";
   }
 

@@ -1,0 +1,20 @@
+#java -Dspring.profiles.active=rose -jar december.jar
+voice:
+  add:
+    - '{"name":"Rose","copy":"nanotts:fr-FR"}'
+    - '{"name":"Rose","copy":"nanotts:en-GB"}'
+  default: Rose
+repeat:
+  stimulus: December
+  response: |
+    So what
+    Say we'll go there even if we just talk about it.
+    You mean, one leg on each side?
+    Can you show me?
+    Teach me to ride like a man.
+    And spit like a man.
+    No.
+    Jack, no.
+    No. Wait, Jack.
+    No, Jack. I couldn't possibly, Jack.
+    That's disgusting.

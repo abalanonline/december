@@ -128,6 +128,10 @@ public class TtsService {
       String fileName = voice.getName() + "_" + line
           .replace("-", " minus ").replace("+", " plus ").replaceAll("\\W", " ")
           .trim().toLowerCase().replaceAll("\\s+", "_");
+      int l = 64; // some reasonable limit added when it crashed with 270+ chars file name
+      if (fileName.length() > l) {
+        fileName = fileName.substring(0, l);
+      }
       audioFiles.add(voice.mp3File(line, fileCache + "/" + fileName + ".mp3"));
     }
 
