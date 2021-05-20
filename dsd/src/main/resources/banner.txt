@@ -1,0 +1,2 @@
+
+    ${AnsiColor.BRIGHT_RED}>>${AnsiColor.DEFAULT} D.E.C.E.M.B.E.R. ${AnsiColor.BRIGHT_RED}>>${AnsiColor.DEFAULT} ${application.title} ${application.version}

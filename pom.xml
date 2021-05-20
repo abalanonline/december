@@ -28,7 +28,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>mono</module>
+    <module>dsd</module>
   </modules>
 
   <properties>
