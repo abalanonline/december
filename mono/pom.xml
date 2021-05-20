@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2020 Aleksei Balan
+  ~ Copyright 2021 Aleksei Balan
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@
     <relativePath/>
   </parent>
 
-  <groupId>ab</groupId>
-  <artifactId>december</artifactId>
+  <groupId>ab.december</groupId>
+  <artifactId>mono</artifactId>
   <version>0.6.0</version>
 
   <properties>
