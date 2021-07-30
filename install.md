@@ -29,6 +29,4 @@ mpc rescan --wait
 mpc insert weather.wav
 mpc play
 ```
-So easy? Yes, just generate text report (some weather providers offer this service),
-and use modern neural tts to read it. And maybe put this in cron replacing mpc play with mpc next.
 
