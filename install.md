@@ -19,3 +19,16 @@ You can also read [about the project](README.md) and [development blog](blog.md)
 * Webhook https://my-free-secured-dynamic-domain.ddns.net/ga/repeat where repeat is a skill/bot name
 * Webhook calls: in main invocation, in scene slot validation, slot prompts for no input (optional)
 
+### Weather radio outline
+
+```bash
+sudo apt install mpd mpc flite
+curl -L https://github.com/abalanonline/december/releases/download/v0.3/weather_test.txt \
+  | flite -o /var/lib/mpd/music/weather.wav
+mpc rescan --wait
+mpc insert weather.wav
+mpc play
+```
+So easy? Yes, just generate text report (some weather providers offer this service),
+and use modern neural tts to read it. And maybe put this in cron replacing mpc play with mpc next.
+
