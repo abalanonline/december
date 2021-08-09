@@ -3,7 +3,8 @@ All the new demos and ideas are here.
 You can also read [installation instructions](install.md) and [about the project](README.md).
 
 ### 2021-08-08 - tf-study
-Happy August 8 🐱 - 24h live stream of december weather radio. Click ([((*)) LIVE](https://www.youtube.com/channel/UCOyqanZ6naka8W8adgvkLMg))
+Happy August 8 🐱    
+24h live stream of december weather radio. Featuring talks, weather forecasts and time signals. Click [LIVE](https://www.youtube.com/channel/UCOyqanZ6naka8W8adgvkLMg)
 
 ![v0.2.1](https://img.youtube.com/vi/YdMUz8n5m08/mqdefault.jpg)
 
