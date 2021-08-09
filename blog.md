@@ -2,10 +2,13 @@
 All the new demos and ideas are here.
 You can also read [installation instructions](install.md) and [about the project](README.md).
 
+### 2021-08-08 - tf-study
+Happy August 8 🐱 - 24h live stream of december weather radio. Click ([((*)) LIVE](https://www.youtube.com/channel/UCOyqanZ6naka8W8adgvkLMg))
+
+![v0.2.1](https://img.youtube.com/vi/YdMUz8n5m08/mqdefault.jpg)
+
 ### 2021-05-18 - dsd v0.1
 First live stream of december weather radio on youtube. ([video](https://youtu.be/DXCC460R6hs))
-
-![v0.2.1](https://img.youtube.com/vi/DXCC460R6hs/mqdefault.jpg)
 
 ### 2021-05-15
 Two interviews with the creators of Replika AI. One https://youtu.be/yQGqMVuAk04 is about what people want from
