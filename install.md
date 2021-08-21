@@ -28,5 +28,6 @@ curl -L https://github.com/abalanonline/december/releases/download/v0.3/weather_
 mpc rescan --wait
 mpc insert weather.wav
 mpc play
+ffmpeg -loop 1 -i tv_test.jpg -i http://localhost:8000/ -f flv rtmp://youtube.com/live
 ```
 
