@@ -1,0 +1,11 @@
+server {
+    listen               443 ssl;
+    server_name          $HOSTNAME;
+    ssl_certificate      /etc/letsencrypt/live/$HOSTNAME/cert.pem;
+    ssl_certificate_key  /etc/letsencrypt/live/$HOSTNAME/privkey.pem;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+}
