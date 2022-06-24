@@ -64,8 +64,7 @@ public class Application {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @Value("${hostname}")
-  private String hostname;
+  private static String hostname;
 
   public String alexa(JsonNode request) {
     String aPlay = String.format(A_PLAY, "https://" + hostname + "/audio", Instant.now().toString());
@@ -98,10 +97,15 @@ public class Application {
 
   @GetMapping("**")
   public String get(HttpServletRequest request) {
-    return "get test " + request.getRequestURI() + "\r\n";
+    return "get test " + hostname + request.getRequestURI() + "\r\n";
   }
 
   public static void main(String[] args) {
+    if (args.length < 1) {
+      System.out.println("uapi hostname");
+      System.exit(1);
+    }
+    hostname = args[0];
     SpringApplication.run(Application.class, args);
   }
 
