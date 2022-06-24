@@ -1,8 +1,11 @@
 server {
     listen              443 ssl;
-    ssl_certificate     /etc/letsencrypt/live/$HOSTNAME/cert.pem;
+    ssl_certificate     /etc/letsencrypt/live/$HOSTNAME/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/$HOSTNAME/privkey.pem;
-    location /radio {
+    location /audio {
         proxy_pass      http://localhost:8000;
+    }
+    location /dsd {
+        proxy_pass      http://localhost:8080/;
     }
 }
