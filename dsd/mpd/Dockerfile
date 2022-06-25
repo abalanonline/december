@@ -1,19 +1,14 @@
-FROM debian:11.3-slim
+FROM alpine:3.16
 
-RUN apt-get update &&\
-  apt-get install -y mpd mpc flite &&\
-  rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update &&\
-  apt-get install -y bash procps mc vim &&\
-  rm -rf /var/lib/apt/lists/*
-# FIXME: 2022-06-25 delete this
+RUN apk add mpc mpd flite --no-cache
+RUN apk add bash mc --no-cache # FIXME: 2022-06-25 delete this line
 
 COPY mpd_run.sh .
 COPY mpd_httpd.conf /etc/
 
-RUN echo "#!/bin/sh\n\
-service mpd start\n\
+RUN echo -e "#!/bin/sh\n\
+setcap -r /usr/bin/mpd\n\
+mpd\n\
 exec \"\$@\"" > /usr/local/bin/docker-entrypoint.sh &&\
   chmod a+x /usr/local/bin/docker-entrypoint.sh &&\
   echo 'include "/etc/mpd_httpd.conf"' >> /etc/mpd.conf
