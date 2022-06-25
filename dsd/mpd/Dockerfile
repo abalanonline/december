@@ -4,10 +4,12 @@ RUN apk add mpc mpd flite --no-cache
 RUN apk add bash mc --no-cache # FIXME: 2022-06-25 delete this line
 
 COPY mpd_run.sh .
+COPY hourly.sh /
 COPY mpd_httpd.conf /etc/
 
 RUN echo -e "#!/bin/sh\n\
 setcap -r /usr/bin/mpd\n\
+crond\n\
 mpd\n\
 exec \"\$@\"" > /usr/local/bin/docker-entrypoint.sh &&\
   chmod a+x /usr/local/bin/docker-entrypoint.sh &&\
