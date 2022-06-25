@@ -1,6 +1,4 @@
 #!/bin/sh
-service mpd start
-service mpd status
 cat /etc/services | flite -o /var/lib/mpd/music/audio.wav
 mpc update --wait
 mpc insert audio.wav
