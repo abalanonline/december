@@ -12,6 +12,7 @@ RUN apt-get update &&\
 COPY mpd_run.sh .
 COPY hourly.sh /
 COPY mpd_httpd.conf /etc/
+COPY var /var/local/dsd
 
 RUN echo "#!/bin/sh\n\
 service cron start\n\

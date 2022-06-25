@@ -6,6 +6,7 @@ RUN apk add bash mc --no-cache # FIXME: 2022-06-25 delete this line
 COPY mpd_run.sh .
 COPY hourly.sh /
 COPY mpd_httpd.conf /etc/
+COPY var /var/local/dsd
 
 RUN echo -e "#!/bin/sh\n\
 setcap -r /usr/bin/mpd\n\
