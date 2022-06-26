@@ -5,8 +5,8 @@ mpc insert silence.mp3
 mpc repeat on
 mpc play
 
-wget -P /var/local/dsd/3_music/ https://audionautix.com/Music/Cycles.mp3
-cat /etc/services | flite -o /var/local/dsd/4_news/audio.wav
+wget -O /var/local/music.mp3 https://audionautix.com/Music/Cycles.mp3
+cat /etc/services | flite -o /var/local/audio.wav
 
 sh /hourly.sh
 echo "*/10 * * * * sh /hourly.sh" | crontab -

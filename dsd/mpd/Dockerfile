@@ -14,6 +14,8 @@ crond\n\
 mpd\n\
 exec \"\$@\"" > /usr/local/bin/docker-entrypoint.sh &&\
   chmod a+x /usr/local/bin/docker-entrypoint.sh &&\
+  ln -s ../../music.mp3 /var/local/dsd/3_music/music.mp3 &&\
+  ln -s ../../audio.wav /var/local/dsd/4_news/audio.wav &&\
   echo 'include "/etc/mpd_httpd.conf"' >> /etc/mpd.conf
 
 ENTRYPOINT ["docker-entrypoint.sh"]
