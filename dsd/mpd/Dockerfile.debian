@@ -1,7 +1,7 @@
 FROM debian:11.3-slim
 
 RUN apt-get update &&\
-  apt-get install -y cron wget mpd mpc flite ffmpeg &&\
+  apt-get install -y cron wget curl mpd mpc flite ffmpeg &&\
   rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update &&\

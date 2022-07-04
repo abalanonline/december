@@ -1,6 +1,6 @@
 FROM alpine:3.16
 
-RUN apk add mpd mpc flite ffmpeg --no-cache
+RUN apk add curl mpd mpc flite ffmpeg --no-cache
 RUN apk add bash mc --no-cache # FIXME: 2022-06-25 delete this line
 
 COPY mpd_run.sh .
