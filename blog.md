@@ -2,6 +2,15 @@
 All the new demos and ideas are here.
 You can also read [installation instructions](install.md) and [about the project](README.md).
 
+### 2022-12-31 - v1.0
+Year 2022 was famous for the numerous breakthroughs in AI. Powered by the cloud, December achieved its expected performance.
+It can provide help on setting and accomplishing goals. It sounds natural, it is encouraging and confident.
+And did I mention a distinct personality? ([video](https://youtu.be/7iVm5WyDVdQ))
+* CMU ARCTIC Database: http://festvox.org/cmu_arctic/
+* Nagoya Institute of Technology: http://hts.sp.nitech.ac.jp/?Download
+
+![v1.0](https://img.youtube.com/vi/7iVm5WyDVdQ/mqdefault.jpg)
+
 ### 2021-08-08
 Happy August 8 🐱    
 24h live stream of december weather radio. Featuring talks, weather forecasts and time signals. Click [LIVE](https://www.youtube.com/channel/UCOyqanZ6naka8W8adgvkLMg)
