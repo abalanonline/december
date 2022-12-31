@@ -16,19 +16,24 @@
 
 package ab.ai;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -41,6 +46,9 @@ public class AiController {
 
   @Autowired
   private AiService aiService;
+
+  @Value("${mp3folder.local:target}")
+  private String fileLocal;
 
   @PostMapping("/ga/01")
   public String ga01(@RequestBody String requestString) throws IOException {
@@ -66,11 +74,13 @@ public class AiController {
       return "";
     }
 
-    int i0 = requestString.indexOf("\"value\"") + 7;
-    i0 = requestString.indexOf('"', i0) + 1;
-    int i1 = requestString.indexOf('}', i0);
-    i1 = requestString.lastIndexOf('"', i1);
-    return requestString.substring(i0, i1);
+    JsonNode jsonNode;
+    try {
+      jsonNode = objectMapper.readTree(requestString);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    return jsonNode.get("scene").get("slots").fields().next().getValue().get("value").textValue();
   }
 
   private String getUserInputAl(String requestString) {
@@ -142,6 +152,18 @@ public class AiController {
   @GetMapping({"/ga/{skill}", "/alexa/{skill}"})
   public String test(@PathVariable("skill") String skill) {
     return "get " + skill;
+  }
+
+  @GetMapping("/static/**")
+  public byte[] getFile(HttpServletRequest request) {
+    // mp3folder.url: http://localhost/static
+    String uri = request.getRequestURI();
+    Path path = Paths.get(fileLocal, uri.substring(uri.indexOf("/static") + 7));
+    try {
+      return Files.readAllBytes(path);
+    } catch (IOException e) {
+      throw new UncheckedIOException(uri, e);
+    }
   }
 
 }

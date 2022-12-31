@@ -47,6 +47,9 @@ public class AiService { // FIXME: 2020-12-27 This service do not belong here
   @Autowired
   private Repeater repeater;
 
+  @Autowired
+  private Marv marv;
+
   /**
    * Example of bilingual voice configuration:
    * voice:
@@ -70,6 +73,7 @@ public class AiService { // FIXME: 2020-12-27 This service do not belong here
     switch (skill) {
       case "repeat": chatbot = repeater; break;
       case "weather": chatbot = noaa; break;
+      case "coach": chatbot = marv; break;
       default: throw new IllegalStateException("Unknown bot/skill: " + skill);
     }
     String output = chatbot.talk(input);
