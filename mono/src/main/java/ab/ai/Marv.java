@@ -61,10 +61,15 @@ public class Marv implements Chatbot {
   private ObjectMapper objectMapper;
   private String apiKey;
   Deque<String> history;
+  private int level;
 
   public Marv() {
     this.apiKey = System.getenv("OPENAI_API_KEY");
     this.objectMapper = new ObjectMapper();
+    reset();
+  }
+
+  public void reset() {
     this.history  = new ArrayDeque<>(Arrays.asList(MARV_WARMUP));
   }
 
@@ -116,7 +121,20 @@ public class Marv implements Chatbot {
 
   @Override
   public String talk(String userString) {
-    if (userString.isEmpty()) return "what?";
+    if (userString.isEmpty()) {
+      reset();
+      return "what?";
+    }
+
+    if ("level up".equals(userString)) {
+      this.level = Math.max(this.level - 1, 0);
+      return "level " + GPT3_MODELS[level];
+    }
+
+    if ("level down".equals(userString)) {
+      this.level = Math.min(this.level + 1, GPT3_MODELS.length - 1);
+      return "level " + GPT3_MODELS[level];
+    }
 
     StringBuilder prompt = new StringBuilder(MARV_DESCRIPTION);
     prompt.append("\n\n");
@@ -128,7 +146,7 @@ public class Marv implements Chatbot {
     prompt.append(USER_NAME).append(": ").append(userString).append("\n");
     prompt.append(MARV_NAME).append(":");
 
-    String marvString = completions(GPT3_MODELS[0], prompt.toString()).get(0);
+    String marvString = completions(GPT3_MODELS[level], prompt.toString()).get(0);
     marvString = marvString.replace((char) 0x2019, '\'');
     history.add(userString);
     history.remove();
