@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+  <featureManager>
+<!--    <feature>microProfile-5.0</feature>-->
+    <feature>restfulWS-3.0</feature>
+  </featureManager>
+  <httpEndpoint id="defaultHttpEndpoint" httpPort="9080" host="*"/>
+  <webApplication contextRoot="/" location="delta.war"/>
+</server>
