@@ -16,16 +16,53 @@
 
 package ab;
 
+import ab.ai.Doug;
+import ab.spk.Amzn;
+import ab.spk.Goog;
+import ab.spk.SmartSpeaker;
+import jakarta.json.JsonObject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.time.Instant;
 
 @Path("/")
 public class Controller {
 
+  public static final SmartSpeaker[] SPEAKERS = {new Amzn(), new Goog()};
+
   @GET
   public String getTime() {
     return "time " + Instant.now();
   }
+
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response post(JsonObject jsonObject) {
+    try {
+      for (SmartSpeaker speaker : SPEAKERS) {
+        if (speaker.detected(jsonObject)) {
+          JsonObject output;
+          if (speaker.systemRequest(jsonObject)) {
+            output = speaker.systemResponse(jsonObject);
+          } else {
+            String input = speaker.input(jsonObject);
+            output = speaker.output(jsonObject, new Doug().talk(input, null));
+          }
+          return Response.status(Response.Status.OK).entity(output).build();
+        }
+      }
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (Exception e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
 }
