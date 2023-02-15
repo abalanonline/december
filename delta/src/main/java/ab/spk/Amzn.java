@@ -35,47 +35,62 @@ public class Amzn implements SmartSpeaker {
   }
 
   @Override
-  public String input(JsonObject jsonObject) {
-    JsonObject intent = jsonObject.getJsonObject("request").getJsonObject("intent");
-    return intent == null ? "" : intent.getJsonObject("slots").getJsonObject("slot").getString("value");
+  public Task newTask(JsonObject jsonObject) {
+    return new AmznTask(jsonObject);
   }
 
-  @Override
-  public JsonObject output(JsonObject jsonObject, String s) {
-    // https://developer.amazon.com/en-US/docs/alexa/custom-skills/speech-synthesis-markup-language-ssml-reference.html
-    // <speak>speech<break time="3s"/>speech</speak> <break strength="strong"/> <break time="3000ms"/>
-    // none x-weak weak medium strong x-strong
-    String directives = "[{\"type\":\"Dialog.ElicitSlot\",\"slotToElicit\":\"slot\",\"updatedIntent\":\n" +
-        "{\"name\":\"intent\",\"confirmationStatus\":\"NONE\",\"slots\":{\"slot\":{\"name\":\"slot\",\"value\":null," +
-        "\"confirmationStatus\":\"NONE\",\"source\":null}}}}]";
-    JsonObject outputSpeech = JSON.createObjectBuilder()
-        .add("type", "SSML")
-        .add("ssml", "<speak>" + s + "</speak>")
-        .build();
-    JsonObject response = JSON.createObjectBuilder()
-        .add("outputSpeech", outputSpeech)
-        .add("directives", Json.createReader(new StringReader(directives)).readArray())
-        .add("shouldEndSession", false)
-        .build();
-    return JSON.createObjectBuilder().add("version", "1.0").add("response", response).build();
-  }
+  public static class AmznTask implements Task {
 
-  @Override
-  public boolean systemRequest(JsonObject jsonObject) {
-    JsonObject intent = jsonObject.getJsonObject("request").getJsonObject("intent");
-    if (intent != null) {
-      switch (intent.getString("name")) {
-        case "AMAZON.StopIntent":
-        case "AMAZON.CancelIntent":
-          return true;
-      }
+    private final JsonObject jsonObject;
+
+    public AmznTask(JsonObject jsonObject) {
+      this.jsonObject = jsonObject;
     }
-    return false;
-  }
 
-  @Override
-  public JsonObject systemResponse(JsonObject jsonObject) {
-    String o = "{\"version\":\"1.0\",\"response\":{\"shouldEndSession\":true}}";
-    return Json.createReader(new StringReader(o)).readObject();
+    @Override
+    public String input() {
+      JsonObject intent = jsonObject.getJsonObject("request").getJsonObject("intent");
+      return intent == null ? "" : intent.getJsonObject("slots").getJsonObject("slot").getString("value");
+    }
+
+    @Override
+    public JsonObject output(String s) {
+      // https://developer.amazon.com/en-US/docs/alexa/custom-skills/speech-synthesis-markup-language-ssml-reference.html
+      // <speak>speech<break time="3s"/>speech</speak> <break strength="strong"/> <break time="3000ms"/>
+      // none x-weak weak medium strong x-strong
+      String directives = "[{\"type\":\"Dialog.ElicitSlot\",\"slotToElicit\":\"slot\",\"updatedIntent\":\n" +
+          "{\"name\":\"intent\",\"confirmationStatus\":\"NONE\",\"slots\":{\"slot\":{\"name\":\"slot\",\"value\":null," +
+          "\"confirmationStatus\":\"NONE\",\"source\":null}}}}]";
+      JsonObject outputSpeech = JSON.createObjectBuilder()
+          .add("type", "SSML")
+          .add("ssml", "<speak>" + s + "</speak>")
+          .build();
+      JsonObject response = JSON.createObjectBuilder()
+          .add("outputSpeech", outputSpeech)
+          .add("directives", Json.createReader(new StringReader(directives)).readArray())
+          .add("shouldEndSession", false)
+          .build();
+      return JSON.createObjectBuilder().add("version", "1.0").add("response", response).build();
+    }
+
+    @Override
+    public boolean systemRequest() {
+      JsonObject intent = jsonObject.getJsonObject("request").getJsonObject("intent");
+      if (intent != null) {
+        switch (intent.getString("name")) {
+          case "AMAZON.StopIntent":
+          case "AMAZON.CancelIntent":
+            return true;
+        }
+      }
+      return false;
+    }
+
+    @Override
+    public JsonObject systemResponse() {
+      String o = "{\"version\":\"1.0\",\"response\":{\"shouldEndSession\":true}}";
+      return Json.createReader(new StringReader(o)).readObject();
+    }
+
   }
 }

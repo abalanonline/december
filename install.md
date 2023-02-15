@@ -4,6 +4,7 @@ You can also read [about the project](README.md) and [development blog](blog.md)
 
 ### Alexa skill configuration
 
+* https://developer.amazon.com/alexa/console/ask
 * Skill: Custom, Provision your own, Start from scratch
 * Intent: intent, utterance: ok {slot}, dialog delegation: enable
 * Slot: slot, type: AMAZON.SearchQuery, required: yes, prompt: any text
@@ -13,6 +14,7 @@ You can also read [about the project](README.md) and [development blog](blog.md)
 
 ### Google assistant actions configuration
 
+* https://console.actions.google.com/
 * One type of any name supporting free form text
 * One scene of any name with one slot of any name and type free form text
 * Main invocation transition to the created scene

@@ -20,6 +20,7 @@ import ab.ai.Doug;
 import ab.spk.Amzn;
 import ab.spk.Goog;
 import ab.spk.SmartSpeaker;
+import ab.spk.Task;
 import jakarta.inject.Singleton;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.Consumes;
@@ -56,13 +57,14 @@ public class Controller {
     try {
       for (SmartSpeaker speaker : SPEAKERS) {
         if (speaker.detected(jsonObject)) {
+          Task task = speaker.newTask(jsonObject);
           String session = speaker.getClass().getSimpleName(); // FIXME: 2023-02-14 use sessions from requests
           log.warning("s: " + session);
           JsonObject jsonOutput;
-          if (speaker.systemRequest(jsonObject)) {
-            jsonOutput = speaker.systemResponse(jsonObject);
+          if (task.systemRequest()) {
+            jsonOutput = task.systemResponse();
           } else {
-            String input = speaker.input(jsonObject);
+            String input = task.input();
             log.warning("i: " + input);
 
             // sync logic
@@ -98,7 +100,7 @@ public class Controller {
 
             // output
             log.warning("o: " + output);
-            jsonOutput = speaker.output(jsonObject, output);
+            jsonOutput = task.output(output);
           }
           return Response.status(Response.Status.OK).entity(jsonOutput).build();
         }

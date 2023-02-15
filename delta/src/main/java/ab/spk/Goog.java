@@ -35,57 +35,73 @@ public class Goog implements SmartSpeaker {
   }
 
   @Override
-  public String input(JsonObject jsonObject) {
-    JsonObject intent = jsonObject.getJsonObject("intent");
-    if (intent != null) {
-      String name = intent.getString("name");
-      if (name.equals("actions.intent.MAIN") || name.startsWith("actions.intent.NO_INPUT_")) return "";
-    }
-    return jsonObject.getJsonObject("scene").getJsonObject("slots")
-        .entrySet().iterator().next().getValue().asJsonObject().getString("value");
+  public Task newTask(JsonObject jsonObject) {
+    return new GoogTask(jsonObject);
   }
 
-  @Override
-  public JsonObject output(JsonObject jsonObject, String s) {
-    // should it be so complicated?
-    Map.Entry<String, JsonValue> slotEntry = jsonObject.getJsonObject("scene")
-        .getJsonObject("slots").entrySet().stream().findAny().orElse(null);
-    JsonObject scene;
-    if (slotEntry != null) {
-      JsonObject slot = JSON.createObjectBuilder(slotEntry.getValue().asJsonObject())
-          .add("status", "INVALID").build();
-      JsonObject slots = JSON.createObjectBuilder().add(slotEntry.getKey(), slot).build();
-      scene = JSON.createObjectBuilder(jsonObject.getJsonObject("scene"))
-          .add("slots", slots).build();
-    } else {
-      scene = jsonObject.getJsonObject("scene");
+  public static class GoogTask implements Task {
+
+    private final JsonObject jsonObject;
+
+    public GoogTask(JsonObject jsonObject) {
+      this.jsonObject = jsonObject;
     }
 
-    // https://developers.google.com/assistant/conversational/ssml
-    // <speak>speech<break time="200ms"/>speech</speak> <break time="3s"/> <break strength="weak"/>
-    // none x-weak weak medium strong x-strong
-    JsonObject firstSimple = JSON.createObjectBuilder()
-        .add("speech", "<speak>" + s + "</speak>").add("text", s).build();
-    JsonObject prompt = JSON.createObjectBuilder()
-        .add("override", false).add("firstSimple", firstSimple).build();
+    @Override
+    public String input() {
+      JsonObject intent = jsonObject.getJsonObject("intent");
+      if (intent != null) {
+        String name = intent.getString("name");
+        if (name.equals("actions.intent.MAIN") || name.startsWith("actions.intent.NO_INPUT_")) return "";
+      }
+      return jsonObject.getJsonObject("scene").getJsonObject("slots")
+          .entrySet().iterator().next().getValue().asJsonObject().getString("value");
+    }
 
-    JsonObject output = JSON.createObjectBuilder()
-        .add("scene", scene)
-        .add("session", jsonObject.getJsonObject("session"))
-        .add("prompt", prompt).build();
-    return output;
-  }
+    @Override
+    public JsonObject output(String s) {
+      // should it be so complicated?
+      Map.Entry<String, JsonValue> slotEntry = jsonObject.getJsonObject("scene")
+          .getJsonObject("slots").entrySet().stream().findAny().orElse(null);
+      JsonObject scene;
+      if (slotEntry != null) {
+        JsonObject slot = JSON.createObjectBuilder(slotEntry.getValue().asJsonObject())
+            .add("status", "INVALID").build();
+        JsonObject slots = JSON.createObjectBuilder().add(slotEntry.getKey(), slot).build();
+        scene = JSON.createObjectBuilder(jsonObject.getJsonObject("scene"))
+            .add("slots", slots).build();
+      } else {
+        scene = jsonObject.getJsonObject("scene");
+      }
 
-  @Override
-  public boolean systemRequest(JsonObject jsonObject) {
-    if (jsonObject.toString().contains("SLOT_UNSPECIFIED")) {
+      // https://developers.google.com/assistant/conversational/ssml
+      // <speak>speech<break time="200ms"/>speech</speak> <break time="3s"/> <break strength="weak"/>
+      // none x-weak weak medium strong x-strong
+      JsonObject firstSimple = JSON.createObjectBuilder()
+          .add("speech", "<speak>" + s + "</speak>").add("text", s).build();
+      JsonObject prompt = JSON.createObjectBuilder()
+          .add("override", false).add("firstSimple", firstSimple).build();
+
+      JsonObject output = JSON.createObjectBuilder()
+          .add("scene", scene)
+          .add("session", jsonObject.getJsonObject("session"))
+          .add("prompt", prompt).build();
+      return output;
+    }
+
+    @Override
+    public boolean systemRequest() {
+      if (jsonObject.toString().contains("SLOT_UNSPECIFIED")) {
+        return false;
+      }
       return false;
     }
-    return false;
+
+    @Override
+    public JsonObject systemResponse() {
+      return null;
+    }
+
   }
 
-  @Override
-  public JsonObject systemResponse(JsonObject jsonObject) {
-    return null;
-  }
 }

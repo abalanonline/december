@@ -18,20 +18,23 @@ package ab.spk;
 
 import jakarta.json.JsonObject;
 
-public interface SmartSpeaker {
+public interface Task {
 
   /**
-   * Auto detect if json belong to this device.
-   * @param jsonObject json
-   * @return true if json belongs, false if not
+   * Get user voice input.
+   * @return user text sentence
    */
-  boolean detected(JsonObject jsonObject);
+  String input();
 
   /**
-   * Create new hardware dependent task from json request.
-   * @param jsonObject request
-   * @return task
+   * Make a json with voice output.
+   * @param s text to output
+   * @return json to send to device
    */
-  Task newTask(JsonObject jsonObject);
+  JsonObject output(String s);
+
+  boolean systemRequest();
+
+  JsonObject systemResponse();
 
 }
