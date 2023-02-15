@@ -76,7 +76,7 @@ public class Voice {
     try {
       // The bit rate must be 48 kbps
       // https://developer.amazon.com/en-US/docs/alexa/custom-skills/speech-synthesis-markup-language-ssml-reference.html#audio
-      Process process = Runtime.getRuntime().exec(new String[]{"lame", "--resample", "22050", "--quiet", "-b", "48", noise, noise48});
+      Process process = Runtime.getRuntime().exec(new String[]{"ffmpeg", "-loglevel", "error", "-i", noise, "-ar", "22050", "-ab", "48k", "-y", noise48});
       String error = new BufferedReader(new InputStreamReader(process.getErrorStream())).lines().collect(Collectors.joining("\n"));
       if (!error.isEmpty()) {
         throw new IOException(error);
