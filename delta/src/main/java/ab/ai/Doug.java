@@ -40,6 +40,6 @@ public class Doug implements Chatbot {
     stringBuilder.append(POETRY);
     List<String> list = Arrays.asList(stringBuilder.toString().split("\\s+"));
     Collections.shuffle(list);
-    return String.join(" ", list.subList(0, Math.min(list.size(), RANDOM.nextInt(8) + 8)));
+    return String.join(" ", list.subList(0, Math.min(list.size(), RANDOM.nextInt(4) + 4)));
   }
 }

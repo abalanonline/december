@@ -23,6 +23,8 @@ import jakarta.json.JsonObject;
 import java.io.StringReader;
 
 public class Amzn implements SmartSpeaker {
+  // FIXME: 2023-02-14 accept any element names
+  // TODO: 2023-02-14 no json literals in code
 
   private static final JsonBuilderFactory JSON = Json.createBuilderFactory(null);
 
@@ -40,12 +42,22 @@ public class Amzn implements SmartSpeaker {
 
   @Override
   public JsonObject output(JsonObject jsonObject, String s) {
-    String o = "{\"version\":\"1.0\",\"response\":{\"outputSpeech\":{\"type\":\"SSML\",\"ssml\":\"" +
-        "<speak>" + s + "</speak>" +
-        "\"},\"directives\":[{\"type\":\"Dialog.ElicitSlot\",\"slotToElicit\":\"slot\",\"updatedIntent\":\n" +
+    // https://developer.amazon.com/en-US/docs/alexa/custom-skills/speech-synthesis-markup-language-ssml-reference.html
+    // <speak>speech<break time="3s"/>speech</speak> <break strength="strong"/> <break time="3000ms"/>
+    // none x-weak weak medium strong x-strong
+    String directives = "[{\"type\":\"Dialog.ElicitSlot\",\"slotToElicit\":\"slot\",\"updatedIntent\":\n" +
         "{\"name\":\"intent\",\"confirmationStatus\":\"NONE\",\"slots\":{\"slot\":{\"name\":\"slot\",\"value\":null," +
-        "\"confirmationStatus\":\"NONE\",\"source\":null}}}}],\"shouldEndSession\":false}}";
-    return Json.createReader(new StringReader(o)).readObject();
+        "\"confirmationStatus\":\"NONE\",\"source\":null}}}}]";
+    JsonObject outputSpeech = JSON.createObjectBuilder()
+        .add("type", "SSML")
+        .add("ssml", "<speak>" + s + "</speak>")
+        .build();
+    JsonObject response = JSON.createObjectBuilder()
+        .add("outputSpeech", outputSpeech)
+        .add("directives", Json.createReader(new StringReader(directives)).readArray())
+        .add("shouldEndSession", false)
+        .build();
+    return JSON.createObjectBuilder().add("version", "1.0").add("response", response).build();
   }
 
   @Override

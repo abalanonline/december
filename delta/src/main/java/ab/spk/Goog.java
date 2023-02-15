@@ -24,6 +24,7 @@ import jakarta.json.JsonValue;
 import java.util.Map;
 
 public class Goog implements SmartSpeaker {
+  // FIXME: 2023-02-14 accept any element names
 
   private static final JsonBuilderFactory JSON = Json.createBuilderFactory(null);
 
@@ -60,6 +61,9 @@ public class Goog implements SmartSpeaker {
       scene = jsonObject.getJsonObject("scene");
     }
 
+    // https://developers.google.com/assistant/conversational/ssml
+    // <speak>speech<break time="200ms"/>speech</speak> <break time="3s"/> <break strength="weak"/>
+    // none x-weak weak medium strong x-strong
     JsonObject firstSimple = JSON.createObjectBuilder()
         .add("speech", "<speak>" + s + "</speak>").add("text", s).build();
     JsonObject prompt = JSON.createObjectBuilder()
