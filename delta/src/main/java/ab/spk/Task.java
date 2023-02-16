@@ -21,6 +21,12 @@ import jakarta.json.JsonObject;
 public interface Task {
 
   /**
+   * Get session id.
+   * @return session
+   */
+  String session();
+
+  /**
    * Get user voice input.
    * @return user text sentence
    */

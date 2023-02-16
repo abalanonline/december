@@ -42,36 +42,44 @@ public class Goog implements SmartSpeaker {
   public static class GoogTask implements Task {
 
     private final JsonObject jsonObject;
+    private final JsonObject scene;
+    private final Map.Entry<String, JsonValue> slotEntry;
+    private final String slotValue;
+    private final String intentName;
+    private final String session;
 
     public GoogTask(JsonObject jsonObject) {
       this.jsonObject = jsonObject;
+      this.scene = jsonObject.getJsonObject("scene");
+      JsonObject intent = jsonObject.getJsonObject("intent");
+      this.intentName = intent == null ? "" : intent.getString("name");
+      this.slotEntry = scene.getJsonObject("slots").entrySet().stream().findAny().orElse(null);
+      this.slotValue = slotEntry == null ? "" : slotEntry.getValue().asJsonObject().getString("value");
+      this.session = jsonObject.getJsonObject("session").getString("id");
+    }
+
+    @Override
+    public String session() {
+      return this.session;
     }
 
     @Override
     public String input() {
-      JsonObject intent = jsonObject.getJsonObject("intent");
-      if (intent != null) {
-        String name = intent.getString("name");
-        if (name.equals("actions.intent.MAIN") || name.startsWith("actions.intent.NO_INPUT_")) return "";
-      }
-      return jsonObject.getJsonObject("scene").getJsonObject("slots")
-          .entrySet().iterator().next().getValue().asJsonObject().getString("value");
+      return intentName.equals("actions.intent.MAIN") || intentName.startsWith("actions.intent.NO_INPUT_")
+          ? "" : slotValue;
     }
 
     @Override
     public JsonObject output(String s) {
-      // should it be so complicated?
-      Map.Entry<String, JsonValue> slotEntry = jsonObject.getJsonObject("scene")
-          .getJsonObject("slots").entrySet().stream().findAny().orElse(null);
       JsonObject scene;
       if (slotEntry != null) {
         JsonObject slot = JSON.createObjectBuilder(slotEntry.getValue().asJsonObject())
             .add("status", "INVALID").build();
         JsonObject slots = JSON.createObjectBuilder().add(slotEntry.getKey(), slot).build();
-        scene = JSON.createObjectBuilder(jsonObject.getJsonObject("scene"))
+        scene = JSON.createObjectBuilder(this.scene)
             .add("slots", slots).build();
       } else {
-        scene = jsonObject.getJsonObject("scene");
+        scene = this.scene;
       }
 
       // https://developers.google.com/assistant/conversational/ssml
@@ -91,9 +99,6 @@ public class Goog implements SmartSpeaker {
 
     @Override
     public boolean systemRequest() {
-      if (jsonObject.toString().contains("SLOT_UNSPECIFIED")) {
-        return false;
-      }
       return false;
     }
 

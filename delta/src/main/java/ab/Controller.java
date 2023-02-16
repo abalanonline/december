@@ -17,6 +17,7 @@
 package ab;
 
 import ab.ai.Doug;
+import ab.ai.Marv;
 import ab.spk.Amzn;
 import ab.spk.Goog;
 import ab.spk.SmartSpeaker;
@@ -50,6 +51,50 @@ public class Controller {
     return "time " + Instant.now();
   }
 
+  // FIXME: 2023-02-15 make a bean class for this method
+  private JsonObject completeTask(Task task) {
+    if (task.systemRequest()) return task.systemResponse();
+    String session = task.session();
+    log.warning("s: " + session);
+    String input = task.input();
+    log.warning("i: " + input);
+
+    // sync logic
+    boolean sync0 = input.toLowerCase().equals(SYNC_WORD);
+    boolean sync1 = input.toLowerCase().equals(UNSYNC_WORD);
+    boolean sync = syncing.getOrDefault(session, false);
+    if (sync) {
+      input = "<break time=\""+ (ThreadLocalRandom.current().nextInt(2000) + 300) +"ms\"/>" + SYNC_WORD;
+      if (sync0) {
+        syncing.put(session, false);
+        input = UNSYNC_WORD;
+      }
+      if (sync1) {
+        syncing.put(session, false);
+        sync = false;
+        input = "";
+      }
+    } else {
+      if (sync0) {
+        syncing.put(session, true);
+        sync = true;
+        input = "<break time=\"3s\"/>" + SYNC_WORD;
+      }
+    }
+
+    // chatbot
+    String output;
+    if (sync) {
+      output = input;
+    } else {
+      output = new Marv().talk(input, null);
+    }
+
+    // output
+    log.warning("o: " + output);
+    return task.output(output);
+  }
+
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
@@ -58,51 +103,8 @@ public class Controller {
       for (SmartSpeaker speaker : SPEAKERS) {
         if (speaker.detected(jsonObject)) {
           Task task = speaker.newTask(jsonObject);
-          String session = speaker.getClass().getSimpleName(); // FIXME: 2023-02-14 use sessions from requests
-          log.warning("s: " + session);
-          JsonObject jsonOutput;
-          if (task.systemRequest()) {
-            jsonOutput = task.systemResponse();
-          } else {
-            String input = task.input();
-            log.warning("i: " + input);
-
-            // sync logic
-            boolean sync0 = input.toLowerCase().equals(SYNC_WORD);
-            boolean sync1 = input.toLowerCase().equals(UNSYNC_WORD);
-            boolean sync = syncing.getOrDefault(session, false);
-            if (sync) {
-              input = "<break time=\""+ (ThreadLocalRandom.current().nextInt(2000) + 300) +"ms\"/>" + SYNC_WORD;
-              if (sync0) {
-                syncing.put(session, false);
-                input = UNSYNC_WORD;
-              }
-              if (sync1) {
-                syncing.put(session, false);
-                sync = false;
-                input = "";
-              }
-            } else {
-              if (sync0) {
-                syncing.put(session, true);
-                sync = true;
-                input = "<break time=\"3s\"/>" + SYNC_WORD;
-              }
-            }
-
-            // chatbot
-            String output;
-            if (sync) {
-              output = input;
-            } else {
-              output = new Doug().talk(input, null);
-            }
-
-            // output
-            log.warning("o: " + output);
-            jsonOutput = task.output(output);
-          }
-          return Response.status(Response.Status.OK).entity(jsonOutput).build();
+          JsonObject completedTask = completeTask(task);
+          return Response.status(Response.Status.OK).entity(completedTask).build();
         }
       }
       return Response.status(Response.Status.BAD_REQUEST).build();

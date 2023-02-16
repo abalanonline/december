@@ -17,6 +17,7 @@
 package ab.spk;
 
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonBuilderFactory;
 import jakarta.json.JsonObject;
 
@@ -26,7 +27,19 @@ public class Amzn implements SmartSpeaker {
   // FIXME: 2023-02-14 accept any element names
   // TODO: 2023-02-14 no json literals in code
 
-  private static final JsonBuilderFactory JSON = Json.createBuilderFactory(null);
+  private final JsonBuilderFactory JSON;
+  private final JsonArray DIRECTIVES;
+  private final JsonObject END_SESSION;
+
+  public Amzn() {
+    JSON = Json.createBuilderFactory(null);
+    String directives = "[{\"type\":\"Dialog.ElicitSlot\",\"slotToElicit\":\"slot\",\"updatedIntent\":\n" +
+        "{\"name\":\"intent\",\"confirmationStatus\":\"NONE\",\"slots\":{\"slot\":" +
+        "{\"name\":\"slot\",\"value\":null,\"confirmationStatus\":\"NONE\",\"source\":null}}}}]";
+    DIRECTIVES = Json.createReader(new StringReader(directives)).readArray();
+    String endSession = "{\"version\":\"1.0\",\"response\":{\"shouldEndSession\":true}}";
+    END_SESSION = Json.createReader(new StringReader(endSession)).readObject();
+  }
 
   @Override
   public boolean detected(JsonObject jsonObject) {
@@ -39,18 +52,29 @@ public class Amzn implements SmartSpeaker {
     return new AmznTask(jsonObject);
   }
 
-  public static class AmznTask implements Task {
+  public class AmznTask implements Task {
 
     private final JsonObject jsonObject;
+    private final String slotValue;
+    private final String intentName;
+    private final String session;
 
     public AmznTask(JsonObject jsonObject) {
       this.jsonObject = jsonObject;
+      JsonObject intent = jsonObject.getJsonObject("request").getJsonObject("intent");
+      this.slotValue = intent == null ? "" : intent.getJsonObject("slots").getJsonObject("slot").getString("value");
+      this.intentName = intent == null ? "" : intent.getString("name");
+      this.session = jsonObject.getJsonObject("session").getString("sessionId");
+    }
+
+    @Override
+    public String session() {
+      return this.session;
     }
 
     @Override
     public String input() {
-      JsonObject intent = jsonObject.getJsonObject("request").getJsonObject("intent");
-      return intent == null ? "" : intent.getJsonObject("slots").getJsonObject("slot").getString("value");
+      return slotValue;
     }
 
     @Override
@@ -58,16 +82,13 @@ public class Amzn implements SmartSpeaker {
       // https://developer.amazon.com/en-US/docs/alexa/custom-skills/speech-synthesis-markup-language-ssml-reference.html
       // <speak>speech<break time="3s"/>speech</speak> <break strength="strong"/> <break time="3000ms"/>
       // none x-weak weak medium strong x-strong
-      String directives = "[{\"type\":\"Dialog.ElicitSlot\",\"slotToElicit\":\"slot\",\"updatedIntent\":\n" +
-          "{\"name\":\"intent\",\"confirmationStatus\":\"NONE\",\"slots\":{\"slot\":{\"name\":\"slot\",\"value\":null," +
-          "\"confirmationStatus\":\"NONE\",\"source\":null}}}}]";
       JsonObject outputSpeech = JSON.createObjectBuilder()
           .add("type", "SSML")
           .add("ssml", "<speak>" + s + "</speak>")
           .build();
       JsonObject response = JSON.createObjectBuilder()
           .add("outputSpeech", outputSpeech)
-          .add("directives", Json.createReader(new StringReader(directives)).readArray())
+          .add("directives", DIRECTIVES)
           .add("shouldEndSession", false)
           .build();
       return JSON.createObjectBuilder().add("version", "1.0").add("response", response).build();
@@ -75,21 +96,17 @@ public class Amzn implements SmartSpeaker {
 
     @Override
     public boolean systemRequest() {
-      JsonObject intent = jsonObject.getJsonObject("request").getJsonObject("intent");
-      if (intent != null) {
-        switch (intent.getString("name")) {
-          case "AMAZON.StopIntent":
-          case "AMAZON.CancelIntent":
-            return true;
-        }
+      switch (intentName) {
+        case "AMAZON.StopIntent":
+        case "AMAZON.CancelIntent":
+          return true;
       }
       return false;
     }
 
     @Override
     public JsonObject systemResponse() {
-      String o = "{\"version\":\"1.0\",\"response\":{\"shouldEndSession\":true}}";
-      return Json.createReader(new StringReader(o)).readObject();
+      return END_SESSION;
     }
 
   }
