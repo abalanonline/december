@@ -16,17 +16,15 @@
 
 package ab.ai;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 public interface Chatbot {
 
   /**
    /**
    * Respond something to simulate a conversation.
    * @param s free form text string from user
-   * @param session null for new
+   * @param session session id
    * @return chatbot text response that will appear on the screen
    */
-  String talk(String s, AtomicReference<String> session);
+  String talk(String s, String session);
 
 }

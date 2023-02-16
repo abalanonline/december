@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Doug implements Chatbot {
 
@@ -32,7 +31,7 @@ public class Doug implements Chatbot {
       " an angel visited this gray path and took the cube away";
 
   @Override
-  public String talk(String s, AtomicReference<String> session) {
+  public String talk(String s, String session) {
     if (s.length() < FIGURE.length()) return FIGURE;
     s = s.toLowerCase();
     StringBuilder stringBuilder = new StringBuilder(s);

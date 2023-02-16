@@ -16,12 +16,10 @@
 
 package ab;
 
-import ab.ai.Doug;
-import ab.ai.Marv;
-import ab.spk.Amzn;
-import ab.spk.Goog;
+import ab.ai.Chatbot;
 import ab.spk.SmartSpeaker;
 import ab.spk.Task;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.Consumes;
@@ -41,9 +39,15 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Controller {
   private static final java.util.logging.Logger log = java.util.logging.Logger.getLogger("Controller");
 
-  public static final SmartSpeaker[] SPEAKERS = {new Amzn(), new Goog()};
-  public static final String SYNC_WORD = "orange";
-  public static final String UNSYNC_WORD = "go";
+  public static final String SYNC_ON = "orange";
+  public static final String SYNC_OFF = "hello";
+
+  @Inject
+  Chatbot chatbot;
+
+  @Inject
+  SmartSpeaker[] SPEAKERS;
+
   private HashMap<String, Boolean> syncing = new HashMap<>();
 
   @GET
@@ -60,25 +64,25 @@ public class Controller {
     log.warning("i: " + input);
 
     // sync logic
-    boolean sync0 = input.toLowerCase().equals(SYNC_WORD);
-    boolean sync1 = input.toLowerCase().equals(UNSYNC_WORD);
+    boolean sync0 = input.toLowerCase().equals(SYNC_ON);
+    boolean sync1 = input.toLowerCase().equals(SYNC_OFF);
     boolean sync = syncing.getOrDefault(session, false);
     if (sync) {
-      input = "<break time=\""+ (ThreadLocalRandom.current().nextInt(2000) + 300) +"ms\"/>" + SYNC_WORD;
+      input = "<break time=\""+ (ThreadLocalRandom.current().nextInt(2000) + 300) +"ms\"/>" + SYNC_ON;
       if (sync0) {
         syncing.put(session, false);
-        input = UNSYNC_WORD;
+        input = SYNC_OFF;
       }
       if (sync1) {
         syncing.put(session, false);
         sync = false;
-        input = "";
+        input = SYNC_OFF; // let it start the dialog
       }
     } else {
       if (sync0) {
         syncing.put(session, true);
         sync = true;
-        input = "<break time=\"3s\"/>" + SYNC_WORD;
+        input = "<break time=\"5s\"/>" + SYNC_ON;
       }
     }
 
@@ -87,7 +91,7 @@ public class Controller {
     if (sync) {
       output = input;
     } else {
-      output = new Marv().talk(input, null);
+      output = chatbot.talk(input, session);
     }
 
     // output

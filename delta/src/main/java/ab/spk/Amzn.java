@@ -58,10 +58,12 @@ public class Amzn implements SmartSpeaker {
     private final String slotValue;
     private final String intentName;
     private final String session;
+    private final String requestType;
 
     public AmznTask(JsonObject jsonObject) {
       this.jsonObject = jsonObject;
       JsonObject intent = jsonObject.getJsonObject("request").getJsonObject("intent");
+      this.requestType = jsonObject.getJsonObject("request").getString("type");
       this.slotValue = intent == null ? "" : intent.getJsonObject("slots").getJsonObject("slot").getString("value");
       this.intentName = intent == null ? "" : intent.getString("name");
       this.session = jsonObject.getJsonObject("session").getString("sessionId");
@@ -96,6 +98,7 @@ public class Amzn implements SmartSpeaker {
 
     @Override
     public boolean systemRequest() {
+      if ("SessionEndedRequest".equals(requestType)) return true;
       switch (intentName) {
         case "AMAZON.StopIntent":
         case "AMAZON.CancelIntent":

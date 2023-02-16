@@ -34,7 +34,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -62,21 +61,17 @@ public class Marv implements Chatbot {
       "What is the meaning of life?",
       "I'm not sure. I'll ask my friend Google.",
   };
+  public static final int DEFAULT_MODEL = 1;
 
   private String apiKey;
-  Deque<String> history;
-  private int level;
+  private Map<String, MarvSession> sessions;
 
   public Marv() {
     this.apiKey = System.getenv("OPENAI_API_KEY");
     if (apiKey == null) {
       throw new IllegalStateException("API key not defined. use \"export OPENAI_API_KEY=sk-eA3Ov43M...\"");
     }
-    reset();
-  }
-
-  public void reset() {
-    this.history  = new ArrayDeque<>(Arrays.asList(MARV_WARMUP));
+    this.sessions = new HashMap<>();
   }
 
   private JsonObject send(String endpoint, Map<String, Object> request) {
@@ -109,7 +104,7 @@ public class Marv implements Chatbot {
     request.put("model", model);
     request.put("prompt", prompt);
     request.put("temperature", 0.5);
-    request.put("max_tokens", 60);
+    request.put("max_tokens", 20); // 60 is too much for Alexa, 10 is not enough for short sentence
     request.put("top_p", 0.3);
     request.put("frequency_penalty", 0.5);
     request.put("presence_penalty", 0.0);
@@ -122,39 +117,50 @@ public class Marv implements Chatbot {
   }
 
   @Override
-  public String talk(String userString, AtomicReference<String> session) {
+  public String talk(String userString, String sessionId) {
+    java.util.logging.Logger.getLogger("M").warning("m: " + userString);
     if (userString.isEmpty()) {
-      reset();
-      return "what?";
+      return sessions.containsKey(sessionId) ? "what!" : "what?";
     }
+    MarvSession session = sessions.computeIfAbsent(sessionId, ms -> new MarvSession());
 
     if ("level up".equals(userString)) {
-      this.level = Math.max(this.level - 1, 0);
-      return "level " + GPT3_MODELS[level];
+      session.level = Math.max(session.level - 1, 0);
+      return "level " + GPT3_MODELS[session.level];
     }
 
     if ("level down".equals(userString)) {
-      this.level = Math.min(this.level + 1, GPT3_MODELS.length - 1);
-      return "level " + GPT3_MODELS[level];
+      session.level = Math.min(session.level + 1, GPT3_MODELS.length - 1);
+      return "level " + GPT3_MODELS[session.level];
     }
 
     StringBuilder prompt = new StringBuilder(MARV_DESCRIPTION);
     prompt.append("\n\n");
     boolean you = true;
-    for (String s : history) {
+    for (String s : session.history) {
       prompt.append(you ? USER_NAME : MARV_NAME).append(": ").append(s).append("\n");
       you = !you;
     }
     prompt.append(USER_NAME).append(": ").append(userString).append("\n");
     prompt.append(MARV_NAME).append(":");
 
-    String marvString = completions(GPT3_MODELS[level], prompt.toString()).get(0);
+    String marvString = completions(GPT3_MODELS[session.level], prompt.toString()).get(0);
     marvString = marvString.replace((char) 0x2019, '\'');
-    history.add(userString);
-    history.remove();
-    history.add(marvString);
-    history.remove();
+    session.history.add(userString);
+    session.history.remove();
+    session.history.add(marvString);
+    session.history.remove();
     return marvString;
+  }
+
+  public static class MarvSession {
+    Deque<String> history;
+    private int level;
+
+    public MarvSession() {
+      this.history  = new ArrayDeque<>(Arrays.asList(MARV_WARMUP));
+      this.level = DEFAULT_MODEL;
+    }
   }
 
 }

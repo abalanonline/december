@@ -54,7 +54,8 @@ public class Goog implements SmartSpeaker {
       JsonObject intent = jsonObject.getJsonObject("intent");
       this.intentName = intent == null ? "" : intent.getString("name");
       this.slotEntry = scene.getJsonObject("slots").entrySet().stream().findAny().orElse(null);
-      this.slotValue = slotEntry == null ? "" : slotEntry.getValue().asJsonObject().getString("value");
+      this.slotValue = slotEntry == null ? "" : slotEntry.getValue().asJsonObject().getString("value", "");
+      // TODO: 2023-02-15 respond to NO_INPUT, slotValue is missing, make beep or no sound
       this.session = jsonObject.getJsonObject("session").getString("id");
     }
 

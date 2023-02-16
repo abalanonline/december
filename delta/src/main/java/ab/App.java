@@ -16,9 +16,33 @@
 
 package ab;
 
+import ab.ai.Chatbot;
+import ab.ai.Doug;
+import ab.ai.Marv;
+import ab.spk.Amzn;
+import ab.spk.Goog;
+import ab.spk.SmartSpeaker;
+import jakarta.enterprise.inject.Produces;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
 @ApplicationPath("/")
 public class App extends Application {
+
+  @Produces
+  Chatbot chatbot() {
+    Chatbot chatbot = new Doug();
+    try {
+      chatbot = new Marv();
+    } catch (IllegalStateException ignore) {
+      // do nothing
+    }
+    return chatbot;
+  }
+
+  @Produces
+  SmartSpeaker[] smartSpeakers() {
+    return new SmartSpeaker[]{new Amzn(), new Goog()};
+  }
+
 }
