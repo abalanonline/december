@@ -16,26 +16,13 @@
 
 package ab.ai;
 
-import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonBuilderFactory;
-import jakarta.json.JsonObject;
+import ab.GptClient;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Marv the sarcastic chat bot
@@ -43,13 +30,9 @@ import java.util.stream.IntStream;
  */
 public class Marv implements Chatbot {
 
-  private static final JsonBuilderFactory JSON = Json.createBuilderFactory(null);
-
-  public static final String[] GPT3_MODELS = {
-      "text-davinci-003", "text-curie-001", "text-babbage-001", "text-ada-001"};
-  public static final String MARV_NAME = "Marv";
-  public static final String USER_NAME = "You";
-  public static final String MARV_DESCRIPTION = MARV_NAME +
+  private String USER_NAME = "You";
+  private String MARV_NAME = "Marv";
+  private String MARV_DESCRIPTION = MARV_NAME +
       " is a chatbot that reluctantly answers questions with sarcastic responses:";
   public static final String[] MARV_WARMUP = {
       "How many pounds are in a kilogram?",
@@ -61,59 +44,19 @@ public class Marv implements Chatbot {
       "What is the meaning of life?",
       "I'm not sure. I'll ask my friend Google.",
   };
-  public static final int DEFAULT_MODEL = 1;
 
-  private String apiKey;
+  private final GptClient gptClient;
   private Map<String, MarvSession> sessions;
 
   public Marv() {
-    this.apiKey = System.getenv("OPENAI_API_KEY");
-    if (apiKey == null) {
-      throw new IllegalStateException("API key not defined. use \"export OPENAI_API_KEY=sk-eA3Ov43M...\"");
-    }
+    this.gptClient = new GptClient();
     this.sessions = new HashMap<>();
   }
 
-  private JsonObject send(String endpoint, Map<String, Object> request) {
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    Json.createWriter(bytes).write(JSON.createObjectBuilder(request).build());
-
-    HttpRequest httpRequest = HttpRequest.newBuilder()
-        .uri(URI.create("https://api.openai.com/v1/" + endpoint))
-        .header("Authorization", "Bearer " + apiKey)
-        .header("Content-Type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofByteArray(bytes.toByteArray()))
-        .build();
-    HttpClient client = HttpClient.newBuilder().build();
-    HttpResponse<byte[]> send;
-    try {
-      send = client.send(httpRequest, HttpResponse.BodyHandlers.ofByteArray());
-    } catch (IOException | InterruptedException e) {
-      throw new IllegalStateException(e);
-    }
-    JsonObject jsonObject = Json.createReader(new ByteArrayInputStream(send.body())).readObject();
-    JsonObject error = jsonObject.getJsonObject("error");
-    if (error != null) {
-      throw new IllegalStateException(error.getString("message"));
-    }
-    return jsonObject;
-  }
-
-  private List<String> completions(String model, String prompt) {
-    Map<String, Object> request = new HashMap<>();
-    request.put("model", model);
-    request.put("prompt", prompt);
-    request.put("temperature", 0.5);
-    request.put("max_tokens", 20); // 60 is too much for Alexa, 10 is not enough for short sentence
-    request.put("top_p", 0.3);
-    request.put("frequency_penalty", 0.5);
-    request.put("presence_penalty", 0.0);
-
-    JsonObject response = send("completions", request);
-
-    JsonArray choices = response.getJsonArray("choices");
-    return IntStream.range(0, choices.size()).mapToObj(choices::getJsonObject)
-        .map(choice -> choice.getString("text").trim()).collect(Collectors.toList());
+  public Marv(String name, String description) {
+    this();
+    this.MARV_NAME = name;
+    this.MARV_DESCRIPTION = description;
   }
 
   @Override
@@ -123,16 +66,6 @@ public class Marv implements Chatbot {
       return sessions.containsKey(sessionId) ? "what!" : "what?";
     }
     MarvSession session = sessions.computeIfAbsent(sessionId, ms -> new MarvSession());
-
-    if ("level up".equals(userString)) {
-      session.level = Math.max(session.level - 1, 0);
-      return "level " + GPT3_MODELS[session.level];
-    }
-
-    if ("level down".equals(userString)) {
-      session.level = Math.min(session.level + 1, GPT3_MODELS.length - 1);
-      return "level " + GPT3_MODELS[session.level];
-    }
 
     StringBuilder prompt = new StringBuilder(MARV_DESCRIPTION);
     prompt.append("\n\n");
@@ -144,7 +77,7 @@ public class Marv implements Chatbot {
     prompt.append(USER_NAME).append(": ").append(userString).append("\n");
     prompt.append(MARV_NAME).append(":");
 
-    String marvString = completions(GPT3_MODELS[session.level], prompt.toString()).get(0);
+    String marvString = gptClient.completions(prompt.toString(), 20);
     marvString = marvString.replace((char) 0x2019, '\'');
     session.history.add(userString);
     session.history.remove();
@@ -155,11 +88,9 @@ public class Marv implements Chatbot {
 
   public static class MarvSession {
     Deque<String> history;
-    private int level;
 
     public MarvSession() {
       this.history  = new ArrayDeque<>(Arrays.asList(MARV_WARMUP));
-      this.level = DEFAULT_MODEL;
     }
   }
 
